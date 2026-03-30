@@ -33,6 +33,7 @@ export default async function handler(req, res) {
 
       let saved = 0;
       for (const [id, entity] of Object.entries(body.entities)) {
+        await redis.hdel(HASH_KEY, id); // delete first to force overwrite
         await redis.hset(HASH_KEY, { [id]: JSON.stringify(entity) });
         saved++;
       }
