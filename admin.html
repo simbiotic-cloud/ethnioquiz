@@ -344,14 +344,21 @@ function showTab(id){
 }
 
 // ===== DASHBOARD =====
-function renderDashboard(){
+async function renderDashboard(){
   const vis=getVisitors(),played=getPlayed(),state=getState();
   const totalImgs=Object.values(db.entities).reduce((s,e)=>s+e.images.length,0);
   const totalEnts=Object.keys(db.entities).length;
 
+  // Try to get global stats from server
+  let serverVis=vis.count,serverPlayed=played.total,serverPerCat=played.perGame||{};
+  try{
+    const r=await fetch('/api/stats');
+    if(r.ok){const d=await r.json();serverVis=d.visitors||vis.count;serverPlayed=d.gamesPlayed||played.total;serverPerCat=d.gamesPerCat||played.perGame||{}}
+  }catch(e){}
+
   document.getElementById('dash-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-num">${vis.count}</div><div class="stat-label">Visitors</div></div>
-    <div class="stat-card"><div class="stat-num">${played.total}</div><div class="stat-label">Games Played</div></div>
+    <div class="stat-card"><div class="stat-num">${serverVis}</div><div class="stat-label">Visitors (Global)</div></div>
+    <div class="stat-card"><div class="stat-num">${serverPlayed}</div><div class="stat-label">Games Played (Global)</div></div>
     <div class="stat-card"><div class="stat-num">${totalEnts}</div><div class="stat-label">Entities</div></div>
     <div class="stat-card"><div class="stat-num">${totalImgs}</div><div class="stat-label">Total Images</div></div>
   `;

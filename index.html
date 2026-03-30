@@ -462,8 +462,21 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 </div>
 
 <script>
-// ===== VISITOR TRACKING =====
-(function(){if(sessionStorage.getItem('eq3_v'))return;sessionStorage.setItem('eq3_v','1');try{const v=JSON.parse(localStorage.getItem('eq3_visitors'))||{count:0};v.count++;v.lastVisit=Date.now();localStorage.setItem('eq3_visitors',JSON.stringify(v))}catch(e){}})();
+// ===== API HELPERS =====
+const API = '/api';
+async function apiPost(endpoint, data){
+  try{const r=await fetch(API+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});return await r.json()}catch(e){console.warn('API error:',e);return null}
+}
+async function apiGet(endpoint){
+  try{const r=await fetch(API+endpoint);return await r.json()}catch(e){console.warn('API error:',e);return null}
+}
+
+// ===== VISITOR TRACKING (local + server) =====
+(function(){
+  if(sessionStorage.getItem('eq3_v'))return;sessionStorage.setItem('eq3_v','1');
+  try{const v=JSON.parse(localStorage.getItem('eq3_visitors'))||{count:0};v.count++;v.lastVisit=Date.now();localStorage.setItem('eq3_visitors',JSON.stringify(v))}catch(e){}
+  apiPost('/stats',{action:'visit'}); // async, fire and forget
+})();
 
 // ===== STRIPE PAYMENT LINKS =====
 // Replace these with your real Stripe Payment Link URLs from the Dashboard
@@ -648,31 +661,42 @@ function changeNickname(){
 }
 function updateNickDisplay(){document.getElementById('nick-display').textContent=getNick()||'Set...'}
 
-// ===== RANKING SYSTEM =====
-// Rankings stored per game: eq3_ranks = { catId: [{name, score, date}] }
-function loadRanks(){try{return JSON.parse(localStorage.getItem('eq3_ranks'))||{}}catch(e){return{}}}
-function saveRanks(r){localStorage.setItem('eq3_ranks',JSON.stringify(r))}
+// ===== RANKING SYSTEM (Global via API + local fallback) =====
+let globalRanks = {}; // cached from API
 
-function addRankEntry(catId,score){
-  const nick=getNick()||'Anonymous';
-  const r=loadRanks();
+async function addRankEntry(catId, score){
+  const nick = getNick()||'Anonymous';
+  // Save to server
+  const result = await apiPost('/rankings',{game:catId, name:nick, score});
+  if(result && result.position) S._lastRankPos = result.position;
+  // Also save locally as fallback
+  const r = loadLocalRanks();
   if(!r[catId])r[catId]=[];
   r[catId].push({name:nick,score,date:Date.now()});
-  // Keep top 20 per category
   r[catId].sort((a,b)=>b.score-a.score);
   r[catId]=r[catId].slice(0,20);
-  saveRanks(r);
+  localStorage.setItem('eq3_ranks',JSON.stringify(r));
 }
 
-function renderRanking(){
-  const el=document.getElementById('rk-list');el.innerHTML='';
-  const ranks=loadRanks();const nick=getNick();let any=false;
+function loadLocalRanks(){try{return JSON.parse(localStorage.getItem('eq3_ranks'))||{}}catch(e){return{}}}
+
+async function renderRanking(){
+  const el=document.getElementById('rk-list');
+  el.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,255,255,.3)"><div class="card-spinner" style="position:static;margin:0 auto"></div><p style="margin-top:12px">Loading global rankings...</p></div>';
+
+  // Try global API first
+  const data = await apiGet('/rankings');
+  const ranks = data?.rankings || loadLocalRanks();
+  const nick = getNick();
+  el.innerHTML='';
+
+  let any=false;
   CATEGORIES.forEach(c=>{
     const entries=ranks[c.id];if(!entries||!entries.length)return;
     any=true;
     const d=document.createElement('div');d.className='rk-cat';
-    let html=`<div class="rk-cat-title">${c.a.flag?`<img src="${c.a.flag}" style="width:28px;height:auto;vertical-align:middle">`:''} ${c.name} ${c.b.flag?`<img src="${c.b.flag}" style="width:28px;height:auto;vertical-align:middle">`:''}</div>`;
     const medals=['🥇','🥈','🥉'];
+    let html=`<div class="rk-cat-title">${c.a.flag?`<img src="${c.a.flag}" style="width:28px;height:auto;vertical-align:middle">`:''} ${c.name} ${c.b.flag?`<img src="${c.b.flag}" style="width:28px;height:auto;vertical-align:middle">`:''}</div>`;
     entries.slice(0,10).forEach((e,i)=>{
       const isMe=e.name===nick;
       html+=`<div class="rk-entry${isMe?' me':''}">
@@ -908,22 +932,24 @@ function spawnConfetti(n){
 }
 
 // ===== GAME OVER =====
-function gameOver(){
+async function gameOver(){
   S.active=false;clearInterval(S.timerInt);
   const c=S.cat,sc=S.score,best=S.best[c.id]||0,isNew=sc>best;
   const earned=sc*5+Math.floor(S.timer*10);
   if(isNew)S.best[c.id]=sc;
   S.coins+=earned;save();
 
-  // Track
+  // Track locally + server
   try{const gp=JSON.parse(localStorage.getItem('eq3_gamesPlayed'))||{total:0,perGame:{}};gp.total++;gp.perGame[c.id]=(gp.perGame[c.id]||0)+1;localStorage.setItem('eq3_gamesPlayed',JSON.stringify(gp))}catch(e){}
+  apiPost('/stats',{action:'game_played',game:c.id});
 
-  // Add to rankings
-  if(sc>0)addRankEntry(c.id,sc);
+  // Add to rankings (global + local)
+  S._lastRankPos=null;
+  if(sc>0) await addRankEntry(c.id,sc);
 
   // Determine rank position
-  const ranks=loadRanks();const myRanks=ranks[c.id]||[];
-  const pos=myRanks.findIndex(r=>r.score===sc&&r.name===getNick())+1;
+  const myRanks=loadLocalRanks()[c.id]||[];
+  const pos=S._lastRankPos||myRanks.findIndex(r=>r.score===sc&&r.name===getNick())+1;
 
   // Dynamic title based on score
   const titles=['YOU FAILED!','NOT BAD!','GREAT RUN!','AMAZING!','LEGENDARY!'];
