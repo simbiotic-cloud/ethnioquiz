@@ -3,11 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>EthnioQuiz</title>
+<title>EthnioQuiz — Can You Tell Them Apart?</title>
+<meta name="description" content="Swipe left or right to guess nationalities. Japanese or Chinese? Spanish or Basque? Test your skills and compete globally!">
+
+<!-- OG / Social sharing -->
+<meta property="og:title" content="EthnioQuiz — Can You Tell Them Apart?">
+<meta property="og:description" content="Swipe to guess nationalities. Japanese or Chinese? Spanish or Basque? How far can you go?">
+<meta property="og:image" content="https://ethnioquiz.com/og-image.png">
+<meta property="og:url" content="https://ethnioquiz.com">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="EthnioQuiz">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="EthnioQuiz — Can You Tell Them Apart?">
+<meta name="twitter:description" content="Swipe to guess nationalities. How far can you go?">
+<meta name="twitter:image" content="https://ethnioquiz.com/og-image.png">
+
+<!-- Challenge meta (dynamic, set by JS) -->
+<meta property="og:title" id="og-title-meta" content="EthnioQuiz — Can You Tell Them Apart?">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-<!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://ethnioquiz.com">
 <!-- AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9562574562750195" crossorigin="anonymous"></script>
 <!-- Google Funding Choices (consent) -->
@@ -582,7 +601,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
       <div></div>
       <div style="width:48px"></div>
     </div>
-    <div class="sg-title"><h1>SELECT</h1><h2>GAME</h2></div>
+    <div class="sg-title"><h1 data-t="select">SELECT</h1><h2 data-t="game">GAME</h2></div>
     <div class="game-list" id="game-list"></div>
     <!-- Ad between games list -->
     <div class="ad-slot" id="ad-select">
@@ -621,6 +640,11 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="ad-slot" id="go-ad-slot" style="margin:8px 0">
       <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9562574562750195" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </div>
+    <!-- Challenge button -->
+    <div style="cursor:pointer;background:linear-gradient(135deg,#FF6633,#cc4400);border-radius:14px;padding:10px 24px;margin:4px 0;display:flex;align-items:center;gap:8px;box-shadow:0 3px 0 #993300;transition:transform .1s" onclick="shareChallenge()" onmousedown="this.style.transform='translateY(2px)'" onmouseup="this.style.transform=''">
+      <span style="font-size:22px">⚔️</span>
+      <span style="font-family:'Boogaloo',cursive;font-size:20px;color:#fff" data-t="challengeFriend">CHALLENGE A FRIEND</span>
+    </div>
     <div class="go-buttons">
       <div class="go-btn" onclick="showScreen('home')"><img src="assets/home_btn.png" alt=""></div>
       <div class="go-btn big" onclick="retryGame()"><img src="assets/again_btn.png" alt=""></div>
@@ -634,7 +658,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
       <div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt=""></div>
       <div></div><div style="width:48px"></div>
     </div>
-    <div class="sg-title"><h1>RANKING</h1></div>
+    <div class="sg-title"><h1 data-t="ranking">RANKING</h1></div>
     <div class="rk-list" id="rk-list"></div>
   </div>
 
@@ -656,34 +680,35 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
   <!-- ===== SETTINGS ===== -->
   <div id="settings" class="screen">
     <div class="sg-header"><div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt="" style="filter:brightness(10)"></div><div></div><div style="width:48px"></div></div>
-    <div class="st-title">SETTINGS</div>
+    <div class="st-title" data-t="settings">SETTINGS</div>
     <div class="st-section">
-      <div class="st-section-title">AUDIO</div>
-      <div class="st-item">Music<div class="toggle on" id="toggle-music" onclick="toggleMusic()"></div></div>
-      <div class="st-item">Sound Effects<div class="toggle on" id="toggle-sound" onclick="toggleSound()"></div></div>
+      <div class="st-section-title" data-t="audio">AUDIO</div>
+      <div class="st-item"><span data-t="music">Music</span><div class="toggle on" id="toggle-music" onclick="toggleMusic()"></div></div>
+      <div class="st-item"><span data-t="soundEffects">Sound Effects</span><div class="toggle on" id="toggle-sound" onclick="toggleSound()"></div></div>
     </div>
     <div class="st-section" style="margin-top:12px">
-      <div class="st-section-title">GAME</div>
-      <div class="st-item" onclick="changeNickname()">Change Nickname<span style="color:#5a8fb5;font-size:13px" id="nick-display"></span></div>
+      <div class="st-section-title" data-t="gameSection">GAME</div>
+      <div class="st-item" onclick="changeNickname()"><span data-t="changeNickname">Change Nickname</span><span style="color:#5a8fb5;font-size:13px" id="nick-display"></span></div>
+      <div class="st-item" onclick="showLangPicker()"><span data-t="language">Language</span><span style="color:#5a8fb5;font-size:13px" id="lang-display">English</span></div>
     </div>
     <div class="st-section" style="margin-top:12px" id="settings-ads-section">
-      <div class="st-section-title">ADS</div>
+      <div class="st-section-title" data-t="ads">ADS</div>
       <div class="st-item" onclick="watchRewardedAd()">
-        Watch Ad = 5 min Ad-Free
+        <span data-t="watchAd">Watch Ad = 5 min Ad-Free</span>
         <span style="font-size:12px;color:#4CAF50;font-weight:800" id="ad-free-status"></span>
       </div>
-      <div class="st-item" onclick="showScreen('market')">Remove Ads Forever<span style="color:rgba(255,255,255,.25)">></span></div>
-      <div class="st-item" onclick="restorePurchases()">Restore Purchases<span style="color:rgba(255,255,255,.25)">></span></div>
+      <div class="st-item" onclick="showScreen('market')"><span data-t="removeAdsForever">Remove Ads Forever</span><span style="color:rgba(255,255,255,.25)">></span></div>
+      <div class="st-item" onclick="restorePurchases()"><span data-t="restorePurchases">Restore Purchases</span><span style="color:rgba(255,255,255,.25)">></span></div>
     </div>
     <div class="st-section" style="margin-top:12px">
-      <div class="st-section-title">SOCIAL</div>
-      <div class="st-item" onclick="shareGame()">Share with Friends<span style="color:#aaa">></span></div>
-      <div class="st-item" onclick="showScreen('ranking')">View Rankings<span style="color:#aaa">></span></div>
+      <div class="st-section-title" data-t="social">SOCIAL</div>
+      <div class="st-item" onclick="shareGame()"><span data-t="shareFriends">Share with Friends</span><span style="color:#aaa">></span></div>
+      <div class="st-item" onclick="showScreen('ranking')"><span data-t="viewRankings">View Rankings</span><span style="color:#aaa">></span></div>
     </div>
     <div class="st-section" style="margin-top:12px">
-      <div class="st-section-title">ABOUT</div>
+      <div class="st-section-title" data-t="about">ABOUT</div>
       <div class="st-item">EthnioQuiz v2.0 — Simbiotic Digital</div>
-      <div class="st-item" onclick="resetData()" style="color:#e74c3c">Reset All Data</div>
+      <div class="st-item" onclick="resetData()" style="color:#e74c3c" data-t="resetAll">Reset All Data</div>
     </div>
   </div>
 
@@ -704,7 +729,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="onboard">
       <div class="ob-header">
         <span class="ob-globe">🌍</span>
-        <h2>HOW TO PLAY</h2>
+        <h2 data-t="howToPlay">HOW TO PLAY</h2>
       </div>
       <div class="ob-steps">
         <div class="ob-step">
@@ -771,6 +796,160 @@ async function apiPost(endpoint, data){
 }
 async function apiGet(endpoint){
   try{const r=await fetch(API+endpoint);return await r.json()}catch(e){console.warn('API error:',e);return null}
+}
+
+// ===== i18n =====
+const LANGS={
+en:{
+  select:'SELECT',game:'GAME',play:'PLAY',ranking:'RANKING',settings:'SETTINGS',market:'MARKET',
+  bestScore:'BEST SCORE',streak:'STREAK',score:'SCORE',time:'TIME',
+  youFailed:'YOU FAILED!',notBad:'NOT BAD!',greatRun:'GREAT RUN!',amazing:'AMAZING!',legendary:'LEGENDARY!',
+  coinsEarned:'COINS EARNED',noCoins:'NO COINS',getCoins:'GET 10+ TO EARN COINS',
+  newBest:'NEW BEST!',challengeFriend:'CHALLENGE A FRIEND',
+  howToPlay:'HOW TO PLAY',lookFace:'LOOK AT THE FACE',lookFaceDesc:'A photo appears. Study it carefully — which nationality do you think they are?',
+  swipeTap:'SWIPE OR TAP',swipeTapDesc:'Swipe left or right like Tinder, or tap the flag buttons to choose your answer.',
+  beatClock:'BEAT THE CLOCK',beatClockDesc:'You have 4 seconds per photo. One wrong answer and it\'s game over!',
+  climbRanks:'CLIMB THE RANKS',climbRanksDesc:'Compete in the global leaderboard. Beat your friends and the world!',
+  coinRule:'10+ CORRECT = EARN COINS',coinRuleDesc:'Get 10+ in a row to earn 1 coin per correct answer (max 10). Use coins to unlock new games!',
+  letsGo:'LET\'S GO!',
+  needPhotos:'NEED 3+ PHOTOS',need3:'Need 3+ photos',
+  audio:'AUDIO',music:'Music',soundEffects:'Sound Effects',
+  gameSection:'GAME',changeNickname:'Change Nickname',
+  ads:'ADS',watchAd:'Watch Ad = 5 min Ad-Free',removeAdsForever:'Remove Ads Forever',restorePurchases:'Restore Purchases',
+  social:'SOCIAL',shareFriends:'Share with Friends',viewRankings:'View Rankings',
+  about:'ABOUT',resetAll:'Reset All Data',
+  bestValue:'BEST VALUE',features:'FEATURES',coins:'COINS',removeAds:'REMOVE ADS',
+  whoAreYou:'WHO ARE YOU?',chooseNickname:'Choose a nickname for the leaderboard',
+  challenge:'CHALLENGE!',thinkBeat:'Think you can beat that?',accept:'ACCEPT!',later:'LATER',
+  language:'Language',
+  or:'or',vs:'VS',
+  noRankings:'No Rankings Yet',playFirst:'Play some games to see the leaderboard!',
+},
+es:{
+  select:'SELECCIONAR',game:'JUEGO',play:'JUGAR',ranking:'RANKING',settings:'AJUSTES',market:'TIENDA',
+  bestScore:'MEJOR PUNTUACIÓN',streak:'RACHA',score:'PUNTOS',time:'TIEMPO',
+  youFailed:'¡HAS FALLADO!',notBad:'¡NADA MAL!',greatRun:'¡GRAN PARTIDA!',amazing:'¡INCREÍBLE!',legendary:'¡LEGENDARIO!',
+  coinsEarned:'MONEDAS GANADAS',noCoins:'SIN MONEDAS',getCoins:'CONSIGUE 10+ PARA GANAR MONEDAS',
+  newBest:'¡NUEVO RÉCORD!',challengeFriend:'RETA A UN AMIGO',
+  howToPlay:'CÓMO JUGAR',lookFace:'MIRA LA CARA',lookFaceDesc:'Aparece una foto. Estúdiala bien — ¿de qué nacionalidad crees que es?',
+  swipeTap:'DESLIZA O TOCA',swipeTapDesc:'Desliza a izquierda o derecha como en Tinder, o toca los botones de las banderas.',
+  beatClock:'CONTRA EL RELOJ',beatClockDesc:'Tienes 4 segundos por foto. ¡Un fallo y se acabó!',
+  climbRanks:'SUBE EN EL RANKING',climbRanksDesc:'Compite en el ranking global. ¡Supera a tus amigos y al mundo!',
+  coinRule:'10+ ACIERTOS = MONEDAS',coinRuleDesc:'Acierta 10+ seguidas para ganar 1 moneda por acierto (máx 10). ¡Usa monedas para desbloquear juegos!',
+  letsGo:'¡VAMOS!',
+  needPhotos:'FALTAN FOTOS',need3:'Necesita 3+ fotos',
+  audio:'AUDIO',music:'Música',soundEffects:'Efectos de Sonido',
+  gameSection:'JUEGO',changeNickname:'Cambiar Apodo',
+  ads:'ANUNCIOS',watchAd:'Ver Anuncio = 5 min Sin Anuncios',removeAdsForever:'Quitar Anuncios Para Siempre',restorePurchases:'Restaurar Compras',
+  social:'SOCIAL',shareFriends:'Compartir con Amigos',viewRankings:'Ver Rankings',
+  about:'ACERCA DE',resetAll:'Borrar Todos los Datos',
+  bestValue:'MEJOR OFERTA',features:'FUNCIONES',coins:'MONEDAS',removeAds:'QUITAR ANUNCIOS',
+  whoAreYou:'¿QUIÉN ERES?',chooseNickname:'Elige un apodo para el ranking',
+  challenge:'¡DESAFÍO!',thinkBeat:'¿Crees que puedes superarlo?',accept:'¡ACEPTO!',later:'LUEGO',
+  language:'Idioma',
+  or:'o',vs:'VS',
+  noRankings:'Sin Rankings Aún',playFirst:'¡Juega partidas para ver el ranking!',
+},
+pt:{
+  select:'SELECIONAR',game:'JOGO',play:'JOGAR',ranking:'RANKING',settings:'CONFIGURAÇÕES',market:'LOJA',
+  bestScore:'MELHOR PONTUAÇÃO',streak:'SEQUÊNCIA',score:'PONTOS',time:'TEMPO',
+  youFailed:'FALHOU!',notBad:'NADA MAL!',greatRun:'GRANDE PARTIDA!',amazing:'INCRÍVEL!',legendary:'LENDÁRIO!',
+  coinsEarned:'MOEDAS GANHAS',noCoins:'SEM MOEDAS',getCoins:'CONSIGA 10+ PARA GANHAR MOEDAS',
+  newBest:'NOVO RECORDE!',challengeFriend:'DESAFIE UM AMIGO',
+  howToPlay:'COMO JOGAR',lookFace:'OLHE O ROSTO',lookFaceDesc:'Uma foto aparece. Estude-a bem — de que nacionalidade você acha que é?',
+  swipeTap:'DESLIZE OU TOQUE',swipeTapDesc:'Deslize para esquerda ou direita, ou toque nos botões das bandeiras.',
+  beatClock:'CONTRA O RELÓGIO',beatClockDesc:'Você tem 4 segundos por foto. Um erro e acabou!',
+  climbRanks:'SUBA NO RANKING',climbRanksDesc:'Compita no ranking global. Supere seus amigos e o mundo!',
+  coinRule:'10+ ACERTOS = MOEDAS',coinRuleDesc:'Acerte 10+ seguidas para ganhar 1 moeda por acerto (máx 10). Use moedas para desbloquear jogos!',
+  letsGo:'VAMOS!',needPhotos:'FALTAM FOTOS',need3:'Precisa 3+ fotos',
+  audio:'ÁUDIO',music:'Música',soundEffects:'Efeitos Sonoros',gameSection:'JOGO',changeNickname:'Mudar Apelido',
+  ads:'ANÚNCIOS',watchAd:'Ver Anúncio = 5 min Sem Anúncios',removeAdsForever:'Remover Anúncios',restorePurchases:'Restaurar Compras',
+  social:'SOCIAL',shareFriends:'Compartilhar com Amigos',viewRankings:'Ver Rankings',
+  about:'SOBRE',resetAll:'Apagar Todos os Dados',bestValue:'MELHOR OFERTA',features:'RECURSOS',coins:'MOEDAS',removeAds:'REMOVER ANÚNCIOS',
+  whoAreYou:'QUEM É VOCÊ?',chooseNickname:'Escolha um apelido para o ranking',
+  challenge:'DESAFIO!',thinkBeat:'Acha que consegue superar?',accept:'ACEITO!',later:'DEPOIS',
+  language:'Idioma',or:'ou',vs:'VS',noRankings:'Sem Rankings',playFirst:'Jogue para ver o ranking!',
+},
+fr:{
+  select:'SÉLECTIONNER',game:'JEU',play:'JOUER',ranking:'CLASSEMENT',settings:'PARAMÈTRES',market:'BOUTIQUE',
+  bestScore:'MEILLEUR SCORE',streak:'SÉRIE',score:'SCORE',time:'TEMPS',
+  youFailed:'RATÉ !',notBad:'PAS MAL !',greatRun:'BELLE PARTIE !',amazing:'INCROYABLE !',legendary:'LÉGENDAIRE !',
+  coinsEarned:'PIÈCES GAGNÉES',noCoins:'PAS DE PIÈCES',getCoins:'10+ POUR GAGNER DES PIÈCES',
+  newBest:'NOUVEAU RECORD !',challengeFriend:'DÉFIER UN AMI',
+  howToPlay:'COMMENT JOUER',lookFace:'REGARDEZ LE VISAGE',lookFaceDesc:'Une photo apparaît. Étudiez-la — de quelle nationalité pensez-vous qu\'il s\'agit ?',
+  swipeTap:'GLISSEZ OU TOUCHEZ',swipeTapDesc:'Glissez à gauche ou droite, ou touchez les drapeaux pour répondre.',
+  beatClock:'BATTEZ LE CHRONO',beatClockDesc:'Vous avez 4 secondes par photo. Une erreur et c\'est fini !',
+  climbRanks:'GRIMPEZ AU CLASSEMENT',climbRanksDesc:'Affrontez le classement mondial. Battez vos amis !',
+  coinRule:'10+ CORRECT = PIÈCES',coinRuleDesc:'10+ bonnes réponses = 1 pièce par bonne réponse (max 10). Débloquez de nouveaux jeux !',
+  letsGo:'C\'EST PARTI !',needPhotos:'PHOTOS MANQUANTES',need3:'3+ photos nécessaires',
+  audio:'AUDIO',music:'Musique',soundEffects:'Effets Sonores',gameSection:'JEU',changeNickname:'Changer Pseudo',
+  ads:'PUBS',watchAd:'Voir Pub = 5 min Sans Pubs',removeAdsForever:'Supprimer les Pubs',restorePurchases:'Restaurer Achats',
+  social:'SOCIAL',shareFriends:'Partager avec Amis',viewRankings:'Voir Classement',
+  about:'À PROPOS',resetAll:'Tout Réinitialiser',bestValue:'MEILLEURE OFFRE',features:'FONCTIONNALITÉS',coins:'PIÈCES',removeAds:'SUPPRIMER PUBS',
+  whoAreYou:'QUI ÊTES-VOUS ?',chooseNickname:'Choisissez un pseudo pour le classement',
+  challenge:'DÉFI !',thinkBeat:'Vous pensez faire mieux ?',accept:'J\'ACCEPTE !',later:'PLUS TARD',
+  language:'Langue',or:'ou',vs:'VS',noRankings:'Pas de Classement',playFirst:'Jouez pour voir le classement !',
+},
+de:{
+  select:'AUSWÄHLEN',game:'SPIEL',play:'SPIELEN',ranking:'RANGLISTE',settings:'EINSTELLUNGEN',market:'SHOP',
+  bestScore:'BESTLEISTUNG',streak:'SERIE',score:'PUNKTE',time:'ZEIT',
+  youFailed:'VERLOREN!',notBad:'NICHT SCHLECHT!',greatRun:'TOLLE RUNDE!',amazing:'UNGLAUBLICH!',legendary:'LEGENDÄR!',
+  coinsEarned:'MÜNZEN VERDIENT',noCoins:'KEINE MÜNZEN',getCoins:'10+ FÜR MÜNZEN',
+  newBest:'NEUER REKORD!',challengeFriend:'FREUND HERAUSFORDERN',
+  howToPlay:'SO GEHT\'S',lookFace:'SCHAU DAS GESICHT AN',lookFaceDesc:'Ein Foto erscheint. Studiere es — welche Nationalität hat die Person?',
+  swipeTap:'WISCHEN ODER TIPPEN',swipeTapDesc:'Wische nach links oder rechts, oder tippe auf die Flaggen.',
+  beatClock:'GEGEN DIE UHR',beatClockDesc:'Du hast 4 Sekunden pro Foto. Ein Fehler und es ist vorbei!',
+  climbRanks:'STEIGE IM RANKING',climbRanksDesc:'Tritt im globalen Ranking an. Besiege deine Freunde!',
+  coinRule:'10+ RICHTIG = MÜNZEN',coinRuleDesc:'10+ richtige Antworten = 1 Münze pro Treffer (max 10). Schalte neue Spiele frei!',
+  letsGo:'LOS GEHT\'S!',needPhotos:'FOTOS FEHLEN',need3:'3+ Fotos nötig',
+  audio:'AUDIO',music:'Musik',soundEffects:'Soundeffekte',gameSection:'SPIEL',changeNickname:'Spitzname Ändern',
+  ads:'WERBUNG',watchAd:'Werbung Sehen = 5 Min Werbefrei',removeAdsForever:'Werbung Entfernen',restorePurchases:'Käufe Wiederherstellen',
+  social:'SOZIAL',shareFriends:'Mit Freunden Teilen',viewRankings:'Rangliste Anzeigen',
+  about:'ÜBER',resetAll:'Alle Daten Löschen',bestValue:'BESTES ANGEBOT',features:'FEATURES',coins:'MÜNZEN',removeAds:'WERBUNG WEG',
+  whoAreYou:'WER BIST DU?',chooseNickname:'Wähle einen Spitznamen für die Rangliste',
+  challenge:'HERAUSFORDERUNG!',thinkBeat:'Denkst du, du kannst das schlagen?',accept:'ANGENOMMEN!',later:'SPÄTER',
+  language:'Sprache',or:'oder',vs:'VS',noRankings:'Keine Rangliste',playFirst:'Spiele um die Rangliste zu sehen!',
+},
+it:{
+  select:'SELEZIONA',game:'GIOCO',play:'GIOCA',ranking:'CLASSIFICA',settings:'IMPOSTAZIONI',market:'NEGOZIO',
+  bestScore:'MIGLIOR PUNTEGGIO',streak:'SERIE',score:'PUNTI',time:'TEMPO',
+  youFailed:'HAI FALLITO!',notBad:'NON MALE!',greatRun:'GRAN PARTITA!',amazing:'INCREDIBILE!',legendary:'LEGGENDARIO!',
+  coinsEarned:'MONETE GUADAGNATE',noCoins:'NESSUNA MONETA',getCoins:'10+ PER GUADAGNARE MONETE',
+  newBest:'NUOVO RECORD!',challengeFriend:'SFIDA UN AMICO',
+  howToPlay:'COME GIOCARE',lookFace:'GUARDA IL VISO',lookFaceDesc:'Appare una foto. Studiala bene — di che nazionalità pensi che sia?',
+  swipeTap:'SCORRI O TOCCA',swipeTapDesc:'Scorri a sinistra o destra, o tocca le bandiere per rispondere.',
+  beatClock:'BATTI IL TEMPO',beatClockDesc:'Hai 4 secondi per foto. Un errore e il gioco finisce!',
+  climbRanks:'SCALA LA CLASSIFICA',climbRanksDesc:'Competi nella classifica globale. Batti i tuoi amici!',
+  coinRule:'10+ GIUSTI = MONETE',coinRuleDesc:'10+ risposte giuste = 1 moneta per risposta (max 10). Sblocca nuovi giochi!',
+  letsGo:'ANDIAMO!',needPhotos:'SERVONO FOTO',need3:'Servono 3+ foto',
+  audio:'AUDIO',music:'Musica',soundEffects:'Effetti Sonori',gameSection:'GIOCO',changeNickname:'Cambia Nickname',
+  ads:'PUBBLICITÀ',watchAd:'Guarda Pub = 5 min Senza Pub',removeAdsForever:'Rimuovi Pubblicità',restorePurchases:'Ripristina Acquisti',
+  social:'SOCIALE',shareFriends:'Condividi con Amici',viewRankings:'Vedi Classifica',
+  about:'INFO',resetAll:'Cancella Tutti i Dati',bestValue:'MIGLIOR OFFERTA',features:'FUNZIONI',coins:'MONETE',removeAds:'RIMUOVI PUB',
+  whoAreYou:'CHI SEI?',chooseNickname:'Scegli un nickname per la classifica',
+  challenge:'SFIDA!',thinkBeat:'Pensi di fare meglio?',accept:'ACCETTO!',later:'DOPO',
+  language:'Lingua',or:'o',vs:'VS',noRankings:'Nessuna Classifica',playFirst:'Gioca per vedere la classifica!',
+},
+};
+
+let currentLang='en';
+function t(key){return LANGS[currentLang]?.[key]||LANGS.en[key]||key}
+function setLang(lang){
+  currentLang=lang;localStorage.setItem('eq3_lang',lang);
+  applyLang();
+}
+function loadLang(){currentLang=localStorage.getItem('eq3_lang')||'en'}
+
+function applyLang(){
+  // Static elements
+  const m={
+    'sg-select':t('select'),'sg-game':t('game'),'rk-title':t('ranking'),
+    'st-title-el':t('settings'),'mk-title-1':'ETHNIO','mk-title-2':t('market'),
+  };
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    el.textContent=t(el.dataset.t);
+  });
 }
 
 // ===== VISITOR TRACKING (local + server) =====
@@ -1338,18 +1517,30 @@ function nextCard(){
 
   // Wait for image to load before starting timer
   const img=card.querySelector('img');
+  let ready=false;
   const onReady=()=>{
-    card.querySelector('.card-spinner').style.display='none';
+    if(ready)return; // prevent double-fire
+    ready=true;
+    const spinner=card.querySelector('.card-spinner');
+    if(spinner)spinner.style.display='none';
     img.style.opacity='1';
-    startTimer(); // Timer only starts when photo is visible!
+    startTimer();
   };
   img.onload=onReady;
   img.onerror=()=>{
+    img.onload=null;img.onerror=null; // prevent loops
     img.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22><rect fill=%22%232a2a3a%22 width=%22400%22 height=%22400%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2260%22 fill=%22%23555%22>?</text></svg>';
     onReady();
   };
-  // Fallback: if image takes too long, start anyway after 4s
-  setTimeout(()=>{if(img.style.opacity==='0')onReady()},4000);
+  // If already cached, fire immediately
+  if(img.complete&&img.naturalWidth)onReady();
+  // Fallback: if image takes too long, start with whatever we have
+  setTimeout(()=>{if(!ready)onReady()},3000);
+
+  // Preload next image in background
+  if(S.pIdx+1<c.people.length){
+    const next=new Image();next.src=c.people[S.pIdx+1].img;
+  }
 }
 
 const TIMER_SECS=4;
@@ -1492,7 +1683,7 @@ async function gameOver(){
   const pos=S._lastRankPos||myRanks.findIndex(r=>r.score===sc&&r.name===getNick())+1;
 
   // Dynamic title based on score
-  const titles=['YOU FAILED!','NOT BAD!','GREAT RUN!','AMAZING!','LEGENDARY!'];
+  const titles=[t('youFailed'),t('notBad'),t('greatRun'),t('amazing'),t('legendary')];
   const titleIdx=sc===0?0:sc<5?1:sc<10?2:sc<20?3:4;
 
   // Update UI
@@ -1504,11 +1695,11 @@ async function gameOver(){
   document.getElementById('go-rank-info').textContent=pos>0?`#${pos} in ${c.name}`:'';
   document.getElementById('go-score').textContent=sc;
   if(earned>0){
-    document.getElementById('go-bonus-label').textContent='COINS EARNED';
+    document.getElementById('go-bonus-label').textContent=t('coinsEarned');
     document.getElementById('go-bonus').textContent='+'+earned;
     document.getElementById('go-bonus').style.color='#FFD700';
   }else{
-    document.getElementById('go-bonus-label').textContent=sc>0?`GET 10+ TO EARN COINS (${sc}/10)`:'NO COINS';
+    document.getElementById('go-bonus-label').textContent=sc>0?`${t('getCoins')} (${sc}/10)`:t('noCoins');
     document.getElementById('go-bonus').textContent='+0';
     document.getElementById('go-bonus').style.color='rgba(255,255,255,.3)';
   }
@@ -1709,6 +1900,26 @@ function buyItem(item){
   }
 }
 
+// ===== LANGUAGE =====
+const LANG_NAMES={en:'English',es:'Español',pt:'Português',fr:'Français',de:'Deutsch',it:'Italiano'};
+
+function showLangPicker(){
+  const btns=Object.entries(LANG_NAMES).map(([code,name])=>{
+    const sel=code===currentLang?'font-weight:900;color:#FF6633;border:2px solid #FF6633;background:rgba(255,102,51,.08)':'color:#333;border:2px solid #ddd;background:#f5f5f5';
+    return`<div style="padding:10px;border-radius:10px;cursor:pointer;${sel};text-align:center;font-size:15px" onclick="setLang('${code}');hideDlg();updateLangDisplay()">${name}</div>`;
+  }).join('');
+  showDlg({
+    title:t('language'),
+    body:`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0">${btns}</div>`,
+    btns:[{t:'OK',cls:'yes',fn:hideDlg}]
+  });
+}
+
+function updateLangDisplay(){
+  const el=document.getElementById('lang-display');
+  if(el)el.textContent=LANG_NAMES[currentLang]||'English';
+}
+
 // ===== SETTINGS =====
 function toggleSound(){
   S.soundOn=!S.soundOn;
@@ -1717,20 +1928,67 @@ function toggleSound(){
   if(S.soundOn)sfx('tap');
 }
 
-function shareGame(){
-  const best=S.cat?S.best[S.cat.id]||0:Object.values(S.best).reduce((a,b)=>Math.max(a,b),0);
-  const text=`Can you tell nationalities apart? I scored ${best} on EthnioQuiz! Try it:`;
-  const url='https://ethnioquiz.com';
+function shareGame(){shareChallenge()}
+
+function shareChallenge(){
+  const nick=getNick()||'Someone';
+  const cat=S.cat;
+  const score=cat?S.best[cat.id]||S.score||0:Object.values(S.best).reduce((a,b)=>Math.max(a,b),0);
+  const gameId=cat?cat.id:'';
+  const gameName=cat?cat.name:'EthnioQuiz';
+
+  const url=gameId
+    ?`https://ethnioquiz.com/?challenge=${gameId}&beat=${score}&from=${encodeURIComponent(nick)}`
+    :'https://ethnioquiz.com';
+
+  const msgs=[
+    `${nick} scored ${score} on ${gameName}! Can you beat that?`,
+    `I got ${score} on ${gameName}! Think you can do better?`,
+    `${score} points on ${gameName}... I dare you to beat me!`,
+    `Can you tell them apart? I scored ${score}. Your turn!`,
+  ];
+  const text=msgs[Math.floor(Math.random()*msgs.length)];
+
   if(navigator.share){
-    navigator.share({title:'EthnioQuiz',text,url}).catch(()=>{});
+    navigator.share({title:`Beat my ${score} on EthnioQuiz!`,text,url}).catch(()=>{});
   }else{
-    // Copy to clipboard fallback
     navigator.clipboard.writeText(text+' '+url).then(()=>{
-      showDlg({title:'COPIED!',body:'<p>Link copied to clipboard! Share it with your friends.</p>',btns:[{t:'OK',cls:'yes',fn:hideDlg}]});
+      showDlg({title:'LINK COPIED!',body:`<p style="font-size:13px;color:#888">${text}</p><p style="margin-top:8px;font-size:12px;word-break:break-all;color:#aaa">${url}</p>`,btns:[{t:'OK!',cls:'yes',fn:hideDlg}]});
     }).catch(()=>{
-      showDlg({title:'SHARE',body:`<p style="word-break:break-all;font-size:12px">${url}</p><p style="margin-top:8px">Copy this URL and share it!</p>`,btns:[{t:'OK',cls:'yes',fn:hideDlg}]});
+      showDlg({title:'SHARE',body:`<p style="font-size:12px;word-break:break-all">${url}</p>`,btns:[{t:'OK',cls:'yes',fn:hideDlg}]});
     });
   }
+}
+
+// Handle incoming challenge links
+function handleChallenge(){
+  const params=new URLSearchParams(window.location.search);
+  const challenge=params.get('challenge');
+  const beat=parseInt(params.get('beat'))||0;
+  const from=decodeURIComponent(params.get('from')||'');
+  if(!challenge)return;
+
+  // Clean URL
+  window.history.replaceState({},'',window.location.pathname);
+
+  // Show challenge dialog after a short delay
+  setTimeout(()=>{
+    const gameName=challenge.replace(/_vs_/g,' vs ').replace(/_/g,' ');
+    showDlg({
+      title:'CHALLENGE!',
+      body:`<div style="font-size:40px;margin:6px 0">⚔️</div>
+        <p><strong>${from||'Someone'}</strong> scored <strong style="color:#FFD700;font-size:22px">${beat}</strong> on</p>
+        <p style="font-size:18px;font-weight:900;margin:4px 0">${gameName}</p>
+        <p style="font-size:13px;color:#888;margin-top:6px">Think you can beat that?</p>`,
+      btns:[
+        {t:'LATER',cls:'no',fn:hideDlg},
+        {t:'ACCEPT!',cls:'yes',fn:()=>{
+          hideDlg();
+          ensureNickname(()=>startGame(challenge));
+        }}
+      ]
+    });
+  },800);
 }
 
 function resetData(){
@@ -1768,7 +2026,7 @@ function closeOnboarding(){
 }
 
 // ===== INIT =====
-load();loadAdFree();updateCoins();updateNickDisplay();updateAdFreeStatus();
+load();loadAdFree();loadLang();updateCoins();updateNickDisplay();updateAdFreeStatus();updateLangDisplay();applyLang();
 document.getElementById('toggle-sound').classList.toggle('on',S.soundOn);
 document.getElementById('toggle-music').classList.toggle('on',S.musicOn);
 // Start audio + music on first user interaction
@@ -1781,8 +2039,11 @@ document.addEventListener('click',()=>{
 },{once:true});
 setInterval(updateAdFreeStatus,30000);
 
-// Show onboarding on first visit
-if(!localStorage.getItem('eq3_onboarded')){
+// Handle challenge links first
+handleChallenge();
+
+// Show onboarding on first visit (only if no challenge)
+if(!localStorage.getItem('eq3_onboarded') && !new URLSearchParams(window.location.search).get('challenge')){
   setTimeout(showOnboarding,600);
 }
 

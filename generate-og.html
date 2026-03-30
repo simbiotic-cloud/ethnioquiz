@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Generate OG Image</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&display=swap" rel="stylesheet">
+</head><body style="margin:0;background:#000">
+<canvas id="c" width="1200" height="630"></canvas>
+<br><a id="dl" download="og-image.png" style="color:#fff;font-size:20px;padding:20px;display:inline-block">Click to download PNG</a>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+
+// Background gradient
+const bg=ctx.createLinearGradient(0,0,0,630);
+bg.addColorStop(0,'#1a2744');bg.addColorStop(1,'#0a0f1e');
+ctx.fillStyle=bg;ctx.fillRect(0,0,1200,630);
+
+// Subtle glow circles
+ctx.fillStyle='rgba(255,215,0,0.04)';
+ctx.beginPath();ctx.arc(900,150,200,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='rgba(100,150,255,0.03)';
+ctx.beginPath();ctx.arc(300,480,250,0,Math.PI*2);ctx.fill();
+
+// Particles
+for(let i=0;i<30;i++){
+  ctx.fillStyle=`rgba(255,255,255,${0.03+Math.random()*0.05})`;
+  ctx.beginPath();
+  ctx.arc(Math.random()*1200,Math.random()*630,2+Math.random()*4,0,Math.PI*2);
+  ctx.fill();
+}
+
+// Globe
+ctx.font='100px serif';ctx.textAlign='center';
+ctx.fillText('🌍',600,170);
+
+// Title
+ctx.font='900 92px Boogaloo, sans-serif';
+ctx.fillStyle='#FFD700';
+ctx.shadowColor='rgba(255,215,0,0.3)';ctx.shadowBlur=30;
+ctx.fillText('ETHNIO',600,310);
+ctx.shadowBlur=0;
+
+ctx.font='900 56px Boogaloo, sans-serif';
+ctx.fillStyle='#FF6633';
+ctx.fillText('QUIZ',600,380);
+
+// Subtitle
+ctx.font='600 30px Nunito, Arial, sans-serif';
+ctx.fillStyle='rgba(255,255,255,0.5)';
+ctx.fillText('Can You Tell Them Apart?',600,440);
+
+// Swipe arrows
+ctx.font='600 24px Nunito, Arial, sans-serif';
+ctx.fillStyle='rgba(255,255,255,0.2)';
+ctx.fillText('👈 SWIPE LEFT  or  SWIPE RIGHT 👉',600,490);
+
+// Draw SVG flags from game assets
+const flagPairs=[
+  ['assets/japan.png','assets/china.png'],
+  ['flags/korea.svg','flags/thailand.svg'],
+  ['flags/turkey.svg','flags/greece.svg'],
+  ['flags/brazil.svg','flags/argentina.svg'],
+];
+
+let loaded=0;const total=flagPairs.length*2;
+const flagImgs=[];
+let fx=120;
+
+flagPairs.forEach(([a,b],pi)=>{
+  [a,b].forEach((src,fi)=>{
+    const img=new Image();
+    img.onload=()=>{
+      loaded++;
+      if(loaded===total) drawFlags();
+    };
+    img.onerror=()=>{loaded++;if(loaded===total)drawFlags()};
+    img.src=src;
+    flagImgs.push({img,pair:pi,side:fi});
+  });
+});
+
+function drawFlags(){
+  // Calculate total width to center: 4 pairs, each = flag(70) + vs(30) + flag(70) + gap(30) = 200 per pair, minus last gap
+  const pairW=200, totalW=pairW*flagPairs.length-30;
+  let x=(1200-totalW)/2;
+  const y=510;
+
+  flagPairs.forEach((pair,pi)=>{
+    const a=flagImgs.find(f=>f.pair===pi&&f.side===0);
+    const b=flagImgs.find(f=>f.pair===pi&&f.side===1);
+    if(a&&a.img.complete&&a.img.naturalWidth) ctx.drawImage(a.img,x,y,70,48);
+    x+=75;
+    ctx.font='600 18px Arial';ctx.fillStyle='rgba(255,255,255,0.2)';ctx.textAlign='center';
+    ctx.fillText('vs',x+12,y+30);
+    x+=30;
+    if(b&&b.img.complete&&b.img.naturalWidth) ctx.drawImage(b.img,x,y,70,48);
+    x+=100;
+  });
+  // Re-draw URL on top
+  ctx.font='700 20px Nunito, Arial, sans-serif';ctx.fillStyle='rgba(255,255,255,0.15)';ctx.textAlign='center';
+  ctx.fillText('ethnioquiz.com',600,620);
+  // Update download link
+  document.getElementById('dl').href=c.toDataURL('image/png');
+}
+
+// URL
+ctx.font='700 20px Nunito, Arial, sans-serif';
+ctx.fillStyle='rgba(255,255,255,0.15)';
+ctx.fillText('ethnioquiz.com',600,620);
+
+// Download link
+document.getElementById('dl').href=c.toDataURL('image/png');
+</script>
+</body></html>
