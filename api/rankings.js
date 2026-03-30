@@ -2,6 +2,15 @@ import { Redis } from '@upstash/redis';
 
 const redis = Redis.fromEnv();
 
+function parseEntry(member, score) {
+  try {
+    const data = typeof member === 'string' ? JSON.parse(member) : member;
+    return { name: data.name || 'Anonymous', score: Number(score), date: data.date || 0 };
+  } catch (e) {
+    return { name: String(member), score: Number(score), date: 0 };
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -11,37 +20,56 @@ export default async function handler(req, res) {
   const MAX_PER_GAME = 50;
 
   try {
-    // GET /api/rankings?game=japan_vs_china
     if (req.method === 'GET') {
       const { game } = req.query;
+
       if (game) {
-        // Get rankings for a specific game
-        const entries = await redis.zrange(`ranks:${game}`, 0, MAX_PER_GAME - 1, { rev: true, withScores: true });
-        // entries = [member, score, member, score, ...]
+        const raw = await redis.zrange(`ranks:${game}`, 0, MAX_PER_GAME - 1, { rev: true, withScores: true });
         const rankings = [];
-        for (let i = 0; i < entries.length; i += 2) {
-          const data = JSON.parse(entries[i]);
-          rankings.push({ name: data.name, score: entries[i + 1], date: data.date });
+
+        // Upstash returns [{score, member}, ...] or [member, score, ...]
+        if (Array.isArray(raw)) {
+          for (const item of raw) {
+            if (typeof item === 'object' && item !== null && 'score' in item && 'member' in item) {
+              rankings.push(parseEntry(item.member, item.score));
+            }
+          }
+          // Fallback: interleaved [member, score, member, score]
+          if (rankings.length === 0) {
+            for (let i = 0; i < raw.length; i += 2) {
+              if (i + 1 < raw.length) rankings.push(parseEntry(raw[i], raw[i + 1]));
+            }
+          }
         }
+
+        rankings.sort((a, b) => b.score - a.score);
         return res.json({ rankings });
+
       } else {
-        // Get all game IDs that have rankings
         const keys = await redis.keys('ranks:*');
         const all = {};
         for (const key of keys) {
           const gameId = key.replace('ranks:', '');
-          const entries = await redis.zrange(key, 0, 9, { rev: true, withScores: true });
+          const raw = await redis.zrange(key, 0, 9, { rev: true, withScores: true });
           all[gameId] = [];
-          for (let i = 0; i < entries.length; i += 2) {
-            const data = JSON.parse(entries[i]);
-            all[gameId].push({ name: data.name, score: entries[i + 1], date: data.date });
+          if (Array.isArray(raw)) {
+            for (const item of raw) {
+              if (typeof item === 'object' && item !== null && 'score' in item && 'member' in item) {
+                all[gameId].push(parseEntry(item.member, item.score));
+              }
+            }
+            if (all[gameId].length === 0) {
+              for (let i = 0; i < raw.length; i += 2) {
+                if (i + 1 < raw.length) all[gameId].push(parseEntry(raw[i], raw[i + 1]));
+              }
+            }
           }
+          all[gameId].sort((a, b) => b.score - a.score);
         }
         return res.json({ rankings: all });
       }
     }
 
-    // POST /api/rankings — { game, name, score }
     if (req.method === 'POST') {
       const { game, name, score } = req.body;
       if (!game || !name || score === undefined) {
@@ -51,21 +79,18 @@ export default async function handler(req, res) {
       const member = JSON.stringify({ name, date: Date.now(), id: Math.random().toString(36).substr(2, 8) });
       await redis.zadd(`ranks:${game}`, { score: Number(score), member });
 
-      // Trim to top MAX_PER_GAME
       const count = await redis.zcard(`ranks:${game}`);
       if (count > MAX_PER_GAME) {
         await redis.zremrangebyrank(`ranks:${game}`, 0, count - MAX_PER_GAME - 1);
       }
 
-      // Get current position
       const rank = await redis.zrevrank(`ranks:${game}`, member);
-
       return res.json({ ok: true, position: rank !== null ? rank + 1 : null });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
     console.error('Rankings error:', err);
-    return res.status(500).json({ error: 'Internal error' });
+    return res.status(500).json({ error: 'Internal error', details: err.message });
   }
 }
