@@ -9,6 +9,26 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Nunito',sans-serif;background:#0f0f1e;color:#e0e0e0;min-height:100vh}
 
+/* Login gate */
+.login-gate{
+  position:fixed;inset:0;z-index:9999;background:#0f0f1e;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.login-gate.hidden{display:none}
+.login-gate h1{font-size:28px;color:#FFD700;font-family:'Nunito',sans-serif}
+.login-gate input{
+  width:280px;padding:12px 16px;border-radius:10px;border:2px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);color:#fff;font-size:14px;font-family:'Nunito',sans-serif;
+  font-weight:700;outline:none;text-align:center;
+}
+.login-gate input:focus{border-color:#FFD700}
+.login-gate input::placeholder{color:rgba(255,255,255,.2)}
+.login-gate button{
+  padding:12px 32px;border-radius:10px;border:none;background:#FFD700;color:#1a2744;
+  font-weight:800;font-size:16px;cursor:pointer;
+}
+.login-gate .error{color:#e74c3c;font-size:13px;font-weight:700;min-height:20px}
+
 /* ===== HEADER ===== */
 .header{
   background:linear-gradient(135deg,#1a2744,#0f1a30);padding:12px 24px;
@@ -242,6 +262,14 @@ body{font-family:'Nunito',sans-serif;background:#0f0f1e;color:#e0e0e0;min-height
 </style>
 </head>
 <body>
+
+<div class="login-gate" id="login-gate">
+  <h1>EthnioQuiz Admin</h1>
+  <input type="email" id="login-email" placeholder="Email" autocomplete="email">
+  <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+  <button onclick="doLogin()">Login</button>
+  <div class="error" id="login-error"></div>
+</div>
 
 <div class="header">
   <h1>EthnioQuiz Admin</h1>
@@ -661,8 +689,32 @@ function importJSON(e){
 // ===== TOAST =====
 function toast(m,t){const el=document.getElementById('toast');el.textContent=m;el.className='toast show'+(t==='err'?' err':'');setTimeout(()=>el.className='toast',2500)}
 
+// ===== AUTH =====
+const AUTH_HASH='d8bcfeb73de0256de3395888a900b2c6e5f7e603ea838c06b645c990d127e204';
+
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const hash=await sha256(email+':'+pass);
+  if(hash===AUTH_HASH){
+    sessionStorage.setItem('eq3_auth','1');
+    document.getElementById('login-gate').classList.add('hidden');
+    loadDB();loadGames();renderDashboard();
+  }else{
+    document.getElementById('login-error').textContent='Invalid credentials';
+  }
+}
+
 // ===== INIT =====
-loadDB();loadGames();renderDashboard();
+if(sessionStorage.getItem('eq3_auth')==='1'){
+  document.getElementById('login-gate').classList.add('hidden');
+  loadDB();loadGames();renderDashboard();
+}
 </script>
 </body>
 </html>
