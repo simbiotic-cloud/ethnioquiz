@@ -570,7 +570,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
       <div class="info-btn" onclick="showOnboarding()" title="How to play">?</div>
     </div>
     <div class="home-buttons">
-      <div class="home-btn play" onclick="showScreen('select-game')"><img src="assets/play_btn.png" alt=""></div>
+      <div class="home-btn play" onclick="quickPlay()"><img src="assets/play_btn.png" alt=""></div>
       <div class="home-btn list" onclick="showScreen('select-game')"><img src="assets/select_btn.png" alt=""></div>
     </div>
   </div>
@@ -1041,8 +1041,8 @@ async function renderRanking(){
 let S={coins:100,soundOn:true,musicOn:false,unlocked:['japan_vs_china','spain_vs_basque','india_vs_pakistan'],best:{},
   cat:null,score:0,streak:0,pIdx:0,timer:5,timerInt:null,active:false,shownThisGame:new Set()};
 
-function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.musicOn=d.musicOn??true;S.unlocked=d.unlocked??['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best=d.best??{}}}catch(e){}}
-function save(){localStorage.setItem('eq2',JSON.stringify({coins:S.coins,soundOn:S.soundOn,musicOn:S.musicOn,unlocked:S.unlocked,best:S.best}))}
+function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.musicOn=d.musicOn??false;S.unlocked=d.unlocked??['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best=d.best??{};S.lastGameId=d.lastGameId||null}}catch(e){}}
+function save(){localStorage.setItem('eq2',JSON.stringify({coins:S.coins,soundOn:S.soundOn,musicOn:S.musicOn,unlocked:S.unlocked,best:S.best,lastGameId:S.lastGameId}))}
 
 // ===== AUDIO =====
 let actx,musicGain,musicPlaying=false;
@@ -1314,6 +1314,7 @@ function doStartGame(id){
   const c=CATEGORIES.find(x=>x.id===id);if(!c||!c.playable)return;
   c.people=buildPeopleForGame(c);
   S.cat=c;S.score=0;S.streak=0;S.pIdx=0;S.active=true;S.shownThisGame=new Set();
+  S.lastGameId=id;save(); // Remember last game played
   document.getElementById('best-score-val').textContent=S.best[id]||0;
   document.getElementById('score-val').textContent='0';
   document.getElementById('streak-val').textContent='0';
@@ -1524,6 +1525,16 @@ async function gameOver(){
   if(isNew)spawnConfetti(30);
 }
 function retryGame(){if(S.cat)ensureNickname(()=>startGame(S.cat.id))}
+
+function quickPlay(){
+  // If there's a last played game, go straight to it
+  if(S.lastGameId){
+    buildCategories();
+    const c=CATEGORIES.find(x=>x.id===S.lastGameId);
+    if(c&&c.playable){ensureNickname(()=>startGame(S.lastGameId));return}
+  }
+  showScreen('select-game');
+}
 
 // ===== PURCHASE GRANTING =====
 function grantPurchase(product){

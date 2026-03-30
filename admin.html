@@ -401,20 +401,25 @@ async function renderDashboard(){
     <div class="stat-card"><div class="stat-num">${totalImgs}</div><div class="stat-label">Total Images</div></div>
   `;
 
-  // High scores table
+  // High scores table — fetch from server rankings
   const tbody=document.querySelector('#scores-table tbody');
+  tbody.innerHTML='<tr><td colspan="3" style="color:rgba(255,255,255,.3)">Loading...</td></tr>';
+  let serverRanks={};
+  try{const rr=await fetch('/api/rankings');if(rr.ok){const rd=await rr.json();serverRanks=rd.rankings||{}}}catch(e){}
+
   tbody.innerHTML='';
-  const best=state.best||{};
   games.games.forEach(g=>{
     const id=g.aId+'_vs_'+g.bId;
     const a=db.entities[g.aId],b=db.entities[g.bId];
     const an=a?a.name:g.aId,bn=b?b.name:g.bId;
     const af=a?a.flag:'',bf=b?b.flag:'';
-    const sc=best[id]||0;
-    const pl=played.perGame[id]||0;
+    const entries=serverRanks[id]||[];
+    const topScore=entries.length?entries[0].score:0;
+    const topName=entries.length?entries[0].name:'-';
+    const pl=serverPerCat[id]||0;
     tbody.innerHTML+=`<tr>
       <td>${af?`<img class="flag-sm" src="${af}">`:''}${an} vs ${bn}${bf?` <img class="flag-sm" src="${bf}">`:''}</td>
-      <td style="font-weight:900;color:#FFD700">${sc}</td>
+      <td style="font-weight:900;color:#FFD700">${topScore} <span style="font-size:11px;color:rgba(255,255,255,.3)">(${topName})</span></td>
       <td>${pl}</td>
     </tr>`;
   });
