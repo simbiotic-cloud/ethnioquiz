@@ -177,13 +177,13 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Choices */
-.choices{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 10px 20px}
-.choice-btn{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:transform .12s}
+/* Choices — tight under card */
+.choices{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px 14px}
+.choice-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .12s}
 .choice-btn:active{transform:scale(.85)}
-.choice-btn img{width:100px;height:68px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
-.choice-btn span{font-family:'Boogaloo',cursive;font-size:20px;color:#fff;text-shadow:1px 1px 3px rgba(0,0,0,.25)}
-.choices .or{font-family:'Boogaloo',cursive;font-size:22px;color:rgba(255,255,255,.5)}
+.choice-btn img{width:90px;height:60px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+.choice-btn span{font-family:'Boogaloo',cursive;font-size:16px;color:#fff;text-shadow:1px 1px 3px rgba(0,0,0,.25)}
+.choices .or{font-family:'Boogaloo',cursive;font-size:14px;color:rgba(255,255,255,.3);margin:0 2px}
 
 /* Flash overlay — faster, more impactful */
 .flash{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
@@ -385,6 +385,16 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .rw-reward-text{font-family:'Boogaloo',cursive;font-size:14px;color:rgba(255,255,255,.4);margin-top:8px}
 
 /* ===== GAME OVER IMPROVED ===== */
+#game-over .go-title{animation:goTitleIn .5s ease-out}
+#game-over .go-score-wrap{animation:goScoreIn .6s ease-out .1s both}
+#game-over .go-player-info{animation:goFadeIn .4s ease-out .2s both}
+#game-over .go-flags{animation:goFadeIn .4s ease-out .3s both}
+#game-over .go-bonus{animation:goFadeIn .4s ease-out .35s both}
+#game-over .go-buttons{animation:goFadeIn .5s ease-out .45s both}
+@keyframes goTitleIn{0%{transform:scale(0) rotate(-10deg);opacity:0}60%{transform:scale(1.15) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes goScoreIn{0%{transform:translateY(30px) scale(.5);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes goFadeIn{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+
 .go-player-info{
   display:flex;align-items:center;gap:8px;
   background:rgba(255,255,255,.1);border-radius:12px;padding:6px 16px;margin:4px 0;
@@ -455,7 +465,6 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
       <div class="home-btn play" onclick="showScreen('select-game')"><img src="assets/play_btn.png" alt=""></div>
       <div class="home-btn list" onclick="showScreen('select-game')"><img src="assets/select_btn.png" alt=""></div>
     </div>
-    <div class="powered-by"><a href="https://simbiotic.digital" target="_blank">Powered by Simbiotic Digital</a></div>
   </div>
 
   <!-- ===== SELECT GAME ===== -->
@@ -497,7 +506,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="go-score-wrap"><div class="go-score-big" id="go-score">0</div><div class="go-score-label">SCORE</div></div>
     <div id="go-newbest" class="go-newbest" style="display:none">NEW BEST!</div>
     <div class="go-flags" id="go-flags"></div>
-    <div class="go-bonus"><div class="go-bonus-label">COINS EARNED</div><div class="go-bonus-val"><img src="assets/ic_coin.png" alt=""><span id="go-bonus">+0</span></div></div>
+    <div class="go-bonus"><div class="go-bonus-label" id="go-bonus-label">COINS EARNED</div><div class="go-bonus-val"><img src="assets/ic_coin.png" alt=""><span id="go-bonus">+0</span></div></div>
     <!-- Ad after game over (hidden if ad-free) -->
     <div class="ad-slot" id="go-ad-slot" style="margin:8px 0"><div class="ad-placeholder">Ad Space</div></div>
     <div class="go-buttons">
@@ -548,6 +557,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
         <span style="font-size:12px;color:#4CAF50;font-weight:800" id="ad-free-status"></span>
       </div>
       <div class="st-item" onclick="showScreen('market')">Remove Ads Forever<span style="color:rgba(255,255,255,.25)">></span></div>
+      <div class="st-item" onclick="restorePurchases()">Restore Purchases<span style="color:rgba(255,255,255,.25)">></span></div>
     </div>
     <div class="st-section" style="margin-top:12px">
       <div class="st-section-title">SOCIAL</div>
@@ -635,35 +645,15 @@ const STRIPE_LINKS = {
 
   // Grant rewards after page loads
   setTimeout(()=>{
-    let msg = '';
-    switch(purchase){
-      case 'remove_ads':
-        setAdFree(999999999); // permanent
-        updateAdFreeStatus();
-        msg = 'Ads removed forever!';
-        break;
-      case 'coins_100':
-        S.coins += 100; save(); updateCoins();
-        msg = 'You got 100 coins!';
-        break;
-      case 'coins_300':
-        S.coins += 300; save(); updateCoins();
-        msg = 'You got 300 coins!';
-        break;
-      case 'coins_1000':
-        S.coins += 1000; save(); updateCoins();
-        msg = 'You got 1000 coins!';
-        break;
-      case 'vip_pack':
-        S.coins += 500; save(); updateCoins();
-        setAdFree(999999999);
-        // Unlock all games
-        CATEGORIES.forEach(c=>{ if(!S.unlocked.includes(c.id))S.unlocked.push(c.id) });
-        save(); updateAdFreeStatus();
-        msg = 'VIP Pack activated! No ads + 500 coins + all games unlocked!';
-        break;
-      default: return;
+    const msg = grantPurchase(purchase);
+    if(!msg) return;
+
+    // Register purchase on server (for restore later)
+    const email = params.get('customer_email')||params.get('email')||'';
+    if(email){
+      fetch(API+'/restore',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,product:purchase})}).catch(()=>{});
     }
+
     sfx('coin');
     showDlg({
       title: 'PURCHASE COMPLETE!',
@@ -1125,7 +1115,7 @@ function spawnConfetti(n){
 async function gameOver(){
   S.active=false;clearInterval(S.timerInt);
   const c=S.cat,sc=S.score,best=S.best[c.id]||0,isNew=sc>best;
-  const earned=sc*5+Math.floor(S.timer*10);
+  const earned=Math.min(sc,10); // max 10 coins per game, 1 per correct
   if(isNew)S.best[c.id]=sc;
   S.coins+=earned;save();
 
@@ -1167,6 +1157,67 @@ async function gameOver(){
   if(isNew)spawnConfetti(30);
 }
 function retryGame(){if(S.cat)ensureNickname(()=>startGame(S.cat.id))}
+
+// ===== PURCHASE GRANTING =====
+function grantPurchase(product){
+  switch(product){
+    case 'remove_ads':
+      setAdFree(999999999);updateAdFreeStatus();
+      return 'Ads removed forever!';
+    case 'coins_100':
+      S.coins+=100;save();updateCoins();
+      return 'You got 100 coins!';
+    case 'coins_300':
+      S.coins+=300;save();updateCoins();
+      return 'You got 300 coins!';
+    case 'coins_1000':
+      S.coins+=1000;save();updateCoins();
+      return 'You got 1000 coins!';
+    case 'vip_pack':
+      S.coins+=500;save();updateCoins();
+      setAdFree(999999999);
+      buildCategories();
+      CATEGORIES.forEach(c=>{if(!S.unlocked.includes(c.id))S.unlocked.push(c.id)});
+      save();updateAdFreeStatus();
+      return 'VIP Pack activated! No ads + 500 coins + all games!';
+    default:return null;
+  }
+}
+
+async function restorePurchases(){
+  showDlg({
+    title:'RESTORE PURCHASES',
+    body:`<p>Enter the email you used to pay:</p><input class="nick-input" id="restore-email" placeholder="your@email.com" type="email">`,
+    btns:[
+      {t:'CANCEL',cls:'no',fn:hideDlg},
+      {t:'RESTORE',cls:'yes',fn:async()=>{
+        const email=document.getElementById('restore-email').value.trim();
+        if(!email){return}
+        hideDlg();
+        const data=await apiPost('/restore',{email});
+        if(data&&data.found&&data.purchases.length){
+          let restored=[];
+          data.purchases.forEach(p=>{
+            const msg=grantPurchase(p.product);
+            if(msg)restored.push(msg);
+          });
+          sfx('coin');
+          showDlg({
+            title:'RESTORED!',
+            body:`<div style="font-size:40px;margin:6px 0">🎉</div><p>${restored.join('<br>')}</p>`,
+            btns:[{t:'AWESOME!',cls:'yes',fn:hideDlg}]
+          });
+        }else{
+          showDlg({
+            title:'NOT FOUND',
+            body:'<p>No purchases found for this email. Make sure it\'s the same email you used at checkout.</p>',
+            btns:[{t:'OK',cls:'yes',fn:hideDlg}]
+          });
+        }
+      }}
+    ]
+  });
+}
 
 // ===== REWARDED ADS =====
 let adFreeUntil=0;
