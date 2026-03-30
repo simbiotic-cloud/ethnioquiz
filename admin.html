@@ -358,7 +358,10 @@ async function loadDBFromServer(){
 }
 function saveDB(){
   localStorage.setItem('eq3_entities',JSON.stringify(db));
-  fetch('/api/entities',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(db)}).catch(()=>{});
+  // Only sync to server the entity that was actually modified
+  if(curEnt && db.entities[curEnt]){
+    fetch('/api/entities',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entities:{[curEnt]:db.entities[curEnt]}})}).catch(()=>{});
+  }
 }
 function loadGames(){try{const d=JSON.parse(localStorage.getItem('eq3_games'));if(d&&d.games&&d.games.length){games=d;return}}catch(e){}games={games:[...DEFAULT_GAMES]};saveGames()}
 function saveGames(){localStorage.setItem('eq3_games',JSON.stringify(games))}
