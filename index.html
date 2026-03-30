@@ -1159,15 +1159,16 @@ function nextCard(){
   setTimeout(()=>{if(img.style.opacity==='0')onReady()},4000);
 }
 
+const TIMER_SECS=3;
 function startTimer(){
-  if(S.timerInt)clearInterval(S.timerInt);S.timer=5;
+  if(S.timerInt)clearInterval(S.timerInt);S.timer=TIMER_SECS;
   const bar=document.getElementById('timer-bar');bar.style.width='100%';bar.classList.remove('danger');
   S.timerInt=setInterval(()=>{
     S.timer-=.05;
     if(S.timer<=0){S.timer=0;clearInterval(S.timerInt);gameOver();return}
-    bar.style.width=(S.timer/5*100)+'%';
+    bar.style.width=(S.timer/TIMER_SECS*100)+'%';
     document.getElementById('time-val').textContent=S.timer.toFixed(1);
-    if(S.timer<1.5)bar.classList.add('danger');
+    if(S.timer<1)bar.classList.add('danger');
   },50);
 }
 

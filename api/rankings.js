@@ -4,11 +4,12 @@ const redis = Redis.fromEnv();
 
 function parseEntry(member, score) {
   try {
+    // Old format: JSON string {"name":"x","date":123}
     const data = typeof member === 'string' ? JSON.parse(member) : member;
-    return { name: data.name || 'Anonymous', score: Number(score), date: data.date || 0 };
-  } catch (e) {
-    return { name: String(member), score: Number(score), date: 0 };
-  }
+    if (data.name) return { name: data.name, score: Number(score), date: data.date || 0 };
+  } catch (e) {}
+  // New format: member IS the name string
+  return { name: String(member), score: Number(score), date: 0 };
 }
 
 export default async function handler(req, res) {
@@ -76,8 +77,18 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing game, name, or score' });
       }
 
-      const member = JSON.stringify({ name, date: Date.now(), id: Math.random().toString(36).substr(2, 8) });
-      await redis.zadd(`ranks:${game}`, { score: Number(score), member });
+      // Use name as the member key — this ensures only 1 entry per player
+      // zadd with GT flag: only update if new score is GREATER than existing
+      const member = name;
+      const numScore = Number(score);
+
+      // Check current best for this player
+      const currentScore = await redis.zscore(`ranks:${game}`, member);
+
+      if (currentScore === null || numScore > Number(currentScore)) {
+        // New player or new best — update
+        await redis.zadd(`ranks:${game}`, { score: numScore, member });
+      }
 
       const count = await redis.zcard(`ranks:${game}`);
       if (count > MAX_PER_GAME) {
