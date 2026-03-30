@@ -8,22 +8,23 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // Use a single hash: eq3_ent with field per entity
+  const HASH_KEY = 'eq3_ent';
+
   try {
-    // GET /api/entities — rebuild from individual keys
     if (req.method === 'GET') {
-      const keys = await redis.keys('entity:*');
+      const all = await redis.hgetall(HASH_KEY);
       const entities = {};
-      for (const key of keys) {
-        const id = key.replace('entity:', '');
-        const data = await redis.get(key);
-        if (data) {
-          entities[id] = typeof data === 'string' ? JSON.parse(data) : data;
+      if (all) {
+        for (const [id, val] of Object.entries(all)) {
+          try {
+            entities[id] = typeof val === 'string' ? JSON.parse(val) : val;
+          } catch(e) { entities[id] = val; }
         }
       }
       return res.json({ entities });
     }
 
-    // POST /api/entities — save each entity as separate key
     if (req.method === 'POST') {
       const body = req.body;
       if (!body || !body.entities) {
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
 
       let saved = 0;
       for (const [id, entity] of Object.entries(body.entities)) {
-        await redis.set(`entity:${id}`, JSON.stringify(entity));
+        await redis.hset(HASH_KEY, { [id]: JSON.stringify(entity) });
         saved++;
       }
 
