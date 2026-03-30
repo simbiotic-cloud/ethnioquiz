@@ -890,7 +890,7 @@ function loadEntities(){
 }
 function saveEntities(){
   localStorage.setItem('eq3_entities',JSON.stringify({entities:ENTITIES}));
-  fetch(API+'/entities',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entities:ENTITIES})}).catch(()=>{});
+  // Don't save to server from game — only admin/upload-script writes to server
 }
 function markShown(eid,iid){
   if(!ENTITIES[eid])return;const img=ENTITIES[eid].images.find(i=>i.id===iid);

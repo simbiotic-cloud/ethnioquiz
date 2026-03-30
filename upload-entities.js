@@ -154,11 +154,18 @@ const BASQUE_URLS = [
   entities.basque = basque;
   console.log('Basque: added ' + basqueAdded + ' (total: ' + basque.images.length + ')');
 
-  // Delete test entity
+  // Delete test entities
   delete entities.test_entity;
+  delete entities.spain_test;
+  delete entities.spain2;
 
-  // Upload all
-  console.log('Uploading to server...');
-  const result = await apiPost({ entities });
-  console.log('Result:', result);
+  // Upload ONE BY ONE (avoids large body issues)
+  console.log('\nUploading entities one by one...');
+  for (const [id, entity] of Object.entries(entities)) {
+    const result = await apiPost({ entities: { [id]: entity } });
+    const parsed = JSON.parse(result);
+    const count = entity.images ? entity.images.length : 0;
+    console.log(`  ${id}: ${count} images → ${parsed.ok ? 'OK' : 'FAIL: ' + result}`);
+  }
+  console.log('Done!');
 })();
