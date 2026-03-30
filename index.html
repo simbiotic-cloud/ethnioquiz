@@ -1031,7 +1031,7 @@ async function renderRanking(){
 }
 
 // ===== STATE =====
-let S={coins:100,soundOn:true,musicOn:true,unlocked:['japan_vs_china','spain_vs_basque','india_vs_pakistan'],best:{},
+let S={coins:100,soundOn:true,musicOn:false,unlocked:['japan_vs_china','spain_vs_basque','india_vs_pakistan'],best:{},
   cat:null,score:0,streak:0,pIdx:0,timer:5,timerInt:null,active:false,shownThisGame:new Set()};
 
 function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.musicOn=d.musicOn??true;S.unlocked=d.unlocked??['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best=d.best??{}}}catch(e){}}
