@@ -148,14 +148,30 @@ const japanUrls = [
 const japanAdded = addImages('japan', japanUrls);
 log(`Japan: added ${japanAdded} images (total: ${db.entities.japan.images.length})`);
 
-// Save
+// Save locally
 localStorage.setItem('eq3_entities', JSON.stringify(db));
-log('\n--- DONE! ---');
-log(`Total entities: ${Object.keys(db.entities).length}`);
+log(`\nSaved to localStorage.`);
 log(`China: ${db.entities.china.images.length} images`);
 log(`Japan: ${db.entities.japan.images.length} images`);
-log('\nYou can now close this page and play the game!');
-log('Open index.html → Japan vs China should show "100 photos" and be ready to play.');
+
+// Save to server
+log('\nUploading to server...');
+fetch('/api/entities', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(db)
+}).then(r => r.json()).then(d => {
+  if (d.ok) {
+    log('Uploaded to server successfully!');
+    log('\n--- ALL DONE! ---');
+    log('Images are now available for ALL users on ALL devices.');
+  } else {
+    log('Server upload failed: ' + JSON.stringify(d));
+  }
+}).catch(e => {
+  log('Server upload error: ' + e.message);
+  log('(Images saved locally only)');
+});
 </script>
 </body>
 </html>

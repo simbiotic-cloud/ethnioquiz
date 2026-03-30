@@ -836,6 +836,14 @@ const DEFAULT_ENTITIES={
   ireland:{name:'Ireland',flag:'flags/ireland.svg'},morocco:{name:'Morocco',flag:'flags/morocco.svg'},
 };
 
+async function loadEntitiesFromServer(){
+  try{
+    const r=await fetch(API+'/entities');
+    if(r.ok){const d=await r.json();if(d&&d.entities&&Object.keys(d.entities).length>0){ENTITIES=d.entities;localStorage.setItem('eq3_entities',JSON.stringify({entities:ENTITIES}));return true}}
+  }catch(e){}
+  return false;
+}
+
 function loadEntities(){
   try{const d=JSON.parse(localStorage.getItem('eq3_entities'));if(d&&d.entities)ENTITIES=d.entities}catch(e){}
   let ch=false;
@@ -845,7 +853,10 @@ function loadEntities(){
   });
   if(ch)saveEntities();
 }
-function saveEntities(){localStorage.setItem('eq3_entities',JSON.stringify({entities:ENTITIES}))}
+function saveEntities(){
+  localStorage.setItem('eq3_entities',JSON.stringify({entities:ENTITIES}));
+  fetch(API+'/entities',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entities:ENTITIES})}).catch(()=>{});
+}
 function markShown(eid,iid){
   if(!ENTITIES[eid])return;const img=ENTITIES[eid].images.find(i=>i.id===iid);
   if(img){img.shownCount=(img.shownCount||0)+1;img.lastShown=Date.now();saveEntities()}
@@ -876,7 +887,13 @@ function buildPeopleForGame(cat){
   for(let i=p.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
   return p;
 }
-buildCategories();
+// Load entities from server first, then build
+(async function(){
+  await loadEntitiesFromServer();
+  buildCategories();
+  // Re-render if select-game is visible
+  if(document.getElementById('select-game').classList.contains('active'))renderGameList();
+})();
 
 // ===== NICKNAME (for rankings) =====
 function getNick(){return localStorage.getItem('eq3_nick')||''}

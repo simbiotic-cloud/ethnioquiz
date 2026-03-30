@@ -352,7 +352,14 @@ const DEFAULT_GAMES=[
 ];
 
 function loadDB(){try{const d=JSON.parse(localStorage.getItem('eq3_entities'));if(d&&d.entities)db=d}catch(e){}}
-function saveDB(){localStorage.setItem('eq3_entities',JSON.stringify(db))}
+async function loadDBFromServer(){
+  try{const r=await fetch('/api/entities');if(r.ok){const d=await r.json();if(d&&d.entities&&Object.keys(d.entities).length>0){db=d;localStorage.setItem('eq3_entities',JSON.stringify(db));return true}}}catch(e){}
+  return false;
+}
+function saveDB(){
+  localStorage.setItem('eq3_entities',JSON.stringify(db));
+  fetch('/api/entities',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(db)}).catch(()=>{});
+}
 function loadGames(){try{const d=JSON.parse(localStorage.getItem('eq3_games'));if(d&&d.games&&d.games.length){games=d;return}}catch(e){}games={games:[...DEFAULT_GAMES]};saveGames()}
 function saveGames(){localStorage.setItem('eq3_games',JSON.stringify(games))}
 
@@ -703,18 +710,20 @@ async function doLogin(){
   const hash=await sha256(email+':'+pass);
   if(hash===AUTH_HASH){
     sessionStorage.setItem('eq3_auth','1');
-    document.getElementById('login-gate').classList.add('hidden');
-    loadDB();loadGames();renderDashboard();
+    initAdmin();
   }else{
     document.getElementById('login-error').textContent='Invalid credentials';
   }
 }
 
 // ===== INIT =====
-if(sessionStorage.getItem('eq3_auth')==='1'){
+async function initAdmin(){
   document.getElementById('login-gate').classList.add('hidden');
-  loadDB();loadGames();renderDashboard();
+  loadDB();loadGames();
+  await loadDBFromServer();
+  renderDashboard();
 }
+if(sessionStorage.getItem('eq3_auth')==='1'){initAdmin()}
 </script>
 </body>
 </html>
