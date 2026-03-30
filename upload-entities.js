@@ -159,13 +159,17 @@ const BASQUE_URLS = [
   delete entities.spain_test;
   delete entities.spain2;
 
-  // Upload ONE BY ONE (avoids large body issues)
-  console.log('\nUploading entities one by one...');
-  for (const [id, entity] of Object.entries(entities)) {
-    const result = await apiPost({ entities: { [id]: entity } });
-    const parsed = JSON.parse(result);
-    const count = entity.images ? entity.images.length : 0;
-    console.log(`  ${id}: ${count} images → ${parsed.ok ? 'OK' : 'FAIL: ' + result}`);
-  }
-  console.log('Done!');
+  // Upload ALL at once (avoid race conditions from sequential POSTs)
+  console.log('\nUploading ALL entities in one request...');
+  const bodySize = JSON.stringify({ entities }).length;
+  console.log('Payload size:', (bodySize / 1024).toFixed(1) + 'KB');
+  const result = await apiPost({ entities });
+  console.log('Result:', result);
+
+  // Verify
+  console.log('\nVerifying...');
+  const check = await apiGet();
+  Object.entries(check.entities).forEach(([k, v]) => {
+    if (v.images && v.images.length > 0) console.log('  ' + k + ': ' + v.images.length + ' images');
+  });
 })();

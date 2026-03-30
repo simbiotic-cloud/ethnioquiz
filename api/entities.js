@@ -25,21 +25,24 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing entities data' });
       }
 
-      // Merge: read existing, merge new on top, write back
+      // Read existing, merge, write back
       let existing = {};
-      const raw = await redis.get(KEY);
-      if (raw) {
-        const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-        existing = data.entities || {};
-      }
+      try {
+        const raw = await redis.get(KEY);
+        if (raw) {
+          const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          existing = data.entities || data || {};
+        }
+      } catch(e) {}
 
-      // Merge new entities (new data wins)
+      // Merge: new data always wins
       for (const [id, entity] of Object.entries(body.entities)) {
-        existing[id] = entity;
+        existing[id] = typeof entity === 'string' ? JSON.parse(entity) : entity;
       }
 
-      // Write back as single key
-      await redis.set(KEY, JSON.stringify({ entities: existing }));
+      // Write as raw string to prevent Upstash auto-parsing issues
+      const payload = JSON.stringify({ entities: existing });
+      await redis.set(KEY, payload);
 
       return res.json({ ok: true, saved: Object.keys(body.entities).length });
     }
