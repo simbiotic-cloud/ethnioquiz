@@ -317,6 +317,70 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .toggle::after{content:'';position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .toggle.on::after{transform:translateX(24px)}
 
+/* ===== ONBOARDING / HOW TO PLAY ===== */
+.onboard-overlay{
+  position:absolute;inset:0;z-index:120;
+  background:rgba(0,0,0,.8);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.onboard-overlay.show{opacity:1;pointer-events:auto}
+.onboard{
+  width:90%;max-width:340px;border-radius:24px;overflow:hidden;
+  background:linear-gradient(180deg,#1a2744,#0f1a30);
+  border:2px solid rgba(255,215,0,.15);
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  animation:obIn .4s ease-out;
+}
+@keyframes obIn{0%{transform:translateY(40px) scale(.9);opacity:0}100%{transform:none;opacity:1}}
+.ob-header{
+  background:linear-gradient(135deg,#FFD700,#FF6633);
+  padding:20px;text-align:center;position:relative;
+}
+.ob-header h2{font-family:'Boogaloo',cursive;font-size:32px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.15)}
+.ob-header .ob-globe{font-size:44px;display:block;margin-bottom:4px}
+.ob-steps{padding:20px}
+.ob-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.ob-step-num{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Boogaloo',cursive;font-size:18px;color:#fff;
+}
+.ob-step:nth-child(1) .ob-step-num{background:linear-gradient(135deg,#FF6633,#cc4400)}
+.ob-step:nth-child(2) .ob-step-num{background:linear-gradient(135deg,#4CAF50,#388E3C)}
+.ob-step:nth-child(3) .ob-step-num{background:linear-gradient(135deg,#2196F3,#1565C0)}
+.ob-step:nth-child(4) .ob-step-num{background:linear-gradient(135deg,#FFD700,#FF9800)}
+.ob-step-text{flex:1}
+.ob-step-title{font-weight:900;font-size:14px;color:#fff;margin-bottom:2px}
+.ob-step-desc{font-size:12px;color:rgba(255,255,255,.45);font-weight:600;line-height:1.4}
+.ob-step-emoji{font-size:20px;margin-right:2px}
+.ob-coin-rule{
+  margin:0 20px 16px;padding:12px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,215,0,.04));
+  border:1px solid rgba(255,215,0,.15);text-align:center;
+}
+.ob-coin-rule .big{font-family:'Boogaloo',cursive;font-size:22px;color:#FFD700}
+.ob-coin-rule .small{font-size:11px;color:rgba(255,255,255,.4);font-weight:700;margin-top:2px}
+.ob-footer{padding:0 20px 20px;display:flex;justify-content:center}
+.ob-btn{
+  width:100%;padding:14px;border-radius:14px;border:none;
+  font-family:'Boogaloo',cursive;font-size:22px;cursor:pointer;
+  background:linear-gradient(135deg,#FF6633,#cc4400);color:#fff;
+  box-shadow:0 4px 0 #993300;transition:transform .1s;
+}
+.ob-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #993300}
+
+/* Info button (top bar) */
+.info-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Boogaloo',cursive;font-size:18px;color:#FFD700;
+  cursor:pointer;transition:transform .12s,background .15s;
+}
+.info-btn:active{transform:scale(.85)}
+.info-btn:hover{background:rgba(255,215,0,.15)}
+
 /* Interstitial ad modal */
 .interstitial{
   position:absolute;inset:0;z-index:150;
@@ -461,6 +525,9 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
       <div class="icon-btn" onclick="showScreen('settings')"><img src="assets/ic_settings.png" alt=""></div>
     </div>
     <div class="home-center"></div>
+    <div style="display:flex;gap:24px;padding:0 0 12px;align-items:center">
+      <div class="info-btn" onclick="showOnboarding()" title="How to play">?</div>
+    </div>
     <div class="home-buttons">
       <div class="home-btn play" onclick="showScreen('select-game')"><img src="assets/play_btn.png" alt=""></div>
       <div class="home-btn list" onclick="showScreen('select-game')"><img src="assets/select_btn.png" alt=""></div>
@@ -581,6 +648,53 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     </div>
     <button class="rw-skip" id="rw-skip" disabled>Wait...</button>
     <div class="rw-reward-text">5 minutes without ads after watching</div>
+  </div>
+
+  <!-- Onboarding / How to Play -->
+  <div class="onboard-overlay" id="onboard-overlay">
+    <div class="onboard">
+      <div class="ob-header">
+        <span class="ob-globe">🌍</span>
+        <h2>HOW TO PLAY</h2>
+      </div>
+      <div class="ob-steps">
+        <div class="ob-step">
+          <div class="ob-step-num">1</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title"><span class="ob-step-emoji">👤</span> LOOK AT THE FACE</div>
+            <div class="ob-step-desc">A photo appears. Study it carefully — which nationality do you think they are?</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-num">2</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title"><span class="ob-step-emoji">👈</span> SWIPE OR TAP</div>
+            <div class="ob-step-desc">Swipe left or right like Tinder, or tap the flag buttons to choose your answer.</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-num">3</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title"><span class="ob-step-emoji">⏱️</span> BEAT THE CLOCK</div>
+            <div class="ob-step-desc">You have 5 seconds per photo. One wrong answer and it's game over!</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-num">4</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title"><span class="ob-step-emoji">🏆</span> CLIMB THE RANKS</div>
+            <div class="ob-step-desc">Compete in the global leaderboard. Beat your friends and the world!</div>
+          </div>
+        </div>
+      </div>
+      <div class="ob-coin-rule">
+        <div class="big">🪙 10+ CORRECT = EARN COINS</div>
+        <div class="small">Get 10+ in a row to earn 1 coin per correct answer (max 10). Use coins to unlock new games!</div>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-btn" onclick="closeOnboarding()">LET'S GO!</button>
+      </div>
+    </div>
   </div>
 
   <!-- Interstitial Ad (every 10 games) -->
@@ -1115,7 +1229,7 @@ function spawnConfetti(n){
 async function gameOver(){
   S.active=false;clearInterval(S.timerInt);
   const c=S.cat,sc=S.score,best=S.best[c.id]||0,isNew=sc>best;
-  const earned=Math.min(sc,10); // max 10 coins per game, 1 per correct
+  const earned=sc>=10?Math.min(sc,10):0; // Only earn coins if 10+ correct!
   if(isNew)S.best[c.id]=sc;
   S.coins+=earned;save();
 
@@ -1143,7 +1257,15 @@ async function gameOver(){
   document.getElementById('go-nick').textContent=nick;
   document.getElementById('go-rank-info').textContent=pos>0?`#${pos} in ${c.name}`:'';
   document.getElementById('go-score').textContent=sc;
-  document.getElementById('go-bonus').textContent='+'+earned;
+  if(earned>0){
+    document.getElementById('go-bonus-label').textContent='COINS EARNED';
+    document.getElementById('go-bonus').textContent='+'+earned;
+    document.getElementById('go-bonus').style.color='#FFD700';
+  }else{
+    document.getElementById('go-bonus-label').textContent=sc>0?`GET 10+ TO EARN COINS (${sc}/10)`:'NO COINS';
+    document.getElementById('go-bonus').textContent='+0';
+    document.getElementById('go-bonus').style.color='rgba(255,255,255,.3)';
+  }
   document.getElementById('go-newbest').style.display=isNew?'block':'none';
   document.getElementById('go-flags').innerHTML=`
     <div class="go-flag">${c.a.flag?`<img src="${c.a.flag}">`:`<span style="font-size:28px;font-weight:900;color:rgba(255,255,255,.5)">${c.a.name}</span>`}</div>
@@ -1379,12 +1501,25 @@ function showDlg({title,body,btns}){
 }
 function hideDlg(){document.getElementById('dialog-overlay').classList.remove('show')}
 
+// ===== ONBOARDING =====
+function showOnboarding(){
+  document.getElementById('onboard-overlay').classList.add('show');
+}
+function closeOnboarding(){
+  document.getElementById('onboard-overlay').classList.remove('show');
+  localStorage.setItem('eq3_onboarded','1');
+}
+
 // ===== INIT =====
 load();loadAdFree();updateCoins();updateNickDisplay();updateAdFreeStatus();
 document.getElementById('toggle-sound').classList.toggle('on',S.soundOn);
 document.addEventListener('click',()=>{try{getAudio();if(actx.state==='suspended')actx.resume()}catch(e){}},{once:true});
-// Refresh ad-free status every 30s
 setInterval(updateAdFreeStatus,30000);
+
+// Show onboarding on first visit
+if(!localStorage.getItem('eq3_onboarded')){
+  setTimeout(showOnboarding,600);
+}
 </script>
 </body>
 </html>
