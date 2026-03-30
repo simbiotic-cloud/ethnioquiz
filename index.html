@@ -6,8 +6,12 @@
 <title>EthnioQuiz</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-<!-- AdSense (test mode) -->
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<!-- AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9562574562750195" crossorigin="anonymous"></script>
+<!-- Google Funding Choices (consent) -->
+<script async src="https://fundingchoicesmessages.google.com/i/pub-9562574562750195?ers=1"></script>
 <style>
 /* ===== RESET ===== */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -16,7 +20,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 
 #app{
   position:relative;width:100%;max-width:420px;height:100vh;max-height:920px;
-  overflow:hidden;background:#5ab0d0;
+  overflow:hidden;background:#0a0f1e;
   border-radius:32px;
   box-shadow:0 0 0 4px rgba(255,255,255,.08),0 20px 60px rgba(0,0,0,.5);
 }
@@ -84,6 +88,14 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 /* ===== HOME ===== */
 #home{background:url('assets/splash screen.png') center/cover no-repeat;justify-content:space-between;padding:0}
 #home .top-bar{position:absolute;top:0;left:0;right:0}
+#home .icon-btn{transition:transform .2s}
+#home .icon-btn:hover{transform:scale(1.15) rotate(-8deg)}
+#home .coin-badge{transition:transform .2s}
+#home .coin-badge:hover{transform:scale(1.1)}
+#home .info-btn{transition:transform .2s}
+#home .info-btn:hover{transform:scale(1.15) rotate(10deg)}
+#home .home-btn.list{transition:transform .2s}
+#home .home-btn.list:hover{transform:scale(1.1) rotate(-5deg)}
 .home-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .home-buttons{display:flex;gap:24px;padding:0 0 50px;align-items:center}
 .home-btn{cursor:pointer;transition:transform .1s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
@@ -92,18 +104,19 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .home-btn.list img{width:90px;height:90px}
 
 /* ===== SELECT GAME ===== */
-#select-game{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#5a9ab5;padding:0}
+#select-game{background:linear-gradient(180deg,rgba(15,26,48,.92),rgba(10,15,30,.96)),url('assets/bg_2.png') center/cover no-repeat;padding:0}
 .sg-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px}
 .sg-header .icon-btn img{width:32px;height:32px;filter:brightness(10)}
 .sg-title{text-align:center;padding:0 0 10px}
-.sg-title h1{font-family:'Boogaloo',cursive;font-size:42px;color:#fff;text-shadow:2px 3px 0 rgba(0,0,0,.15)}
-.sg-title h2{font-family:'Boogaloo',cursive;font-size:26px;color:#d4e8f0;margin-top:-6px}
+.sg-title h1{font-family:'Boogaloo',cursive;font-size:42px;color:#FFD700;text-shadow:0 0 20px rgba(255,215,0,.2),2px 3px 0 rgba(0,0,0,.3)}
+.sg-title h2{font-family:'Boogaloo',cursive;font-size:26px;color:rgba(255,255,255,.5);margin-top:-6px}
 
 .game-list{flex:1;width:100%;overflow-y:auto;padding:4px 16px 24px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
 .game-list::-webkit-scrollbar{display:none}
-.game-card{width:100%;display:flex;align-items:center;background:rgba(0,15,50,.65);border-radius:18px;padding:10px 12px;gap:8px;cursor:pointer;border:2px solid rgba(255,255,255,.08);transition:transform .12s,background .12s}
-.game-card:active{transform:scale(.97);background:rgba(0,15,50,.85)}
-.game-card.locked{opacity:.45;filter:grayscale(.3)}
+.game-card{width:100%;display:flex;align-items:center;background:rgba(255,255,255,.04);border-radius:18px;padding:10px 12px;gap:8px;cursor:pointer;border:2px solid rgba(255,255,255,.06);transition:transform .12s,background .12s,border-color .2s}
+.game-card:hover{border-color:rgba(255,215,0,.2)}
+.game-card:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+.game-card.locked{opacity:.35;filter:grayscale(.4)}
 .gc-flag{width:56px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 .gc-vs{font-family:'Boogaloo',cursive;font-size:16px;color:rgba(255,255,255,.45)}
 .gc-info{flex:1;display:flex;flex-direction:column;margin-left:4px}
@@ -112,19 +125,16 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .gc-cost{display:flex;align-items:center;gap:4px;background:rgba(255,180,0,.18);border-radius:14px;padding:4px 10px}
 .gc-cost img{width:22px;height:22px}
 .gc-cost span{color:#FFD700;font-weight:800;font-size:14px;font-family:'Boogaloo',cursive}
-.gc-free{background:#4CAF50;color:#fff;font-weight:800;font-size:11px;padding:5px 12px;border-radius:14px}
+.gc-free{background:linear-gradient(135deg,#4CAF50,#388E3C);color:#fff;font-weight:800;font-size:11px;padding:5px 12px;border-radius:14px;box-shadow:0 0 12px rgba(76,175,80,.3)}
 
 /* Ad slot */
 .ad-slot{width:100%;padding:4px 16px;margin:0}
-.ad-placeholder{
-  width:100%;height:60px;border-radius:10px;
-  background:rgba(0,0,0,.15);border:1px dashed rgba(255,255,255,.1);
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;color:rgba(255,255,255,.2);font-weight:700;
-}
+.ad-slot{min-height:0;transition:min-height .3s}
+.ad-slot ins{display:block;width:100%;border-radius:10px;overflow:hidden}
+.ad-slot:empty,.ad-slot.ad-failed{display:none!important}
 
 /* ===== GAME SCREEN ===== */
-#game-screen{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#5ab0d0;padding:0}
+#game-screen{background:linear-gradient(180deg,rgba(15,26,48,.88),rgba(10,15,30,.94)),url('assets/bg_2.png') center/cover no-repeat;padding:0}
 .gs-best-bar{width:100%;position:relative;display:flex;justify-content:center}
 .gs-best-bar img{width:260px;height:auto}
 .gs-best-bar .best-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Boogaloo',cursive;font-size:20px;color:#fff;white-space:nowrap}
@@ -146,17 +156,17 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .combo-text.show{animation:comboIn .6s ease-out forwards}
 @keyframes comboIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}60%{transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-70%) scale(.8)}}
 
-.timer-wrap{width:calc(100% - 40px);height:7px;background:rgba(0,0,0,.2);border-radius:4px;margin:6px 20px}
+.timer-wrap{width:calc(100% - 40px);height:7px;background:rgba(255,255,255,.08);border-radius:4px;margin:6px 20px}
 .timer-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#e74c3c,#f39c12,#2ecc71);width:100%;transition:width .08s linear}
 .timer-fill.danger{animation:timerPulse .4s ease infinite}
 @keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* Card */
-.card-area{flex:1;width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:0 20px}
+.card-area{flex:1;width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:0 20px;min-height:0}
 .photo-card{
   width:280px;height:330px;border-radius:18px;overflow:hidden;
-  background:#fff;border:5px solid rgba(0,30,70,.5);
-  box-shadow:0 12px 40px rgba(0,0,0,.35);
+  background:#fff;border:4px solid rgba(255,255,255,.15);
+  box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 30px rgba(100,150,255,.1);
   position:absolute;cursor:grab;will-change:transform;
   transition:box-shadow .2s;
 }
@@ -177,13 +187,13 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Choices — tight under card */
-.choices{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px 14px}
-.choice-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .12s}
+/* Choices — directly under card, big flags */
+.choices{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px 16px;margin-top:-20px}
+.choice-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:transform .12s}
 .choice-btn:active{transform:scale(.85)}
-.choice-btn img{width:90px;height:60px;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
-.choice-btn span{font-family:'Boogaloo',cursive;font-size:16px;color:#fff;text-shadow:1px 1px 3px rgba(0,0,0,.25)}
-.choices .or{font-family:'Boogaloo',cursive;font-size:14px;color:rgba(255,255,255,.3);margin:0 2px}
+.choice-btn img{width:110px;height:74px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.choice-btn span{font-family:'Boogaloo',cursive;font-size:18px;color:#fff;text-shadow:1px 1px 3px rgba(0,0,0,.3)}
+.choices .or{font-family:'Boogaloo',cursive;font-size:13px;color:rgba(255,255,255,.2);margin:0 -2px}
 
 /* Flash overlay — faster, more impactful */
 .flash{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
@@ -202,29 +212,29 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 @keyframes shakeIt{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}90%{transform:translateX(3px)}}
 
 /* ===== GAME OVER ===== */
-#game-over{background:url('assets/end_bg.png') center/cover no-repeat;background-color:#5a8fb5;justify-content:flex-start;padding:0}
-.go-top{width:100%;padding:14px 16px;display:flex;justify-content:center}
-.go-title{font-family:'Boogaloo',cursive;font-size:36px;color:#FF6633;text-shadow:2px 2px 0 rgba(0,0,0,.12);margin-top:16px}
-.go-score-wrap{text-align:center;margin:8px 0}
-.go-score-big{font-family:'Boogaloo',cursive;font-size:80px;color:#fff;text-shadow:3px 3px 6px rgba(0,0,0,.2);line-height:1}
+#game-over{background:linear-gradient(180deg,rgba(15,26,48,.9),rgba(10,15,30,.95)),url('assets/end_bg.png') center/cover no-repeat;justify-content:center;padding:0;gap:6px}
+.go-top{width:100%;padding:8px 16px;display:flex;justify-content:center;position:absolute;top:0}
+.go-title{font-family:'Boogaloo',cursive;font-size:40px;color:#FF6633;text-shadow:0 0 20px rgba(255,102,51,.3),2px 2px 0 rgba(0,0,0,.2);margin:0}
+.go-score-wrap{text-align:center;margin:4px 0}
+.go-score-big{font-family:'Boogaloo',cursive;font-size:80px;color:#fff;text-shadow:0 0 30px rgba(255,255,255,.15),3px 3px 6px rgba(0,0,0,.3);line-height:1}
 .go-score-label{font-family:'Boogaloo',cursive;font-size:22px;color:rgba(255,255,255,.6);margin-top:-4px}
 .go-newbest{font-family:'Boogaloo',cursive;font-size:22px;color:#FFD700;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.06);opacity:.7}}
-.go-flags{display:flex;align-items:center;gap:12px;margin:12px 0}
+.go-flags{display:flex;align-items:center;gap:12px;margin:8px 0}
 .go-flag img{width:80px;height:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
-.go-bonus{display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(0,0,0,.2);border-radius:18px;padding:12px 28px;margin:10px 0}
+.go-bonus{display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:12px 28px;margin:10px 0}
 .go-bonus-label{font-family:'Boogaloo',cursive;font-size:16px;color:rgba(255,255,255,.6)}
 .go-bonus-val{display:flex;align-items:center;gap:6px}
 .go-bonus-val img{width:28px;height:28px}
 .go-bonus-val span{font-family:'Boogaloo',cursive;font-size:30px;color:#FFD700}
-.go-buttons{display:flex;gap:16px;margin-top:14px;align-items:center}
+.go-buttons{display:flex;gap:16px;margin-top:8px;align-items:center}
 .go-btn{cursor:pointer;transition:transform .1s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
 .go-btn:active{transform:translateY(3px) scale(.95)}
 .go-btn img{height:70px;width:auto}
 .go-btn.big img{height:95px}
 
 /* ===== RANKING ===== */
-#ranking{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#0f1a30;padding:0}
+#ranking{background:linear-gradient(180deg,rgba(15,26,48,.92),rgba(10,15,30,.96)),url('assets/bg_2.png') center/cover no-repeat;padding:0}
 .rk-list{flex:1;width:100%;overflow-y:auto;padding:8px 16px 24px}
 .rk-list::-webkit-scrollbar{display:none}
 .rk-cat{margin-bottom:24px}
@@ -286,7 +296,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .rk-empty .rk-empty-icon{font-size:50px;margin-bottom:8px}
 
 /* ===== MARKET ===== */
-#market{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#1a2744;padding:0}
+#market{background:linear-gradient(180deg,rgba(15,26,48,.93),rgba(10,15,30,.97)),url('assets/bg_2.png') center/cover no-repeat;padding:0}
 .mk-section{font-family:'Boogaloo',cursive;font-size:18px;color:rgba(255,215,0,.5);padding:16px 20px 6px;width:100%;text-align:left;text-transform:uppercase;letter-spacing:1px}
 .mk-item{width:calc(100% - 32px);margin:0 16px 10px;display:flex;align-items:center;gap:12px;position:relative;cursor:pointer;transition:transform .1s;height:58px}
 .mk-item:active{transform:translateY(2px)}
@@ -296,7 +306,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .mk-price{font-family:'Boogaloo',cursive;font-size:17px;color:#fff;background:rgba(0,0,0,.15);padding:3px 12px;border-radius:10px}
 
 /* ===== SETTINGS ===== */
-#settings{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#1a2744;padding:0}
+#settings{background:linear-gradient(180deg,rgba(15,26,48,.93),rgba(10,15,30,.97)),url('assets/bg_2.png') center/cover no-repeat;padding:0}
 .st-title{font-family:'Boogaloo',cursive;font-size:40px;color:#FFD700;padding:0 0 16px;text-shadow:0 2px 8px rgba(255,215,0,.2)}
 .st-section{width:100%;padding:0 20px;margin-bottom:8px}
 .st-section-title{
@@ -539,12 +549,14 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="sg-header">
       <div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt=""></div>
       <div></div>
-      <div class="icon-btn"><img src="assets/ic_lupa.png" alt=""></div>
+      <div style="width:48px"></div>
     </div>
     <div class="sg-title"><h1>SELECT</h1><h2>GAME</h2></div>
     <div class="game-list" id="game-list"></div>
     <!-- Ad between games list -->
-    <div class="ad-slot"><div class="ad-placeholder">Ad Space</div></div>
+    <div class="ad-slot" id="ad-select">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9562574562750195" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    </div>
   </div>
 
   <!-- ===== GAME ===== -->
@@ -575,7 +587,9 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="go-flags" id="go-flags"></div>
     <div class="go-bonus"><div class="go-bonus-label" id="go-bonus-label">COINS EARNED</div><div class="go-bonus-val"><img src="assets/ic_coin.png" alt=""><span id="go-bonus">+0</span></div></div>
     <!-- Ad after game over (hidden if ad-free) -->
-    <div class="ad-slot" id="go-ad-slot" style="margin:8px 0"><div class="ad-placeholder">Ad Space</div></div>
+    <div class="ad-slot" id="go-ad-slot" style="margin:8px 0">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9562574562750195" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    </div>
     <div class="go-buttons">
       <div class="go-btn" onclick="showScreen('home')"><img src="assets/home_btn.png" alt=""></div>
       <div class="go-btn big" onclick="retryGame()"><img src="assets/again_btn.png" alt=""></div>
@@ -599,7 +613,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="sg-title"><h1>ETHNIO</h1><h2>MARKET</h2></div>
     <div class="coin-badge" style="margin-bottom:6px"><img src="assets/ic_coin.png" alt=""><span id="market-coins">100</span></div>
     <div class="mk-section">BEST VALUE</div>
-    <div class="mk-item" onclick="buyItem('vip')" style="height:64px"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><span style="font-size:32px">👑</span><div class="mk-text">VIP PACK<div style="font-size:12px;opacity:.7;font-family:Nunito,sans-serif;font-weight:700">No Ads + 500 Coins + All Games</div></div><div class="mk-price">9.99€</div></div></div>
+    <div class="mk-item" onclick="buyItem('vip')" style="height:64px"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><span style="font-size:32px">👑</span><div class="mk-text">VIP PACK<div style="font-size:12px;opacity:.7;font-family:Nunito,sans-serif;font-weight:700">No Ads + Unlock All Games</div></div><div class="mk-price">9.99€</div></div></div>
     <div class="mk-section">FEATURES</div>
     <div class="mk-item" onclick="buyItem('noads')"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><img src="assets/ic_noads.png" alt="" style="width:36px;height:36px"><div class="mk-text">REMOVE ADS</div><div class="mk-price">2.99€</div></div></div>
     <div class="mk-section">COINS</div>
@@ -710,8 +724,8 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
   <!-- Dialog -->
   <div class="dialog-overlay" id="dialog-overlay"><div class="dialog" id="dialog"></div></div>
 
-  <!-- Powered by (all screens) -->
-  <div class="powered-by"><a href="https://simbiotic.digital" target="_blank">Powered by Simbiotic Digital</a></div>
+  <!-- Powered by (hidden during gameplay) -->
+  <div class="powered-by" id="powered-by"><a href="https://simbiotic.digital" target="_blank">Powered by Simbiotic Digital</a></div>
 </div>
 
 <script>
@@ -734,11 +748,11 @@ async function apiGet(endpoint){
 // ===== STRIPE PAYMENT LINKS =====
 // Replace these with your real Stripe Payment Link URLs from the Dashboard
 const STRIPE_LINKS = {
-  remove_ads:  'https://buy.stripe.com/test_cNi9AScfC8xoaV4fhJ9oc05',
-  coins_100:   'https://buy.stripe.com/test_fZu8wO3J6aFwe7g8Tl9oc04',
-  coins_300:   'https://buy.stripe.com/test_7sY00i5RebJA2oyd9B9oc03',
-  coins_1000:  'https://buy.stripe.com/test_7sYaEW3J6fZQaV4d9B9oc02',
-  vip_pack:    'https://buy.stripe.com/test_00wbJ093qeVMbZ8glN9oc01',
+  remove_ads:  'https://buy.stripe.com/3cIfZg1AMf0J1JvdjA08g01',
+  coins_100:   'https://buy.stripe.com/cNi00i0wIg4Nco9bbs08g00',
+  coins_300:   'https://buy.stripe.com/9B600i5R2cSB3RD1AS08g03',
+  coins_1000:  'https://buy.stripe.com/cNi00i2EQ2dX5ZL0wO08g04',
+  vip_pack:    'https://buy.stripe.com/4gM5kC0wI9Gp9bXcfw08g02',
 };
 
 // Handle return from Stripe Payment
@@ -780,13 +794,13 @@ const STRIPE_LINKS = {
 // ===== BACKGROUND PARTICLES =====
 (function initParticles(){
   const c=document.getElementById('particles');
-  const colors=['rgba(255,255,255,','rgba(255,215,0,','rgba(100,200,255,'];
-  for(let i=0;i<20;i++){
+  const colors=['rgba(255,255,255,','rgba(255,215,0,','rgba(100,150,255,'];
+  for(let i=0;i<25;i++){
     const p=document.createElement('div');
     p.className='particle';
     const s=4+Math.random()*12;
     const col=colors[~~(Math.random()*colors.length)];
-    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${col}${.1+Math.random()*.15});animation-duration:${8+Math.random()*15}s;animation-delay:${-Math.random()*20}s;`;
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${col}${.06+Math.random()*.1});animation-duration:${10+Math.random()*20}s;animation-delay:${-Math.random()*25}s;`;
     c.appendChild(p);
   }
 })();
@@ -1000,6 +1014,9 @@ function showScreen(id){
   if(id==='select-game'){buildCategories();renderGameList()}
   if(id==='ranking')renderRanking();
   if(id==='home'&&S.timerInt){clearInterval(S.timerInt);S.active=false}
+  // Hide powered by during game
+  const pb=document.getElementById('powered-by');
+  if(pb)pb.style.display=(id==='game-screen')?'none':'';
 }
 function updateCoins(){document.querySelectorAll('.coin-badge span').forEach(el=>el.textContent=S.coins)}
 
@@ -1296,12 +1313,11 @@ function grantPurchase(product){
       S.coins+=1000;save();updateCoins();
       return 'You got 1000 coins!';
     case 'vip_pack':
-      S.coins+=500;save();updateCoins();
       setAdFree(999999999);
       buildCategories();
       CATEGORIES.forEach(c=>{if(!S.unlocked.includes(c.id))S.unlocked.push(c.id)});
-      save();updateAdFreeStatus();
-      return 'VIP Pack activated! No ads + 500 coins + all games!';
+      save();updateCoins();updateAdFreeStatus();
+      return 'VIP Pack activated! No ads + all games unlocked!';
     default:return null;
   }
 }
@@ -1438,14 +1454,15 @@ function buyItem(item){
     // Test mode
     showDlg({
       title:'VIP PACK',
-      body:`<p><strong>$2.99</strong> — No ads + 500 coins + Unlock all</p><p style="font-size:12px;color:#999;margin-top:6px">Test mode: simulated purchase</p>`,
+      body:`<p><strong>9.99€</strong> — No Ads + Unlock All Games</p><p style="font-size:12px;color:#999;margin-top:6px">Test mode: simulated purchase</p>`,
       btns:[
         {t:'CANCEL',cls:'no',fn:hideDlg},
         {t:'BUY (TEST)',cls:'yes',fn:()=>{
-          S.coins+=500;save();updateCoins();setAdFree(999999999);
+          setAdFree(999999999);
+          buildCategories();
           CATEGORIES.forEach(c=>{if(!S.unlocked.includes(c.id))S.unlocked.push(c.id)});
           save();updateAdFreeStatus();hideDlg();
-          showDlg({title:'VIP!',body:'<p>All unlocked! No ads! 500 coins added!</p>',btns:[{t:'AWESOME!',cls:'yes',fn:hideDlg}]});
+          showDlg({title:'VIP!',body:'<p>All games unlocked! No ads!</p>',btns:[{t:'AWESOME!',cls:'yes',fn:hideDlg}]});
         }}
       ]
     });
@@ -1519,6 +1536,11 @@ setInterval(updateAdFreeStatus,30000);
 // Show onboarding on first visit
 if(!localStorage.getItem('eq3_onboarded')){
   setTimeout(showOnboarding,600);
+}
+
+// Init ads (silent fail)
+try{(adsbygoogle=window.adsbygoogle||[]).push({});(adsbygoogle=window.adsbygoogle||[]).push({})}catch(e){
+  document.querySelectorAll('.ad-slot').forEach(s=>s.classList.add('ad-failed'));
 }
 </script>
 </body>
