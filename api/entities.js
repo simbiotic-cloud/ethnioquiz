@@ -1,6 +1,7 @@
 import { Redis } from '@upstash/redis';
 
 const redis = Redis.fromEnv();
+const PREFIX = 'ent_v3:';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,18 +9,15 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Use a single hash: eq3_ent with field per entity
-  const HASH_KEY = 'eq3_ent_v2';
-
   try {
     if (req.method === 'GET') {
-      const all = await redis.hgetall(HASH_KEY);
+      const keys = await redis.keys(PREFIX + '*');
       const entities = {};
-      if (all) {
-        for (const [id, val] of Object.entries(all)) {
-          try {
-            entities[id] = typeof val === 'string' ? JSON.parse(val) : val;
-          } catch(e) { entities[id] = val; }
+      for (const key of keys) {
+        const id = key.replace(PREFIX, '');
+        const raw = await redis.get(key);
+        if (raw) {
+          entities[id] = typeof raw === 'string' ? JSON.parse(raw) : raw;
         }
       }
       return res.json({ entities });
@@ -33,8 +31,8 @@ export default async function handler(req, res) {
 
       let saved = 0;
       for (const [id, entity] of Object.entries(body.entities)) {
-        await redis.hdel(HASH_KEY, id); // delete first to force overwrite
-        await redis.hset(HASH_KEY, { [id]: JSON.stringify(entity) });
+        const val = typeof entity === 'string' ? entity : JSON.stringify(entity);
+        await redis.set(PREFIX + id, val);
         saved++;
       }
 
