@@ -900,8 +900,6 @@ function markShown(eid,iid){
 // Build categories
 let CATEGORIES=[];
 function buildCategories(){
-  // Only load from localStorage if ENTITIES is empty (server data takes priority)
-  if(!Object.keys(ENTITIES).length) loadEntities();
   loadGames();
   CATEGORIES=GAMES.map(g=>{
     const a=ENTITIES[g.aId],b=ENTITIES[g.bId];if(!a||!b)return null;
@@ -924,16 +922,19 @@ function buildPeopleForGame(cat){
   for(let i=p.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
   return p;
 }
-// Load entities from server, then build categories
+// Load entities: always prefer server, localStorage is just cache
 (async function(){
-  loadEntities(); // load localStorage first as fallback
-  buildCategories(); // build with whatever we have
-  // Then try server (overrides localStorage if successful)
+  // Try server first
   const loaded = await loadEntitiesFromServer();
-  if(loaded){
-    buildCategories(); // rebuild with server data
-    if(document.getElementById('select-game').classList.contains('active'))renderGameList();
-  }
+  if(!loaded) loadEntities(); // fallback to localStorage only if server fails
+  // Ensure defaults exist
+  let ch=false;
+  Object.entries(DEFAULT_ENTITIES).forEach(([id,def])=>{
+    if(!ENTITIES[id]){ENTITIES[id]={id,name:def.name,flag:def.flag,images:[]};ch=true}
+    else if(!ENTITIES[id].flag&&def.flag){ENTITIES[id].flag=def.flag;ch=true}
+  });
+  if(ch) localStorage.setItem('eq3_entities',JSON.stringify({entities:ENTITIES}));
+  buildCategories();
 })();
 
 // ===== NICKNAME (for rankings) =====
