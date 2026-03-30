@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280">
+  <defs>
+    <clipPath id="flagClip">
+      <rect x="12" y="12" width="376" height="256" rx="18" ry="18"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#flagClip)">
+    <!-- Red top stripe -->
+    <rect x="12" y="12" width="376" height="43" fill="#a51931"/>
+    <!-- White stripe -->
+    <rect x="12" y="55" width="376" height="43" fill="#ffffff"/>
+    <!-- Blue center stripe (double height) -->
+    <rect x="12" y="98" width="376" height="84" fill="#2d2a4a"/>
+    <!-- White stripe -->
+    <rect x="12" y="182" width="376" height="43" fill="#ffffff"/>
+    <!-- Red bottom stripe -->
+    <rect x="12" y="225" width="376" height="43" fill="#a51931"/>
+  </g>
+  <!-- Thick rounded border -->
+  <rect x="12" y="12" width="376" height="256" rx="18" ry="18" fill="none" stroke="#1a2744" stroke-width="10" stroke-linejoin="round"/>
+</svg>

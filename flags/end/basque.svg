@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <defs>
+    <clipPath id="flagClip">
+      <rect x="6" y="6" width="188" height="128" rx="9" ry="9"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#flagClip)">
+    <rect x="6" y="6" width="188" height="128" fill="#d52b1e"/>
+    <line x1="6" y1="6" x2="194" y2="134" stroke="#009b48" stroke-width="21"/>
+    <line x1="194" y1="6" x2="6" y2="134" stroke="#009b48" stroke-width="21"/>
+    <rect x="89" y="6" width="22" height="128" fill="#ffffff"/>
+    <rect x="6" y="59" width="188" height="22" fill="#ffffff"/>
+  </g>
+  <rect x="6" y="6" width="188" height="128" rx="9" ry="9" fill="none" stroke="#1a2744" stroke-width="5" stroke-linejoin="round"/>
+</svg>

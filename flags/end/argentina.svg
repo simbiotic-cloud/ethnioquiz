@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <defs>
+    <clipPath id="flagClip">
+      <rect x="6" y="6" width="188" height="128" rx="9" ry="9"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#flagClip)">
+    <rect x="6" y="6" width="188" height="42.7" fill="#74acdf"/>
+    <rect x="6" y="48.7" width="188" height="42.6" fill="#ffffff"/>
+    <rect x="6" y="91.3" width="188" height="42.7" fill="#74acdf"/>
+    <g transform="translate(100, 70)">
+      <g fill="#f6b40e" stroke="#d4950e" stroke-width="0.3">
+        <polygon points="0,-16 1.5,-9 -1.5,-9"/>
+        <polygon points="0,16 1.5,9 -1.5,9"/>
+        <polygon points="-16,0 -9,1.5 -9,-1.5"/>
+        <polygon points="16,0 9,1.5 9,-1.5"/>
+        <polygon points="-11,-11 -5.5,-7 -7,-5.5"/>
+        <polygon points="11,-11 5.5,-7 7,-5.5"/>
+        <polygon points="-11,11 -5.5,7 -7,5.5"/>
+        <polygon points="11,11 5.5,7 7,5.5"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(22.5)"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(67.5)"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(112.5)"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(157.5)"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(202.5)"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(247.5)"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(292.5)"/>
+        <path d="M0,-16 Q2.5,-12 0,-9 Q-2.5,-12 0,-16Z" transform="rotate(337.5)"/>
+      </g>
+      <circle cx="0" cy="0" r="6.5" fill="#f6b40e" stroke="#d4950e" stroke-width="0.5"/>
+      <circle cx="-2" cy="-1.5" r="0.8" fill="#d4950e"/>
+      <circle cx="2" cy="-1.5" r="0.8" fill="#d4950e"/>
+      <path d="M-2.5,1.5 Q0,4 2.5,1.5" fill="none" stroke="#d4950e" stroke-width="0.6" stroke-linecap="round"/>
+    </g>
+  </g>
+  <rect x="6" y="6" width="188" height="128" rx="9" ry="9" fill="none" stroke="#1a2744" stroke-width="5" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280">
+  <defs><clipPath id="iqc"><rect x="12" y="12" width="376" height="256" rx="18"/></clipPath></defs>
+  <g clip-path="url(#iqc)">
+    <rect x="12" y="12" width="376" height="85" fill="#CE1126"/>
+    <rect x="12" y="97" width="376" height="86" fill="#FFFFFF"/>
+    <rect x="12" y="183" width="376" height="85" fill="#000000"/>
+    <!-- Takbir text simplified -->
+    <text x="200" y="148" text-anchor="middle" font-size="24" font-weight="bold" fill="#007A3D" font-family="serif">الله أكبر</text>
+  </g>
+  <rect x="12" y="12" width="376" height="256" rx="18" fill="none" stroke="#1a2744" stroke-width="10"/>
+</svg>

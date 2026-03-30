@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>EthnioQuiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<!-- AdSense (test mode) -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9562574562750195" crossorigin="anonymous"></script>
+<style>
+/* ===== RESET ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
+
+#app{
+  position:relative;width:100%;max-width:420px;height:100vh;max-height:920px;
+  overflow:hidden;background:#5ab0d0;
+}
+
+/* ===== PARTICLE BG ===== */
+#particles{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{
+  position:absolute;border-radius:50%;opacity:.15;
+  animation:pfloat linear infinite;
+}
+@keyframes pfloat{
+  0%{transform:translateY(100vh) rotate(0deg);opacity:0}
+  10%{opacity:.15}
+  90%{opacity:.15}
+  100%{transform:translateY(-10vh) rotate(360deg);opacity:0}
+}
+
+/* ===== SCREENS ===== */
+.screen{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;
+  transform:scale(.97);z-index:1;
+}
+.screen.active{opacity:1;pointer-events:auto;transform:scale(1)}
+
+/* ===== TOP BAR ===== */
+.top-bar{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;z-index:10;position:relative}
+.icon-btn{width:48px;height:48px;cursor:pointer;transition:transform .12s;display:flex;align-items:center;justify-content:center}
+.icon-btn:active{transform:scale(.85)}
+.icon-btn img{width:100%;height:100%;object-fit:contain}
+.coin-badge{display:flex;align-items:center;gap:5px;background:rgba(0,30,70,.45);border-radius:20px;padding:5px 14px 5px 6px;border:2px solid rgba(255,255,255,.2)}
+.coin-badge img{width:30px;height:30px}
+.coin-badge span{color:#fff;font-weight:800;font-size:16px;font-family:'Boogaloo',cursive}
+
+/* ===== HOME ===== */
+#home{background:url('assets/splash screen.png') center/cover no-repeat;justify-content:space-between;padding:0}
+#home .top-bar{position:absolute;top:0;left:0;right:0}
+.home-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.home-buttons{display:flex;gap:24px;padding:0 0 50px;align-items:center}
+.home-btn{cursor:pointer;transition:transform .1s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.home-btn:active{transform:translateY(4px) scale(.95)}
+.home-btn.play img{width:110px;height:110px}
+.home-btn.list img{width:90px;height:90px}
+
+/* ===== SELECT GAME ===== */
+#select-game{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#5a9ab5;padding:0}
+.sg-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px}
+.sg-header .icon-btn img{width:32px;height:32px;filter:brightness(10)}
+.sg-title{text-align:center;padding:0 0 10px}
+.sg-title h1{font-family:'Boogaloo',cursive;font-size:42px;color:#fff;text-shadow:2px 3px 0 rgba(0,0,0,.15)}
+.sg-title h2{font-family:'Boogaloo',cursive;font-size:26px;color:#d4e8f0;margin-top:-6px}
+
+.game-list{flex:1;width:100%;overflow-y:auto;padding:4px 16px 24px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+.game-list::-webkit-scrollbar{display:none}
+.game-card{width:100%;display:flex;align-items:center;background:rgba(0,15,50,.65);border-radius:18px;padding:10px 12px;gap:8px;cursor:pointer;border:2px solid rgba(255,255,255,.08);transition:transform .12s,background .12s}
+.game-card:active{transform:scale(.97);background:rgba(0,15,50,.85)}
+.game-card.locked{opacity:.45;filter:grayscale(.3)}
+.gc-flag{width:56px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.gc-vs{font-family:'Boogaloo',cursive;font-size:16px;color:rgba(255,255,255,.45)}
+.gc-info{flex:1;display:flex;flex-direction:column;margin-left:4px}
+.gc-label{font-size:10px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase}
+.gc-name{font-weight:800;color:#fff;font-size:14px}
+.gc-cost{display:flex;align-items:center;gap:4px;background:rgba(255,180,0,.18);border-radius:14px;padding:4px 10px}
+.gc-cost img{width:22px;height:22px}
+.gc-cost span{color:#FFD700;font-weight:800;font-size:14px;font-family:'Boogaloo',cursive}
+.gc-free{background:#4CAF50;color:#fff;font-weight:800;font-size:11px;padding:5px 12px;border-radius:14px}
+
+/* Ad slot */
+.ad-slot{width:100%;padding:4px 16px;margin:0}
+.ad-placeholder{
+  width:100%;height:60px;border-radius:10px;
+  background:rgba(0,0,0,.15);border:1px dashed rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:rgba(255,255,255,.2);font-weight:700;
+}
+
+/* ===== GAME SCREEN ===== */
+#game-screen{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#5ab0d0;padding:0}
+.gs-best-bar{width:100%;position:relative;display:flex;justify-content:center}
+.gs-best-bar img{width:260px;height:auto}
+.gs-best-bar .best-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Boogaloo',cursive;font-size:20px;color:#fff;white-space:nowrap}
+
+.gs-score-area{width:100%;display:flex;justify-content:center;align-items:center;padding:10px 20px 5px;gap:30px}
+.gs-score{text-align:center}
+.gs-score-label{font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.gs-score-val{font-family:'Boogaloo',cursive;font-size:44px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.2);line-height:1;transition:transform .15s}
+.gs-score-val.pop{animation:scorePop .3s ease}
+@keyframes scorePop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.gs-streak{text-align:center}
+.gs-streak-val{font-family:'Boogaloo',cursive;font-size:22px;color:#FFD700}
+.combo-text{
+  position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Boogaloo',cursive;font-size:48px;color:#FFD700;
+  text-shadow:0 0 20px rgba(255,215,0,.6),2px 2px 4px rgba(0,0,0,.3);
+  pointer-events:none;z-index:60;opacity:0;
+}
+.combo-text.show{animation:comboIn .6s ease-out forwards}
+@keyframes comboIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}60%{transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-70%) scale(.8)}}
+
+.timer-wrap{width:calc(100% - 40px);height:7px;background:rgba(0,0,0,.2);border-radius:4px;margin:6px 20px}
+.timer-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#e74c3c,#f39c12,#2ecc71);width:100%;transition:width .08s linear}
+.timer-fill.danger{animation:timerPulse .4s ease infinite}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Card */
+.card-area{flex:1;width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:0 20px}
+.photo-card{
+  width:280px;height:330px;border-radius:18px;overflow:hidden;
+  background:#fff;border:5px solid rgba(0,30,70,.5);
+  box-shadow:0 12px 40px rgba(0,0,0,.35);
+  position:absolute;cursor:grab;will-change:transform;
+  transition:box-shadow .2s;
+}
+.photo-card:active{cursor:grabbing}
+.photo-card img{width:100%;height:100%;object-fit:cover;pointer-events:none;display:block}
+.photo-card .hint{
+  position:absolute;top:18px;padding:8px 22px;border-radius:10px;
+  font-family:'Boogaloo',cursive;font-size:24px;opacity:0;
+  transition:opacity .1s;border:4px solid;pointer-events:none;
+  backdrop-filter:blur(4px);
+}
+.photo-card .hint.left{left:12px;color:#fff;border-color:#e74c3c;background:rgba(231,76,60,.7);transform:rotate(-15deg)}
+.photo-card .hint.right{right:12px;color:#fff;border-color:#27ae60;background:rgba(39,174,96,.7);transform:rotate(15deg)}
+.card-spinner{
+  position:absolute;top:50%;left:50%;margin:-24px 0 0 -24px;
+  width:48px;height:48px;border:5px solid rgba(0,30,70,.15);
+  border-top-color:rgba(0,30,70,.6);border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Choices */
+.choices{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 10px 20px}
+.choice-btn{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:transform .12s}
+.choice-btn:active{transform:scale(.85)}
+.choice-btn img{width:100px;height:68px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.choice-btn span{font-family:'Boogaloo',cursive;font-size:20px;color:#fff;text-shadow:1px 1px 3px rgba(0,0,0,.25)}
+.choices .or{font-family:'Boogaloo',cursive;font-size:22px;color:rgba(255,255,255,.5)}
+
+/* Flash overlay — faster, more impactful */
+.flash{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none}
+.flash.show{animation:flashAnim .35s ease-out forwards}
+@keyframes flashAnim{0%{opacity:1}100%{opacity:0}}
+.flash.correct{background:radial-gradient(circle,rgba(46,204,113,.4),transparent 70%)}
+.flash.wrong{background:radial-gradient(circle,rgba(231,76,60,.4),transparent 70%)}
+.flash-icon{font-size:100px;filter:drop-shadow(0 0 30px currentColor)}
+.flash-icon.ok{color:#2ecc71;animation:iconOK .35s ease-out}
+.flash-icon.ko{color:#e74c3c;animation:iconKO .4s ease-out}
+@keyframes iconOK{0%{transform:scale(0) rotate(-30deg);opacity:0}50%{transform:scale(1.3) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:0}}
+@keyframes iconKO{0%{transform:scale(0);opacity:0}30%{transform:scale(1.5);opacity:1}50%{transform:scale(1.2)}100%{transform:scale(1) rotate(10deg);opacity:0}}
+
+/* Screen shake */
+.shake{animation:shakeIt .3s ease}
+@keyframes shakeIt{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}90%{transform:translateX(3px)}}
+
+/* ===== GAME OVER ===== */
+#game-over{background:url('assets/end_bg.png') center/cover no-repeat;background-color:#5a8fb5;justify-content:flex-start;padding:0}
+.go-top{width:100%;padding:14px 16px;display:flex;justify-content:center}
+.go-title{font-family:'Boogaloo',cursive;font-size:36px;color:#FF6633;text-shadow:2px 2px 0 rgba(0,0,0,.12);margin-top:16px}
+.go-score-wrap{text-align:center;margin:8px 0}
+.go-score-big{font-family:'Boogaloo',cursive;font-size:80px;color:#fff;text-shadow:3px 3px 6px rgba(0,0,0,.2);line-height:1}
+.go-score-label{font-family:'Boogaloo',cursive;font-size:22px;color:rgba(255,255,255,.6);margin-top:-4px}
+.go-newbest{font-family:'Boogaloo',cursive;font-size:22px;color:#FFD700;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.06);opacity:.7}}
+.go-flags{display:flex;align-items:center;gap:12px;margin:12px 0}
+.go-flag img{width:80px;height:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3))}
+.go-bonus{display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(0,0,0,.2);border-radius:18px;padding:12px 28px;margin:10px 0}
+.go-bonus-label{font-family:'Boogaloo',cursive;font-size:16px;color:rgba(255,255,255,.6)}
+.go-bonus-val{display:flex;align-items:center;gap:6px}
+.go-bonus-val img{width:28px;height:28px}
+.go-bonus-val span{font-family:'Boogaloo',cursive;font-size:30px;color:#FFD700}
+.go-buttons{display:flex;gap:16px;margin-top:14px;align-items:center}
+.go-btn{cursor:pointer;transition:transform .1s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.go-btn:active{transform:translateY(3px) scale(.95)}
+.go-btn img{height:70px;width:auto}
+.go-btn.big img{height:95px}
+
+/* ===== RANKING ===== */
+#ranking{background:url('assets/bg_2.png') center/cover no-repeat;background-color:#4a7fa5;padding:0}
+.rk-list{flex:1;width:100%;overflow-y:auto;padding:8px 16px 24px}
+.rk-list::-webkit-scrollbar{display:none}
+.rk-cat{margin-bottom:18px}
+.rk-cat-title{font-family:'Boogaloo',cursive;font-size:20px;color:#FFD700;padding:4px 0;border-bottom:2px solid rgba(255,215,0,.2);margin-bottom:8px}
+.rk-entry{display:flex;align-items:center;gap:10px;background:rgba(0,15,50,.5);border-radius:14px;padding:10px 14px;margin-bottom:6px}
+.rk-entry.me{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.25)}
+.rk-pos{font-family:'Boogaloo',cursive;font-size:22px;min-width:36px;text-align:center}
+.rk-name{flex:1;color:#fff;font-weight:700;font-size:15px}
+.rk-score{font-family:'Boogaloo',cursive;font-size:22px;color:#fff}
+.rk-medal{font-size:20px}
+
+/* ===== MARKET ===== */
+#market{background:url('assets/settings_bg.png') center top/cover no-repeat,linear-gradient(180deg,#a8d8ea 0%,#73b8d4 100%);padding:0}
+.mk-section{font-family:'Boogaloo',cursive;font-size:22px;color:rgba(0,40,80,.55);padding:16px 20px 6px;width:100%;text-align:left}
+.mk-item{width:calc(100% - 32px);margin:0 16px 10px;display:flex;align-items:center;gap:12px;position:relative;cursor:pointer;transition:transform .1s;height:58px}
+.mk-item:active{transform:translateY(2px)}
+.mk-item .mk-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;filter:drop-shadow(0 3px 0 #c24400)}
+.mk-item-content{position:relative;z-index:1;display:flex;align-items:center;gap:12px;width:100%;padding:0 18px}
+.mk-text{flex:1;font-family:'Boogaloo',cursive;font-size:20px;color:#fff}
+.mk-price{font-family:'Boogaloo',cursive;font-size:17px;color:#fff;background:rgba(0,0,0,.15);padding:3px 12px;border-radius:10px}
+
+/* ===== SETTINGS ===== */
+#settings{background:url('assets/settings_bg.png') center top/cover no-repeat,linear-gradient(180deg,#c8e6f4 0%,#a8d4e8 100%);padding:0}
+.st-title{font-family:'Boogaloo',cursive;font-size:40px;color:#2C5F7C;padding:0 0 12px}
+.st-section{width:100%;padding:0 20px}
+.st-section-title{font-family:'Boogaloo',cursive;font-size:16px;color:rgba(0,40,80,.4);border-bottom:2px solid rgba(0,40,80,.08);padding-bottom:4px;margin-bottom:4px;text-transform:uppercase}
+.st-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(0,40,80,.06);color:#2C5F7C;font-weight:700;font-size:15px;cursor:pointer}
+.st-item:active{opacity:.6}
+.toggle{width:52px;height:28px;border-radius:14px;background:#ccc;position:relative;cursor:pointer;transition:background .2s}
+.toggle.on{background:#4CAF50}
+.toggle::after{content:'';position:absolute;width:24px;height:24px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(24px)}
+
+/* ===== NICKNAME DIALOG ===== */
+.nick-input{
+  width:100%;padding:12px 14px;border-radius:12px;border:3px solid #FFD700;
+  background:#f8f8f8;color:#333;font-size:20px;font-family:'Boogaloo',cursive;
+  text-align:center;outline:none;margin:10px 0;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.08);
+}
+.nick-input:focus{border-color:#FF6633;box-shadow:inset 0 2px 6px rgba(0,0,0,.08),0 0 0 3px rgba(255,102,51,.2)}
+.nick-input::placeholder{color:#bbb}
+
+/* ===== REWARDED AD OVERLAY ===== */
+.rewarded-overlay{
+  position:absolute;inset:0;z-index:200;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.rewarded-overlay.show{opacity:1;pointer-events:auto}
+.rw-fake-video{
+  width:90%;max-width:360px;aspect-ratio:16/9;background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;border:2px solid rgba(255,255,255,.08);margin-bottom:20px;overflow:hidden;position:relative;
+}
+.rw-fake-video::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.02) 2px,rgba(255,255,255,.02) 4px);
+}
+.rw-brand{font-family:'Boogaloo',cursive;font-size:28px;color:rgba(255,255,255,.15)}
+.rw-label{font-family:'Boogaloo',cursive;font-size:16px;color:rgba(255,255,255,.5)}
+.rw-timer{
+  font-family:'Boogaloo',cursive;font-size:48px;color:#FFD700;
+  text-shadow:0 0 20px rgba(255,215,0,.4);
+}
+.rw-progress{width:200px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.rw-progress-fill{height:100%;background:#FFD700;border-radius:3px;transition:width .1s linear}
+.rw-skip{
+  padding:10px 28px;border-radius:12px;border:none;
+  font-family:'Boogaloo',cursive;font-size:18px;cursor:pointer;
+  background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);
+  transition:all .2s;
+}
+.rw-skip.active{background:#FF6633;color:#fff;box-shadow:0 3px 0 #cc4400}
+.rw-reward-text{font-family:'Boogaloo',cursive;font-size:14px;color:rgba(255,255,255,.4);margin-top:8px}
+
+/* ===== GAME OVER IMPROVED ===== */
+.go-player-info{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.1);border-radius:12px;padding:6px 16px;margin:4px 0;
+}
+.go-player-info .go-avatar{
+  width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#FF6633);
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;
+}
+.go-player-info .go-nick{font-family:'Boogaloo',cursive;font-size:18px;color:#fff}
+.go-rank-info{font-size:12px;color:rgba(255,255,255,.4);font-weight:700;margin-top:2px}
+
+/* ===== DIALOG ===== */
+.dialog-overlay{position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.dialog-overlay.show{opacity:1;pointer-events:auto}
+.dialog{background:#fff;border-radius:22px;overflow:hidden;width:85%;max-width:310px;text-align:center;transform:scale(.8);transition:transform .25s;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.dialog-overlay.show .dialog{transform:scale(1)}
+.dlg-head{background:url('assets/dialog_bg.png') center/cover no-repeat,linear-gradient(135deg,#5cb85c,#4a9e4a);padding:18px 16px}
+.dlg-head h2{font-family:'Boogaloo',cursive;font-size:30px;color:#fff}
+.dlg-body{padding:16px 20px;color:#555;font-weight:700;font-size:15px}
+.dlg-body .big-icon img{width:80px;height:80px}
+.dlg-btns{display:flex;gap:10px;justify-content:center;padding:0 20px 20px}
+.dlg-btn{flex:1;padding:11px 0;border-radius:12px;border:none;font-family:'Boogaloo',cursive;font-size:22px;cursor:pointer;transition:transform .1s}
+.dlg-btn:active{transform:scale(.93)}
+.dlg-btn.yes{background:#FF6633;color:#fff;box-shadow:0 3px 0 #cc4400}
+.dlg-btn.no{background:#eee;color:#666;box-shadow:0 3px 0 #ccc}
+
+/* ===== BURST PARTICLES ===== */
+.burst{position:absolute;pointer-events:none;z-index:55}
+.burst-p{
+  position:absolute;border-radius:50%;
+  animation:burstOut .5s ease-out forwards;
+}
+@keyframes burstOut{0%{transform:translate(0,0) scale(1);opacity:1}100%{opacity:0}}
+
+/* ===== CONFETTI ===== */
+.confetti{position:fixed;z-index:9999;pointer-events:none;animation:cfall 1s ease-out forwards}
+@keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}100%{opacity:0;transform:translateY(250px) rotate(600deg) scale(.4)}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-height:700px){
+  .photo-card{width:240px;height:270px}
+  .home-btn.play img{width:90px;height:90px}
+  .home-btn.list img{width:74px;height:74px}
+  .gs-score-val{font-size:36px}
+  .go-score-big{font-size:64px}
+}
+@media(max-height:600px){
+  .photo-card{width:200px;height:230px}
+  .choice-btn img{width:76px;height:52px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Animated background particles -->
+  <div id="particles"></div>
+
+  <!-- ===== HOME ===== -->
+  <div id="home" class="screen active">
+    <div class="top-bar">
+      <div class="icon-btn" onclick="showScreen('ranking')"><img src="assets/ic_ranking.png" alt=""></div>
+      <div class="coin-badge"><img src="assets/ic_coin.png" alt=""><span id="home-coins">100</span></div>
+      <div class="icon-btn" onclick="showScreen('settings')"><img src="assets/ic_settings.png" alt=""></div>
+    </div>
+    <div class="home-center"></div>
+    <div class="home-buttons">
+      <div class="home-btn play" onclick="showScreen('select-game')"><img src="assets/play_btn.png" alt=""></div>
+      <div class="home-btn list" onclick="showScreen('select-game')"><img src="assets/select_btn.png" alt=""></div>
+    </div>
+  </div>
+
+  <!-- ===== SELECT GAME ===== -->
+  <div id="select-game" class="screen">
+    <div class="sg-header">
+      <div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt=""></div>
+      <div></div>
+      <div class="icon-btn"><img src="assets/ic_lupa.png" alt=""></div>
+    </div>
+    <div class="sg-title"><h1>SELECT</h1><h2>GAME</h2></div>
+    <div class="game-list" id="game-list"></div>
+    <!-- Ad between games list -->
+    <div class="ad-slot"><div class="ad-placeholder">Ad Space</div></div>
+  </div>
+
+  <!-- ===== GAME ===== -->
+  <div id="game-screen" class="screen">
+    <div class="gs-best-bar"><img src="assets/best_score.png" alt=""><div class="best-text">BEST SCORE: <span id="best-score-val">0</span></div></div>
+    <div class="gs-score-area">
+      <div class="gs-streak"><div class="gs-score-label">STREAK</div><div class="gs-streak-val" id="streak-val">0</div></div>
+      <div class="gs-score"><div class="gs-score-label">SCORE</div><div class="gs-score-val" id="score-val">0</div></div>
+      <div class="gs-streak"><div class="gs-score-label">TIME</div><div class="gs-streak-val" id="time-val">5.0</div></div>
+    </div>
+    <div class="timer-wrap"><div class="timer-fill" id="timer-bar"></div></div>
+    <div class="card-area" id="card-area"></div>
+    <div class="choices" id="choices"></div>
+    <div class="flash" id="flash"><div class="flash-icon" id="flash-icon"></div></div>
+    <div class="combo-text" id="combo-text"></div>
+  </div>
+
+  <!-- ===== GAME OVER ===== -->
+  <div id="game-over" class="screen">
+    <div class="go-top"><div class="coin-badge"><img src="assets/ic_coin.png" alt=""><span id="go-coins">100</span></div></div>
+    <div class="go-title" id="go-title">YOU FAILED!</div>
+    <div class="go-player-info">
+      <div class="go-avatar" id="go-avatar">?</div>
+      <div><div class="go-nick" id="go-nick">Player</div><div class="go-rank-info" id="go-rank-info"></div></div>
+    </div>
+    <div class="go-score-wrap"><div class="go-score-big" id="go-score">0</div><div class="go-score-label">SCORE</div></div>
+    <div id="go-newbest" class="go-newbest" style="display:none">NEW BEST!</div>
+    <div class="go-flags" id="go-flags"></div>
+    <div class="go-bonus"><div class="go-bonus-label">COINS EARNED</div><div class="go-bonus-val"><img src="assets/ic_coin.png" alt=""><span id="go-bonus">+0</span></div></div>
+    <!-- Ad after game over (hidden if ad-free) -->
+    <div class="ad-slot" id="go-ad-slot" style="margin:8px 0"><div class="ad-placeholder">Ad Space</div></div>
+    <div class="go-buttons">
+      <div class="go-btn" onclick="showScreen('home')"><img src="assets/home_btn.png" alt=""></div>
+      <div class="go-btn big" onclick="retryGame()"><img src="assets/again_btn.png" alt=""></div>
+      <div class="go-btn" onclick="showScreen('ranking')"><img src="assets/ranking_btn.png" alt=""></div>
+    </div>
+  </div>
+
+  <!-- ===== RANKING ===== -->
+  <div id="ranking" class="screen">
+    <div class="sg-header">
+      <div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt=""></div>
+      <div></div><div style="width:48px"></div>
+    </div>
+    <div class="sg-title"><h1>RANKING</h1></div>
+    <div class="rk-list" id="rk-list"></div>
+  </div>
+
+  <!-- ===== MARKET ===== -->
+  <div id="market" class="screen">
+    <div class="sg-header"><div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt="" style="filter:none;opacity:.6"></div><div></div><div style="width:48px"></div></div>
+    <div class="sg-title"><h1 style="color:#2C5F7C">ETHNIO</h1><h2 style="color:#5a8fb5">MARKET</h2></div>
+    <div class="coin-badge" style="margin-bottom:6px"><img src="assets/ic_coin.png" alt=""><span id="market-coins">100</span></div>
+    <div class="mk-section">BEST VALUE</div>
+    <div class="mk-item" onclick="buyItem('vip')" style="height:64px"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><span style="font-size:32px">👑</span><div class="mk-text">VIP PACK<div style="font-size:12px;opacity:.7;font-family:Nunito,sans-serif;font-weight:700">No Ads + 500 Coins + All Games</div></div><div class="mk-price">9.99€</div></div></div>
+    <div class="mk-section">FEATURES</div>
+    <div class="mk-item" onclick="buyItem('noads')"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><img src="assets/ic_noads.png" alt="" style="width:36px;height:36px"><div class="mk-text">REMOVE ADS</div><div class="mk-price">2.99€</div></div></div>
+    <div class="mk-section">COINS</div>
+    <div class="mk-item" onclick="buyCoins(100)"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><img src="assets/ic_coin.png" alt="" style="width:36px;height:36px"><div class="mk-text">100 COINS</div><div class="mk-price">0.99€</div></div></div>
+    <div class="mk-item" onclick="buyCoins(300)"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><img src="assets/ic_coin.png" alt="" style="width:36px;height:36px"><div class="mk-text">300 COINS</div><div class="mk-price">1.99€</div></div></div>
+    <div class="mk-item" onclick="buyCoins(1000)"><img class="mk-bg" src="assets/btn_medium.png" alt=""><div class="mk-item-content"><img src="assets/ic_coin.png" alt="" style="width:36px;height:36px"><div class="mk-text">1000 COINS</div><div class="mk-price">4.99€</div></div></div>
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div id="settings" class="screen">
+    <div class="sg-header"><div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt="" style="filter:none;opacity:.6"></div><div></div><div class="icon-btn"><img src="assets/ic_lupa.png" alt="" style="filter:none;opacity:.6"></div></div>
+    <div class="st-title">SETTINGS</div>
+    <div class="st-section">
+      <div class="st-section-title">GAME</div>
+      <div class="st-item">Sound Effects<div class="toggle on" id="toggle-sound" onclick="toggleSound()"></div></div>
+      <div class="st-item" onclick="changeNickname()">Change Nickname<span style="color:#5a8fb5;font-size:13px" id="nick-display"></span></div>
+    </div>
+    <div class="st-section" style="margin-top:12px">
+      <div class="st-section-title">ADS</div>
+      <div class="st-item" onclick="watchRewardedAd()">
+        Watch Ad = 5 min Ad-Free
+        <span style="font-size:12px;color:#4CAF50;font-weight:800" id="ad-free-status"></span>
+      </div>
+      <div class="st-item" onclick="showScreen('market')">Remove Ads Forever<span style="color:#aaa">></span></div>
+    </div>
+    <div class="st-section" style="margin-top:12px">
+      <div class="st-section-title">SOCIAL</div>
+      <div class="st-item" onclick="shareGame()">Share with Friends<span style="color:#aaa">></span></div>
+      <div class="st-item" onclick="showScreen('ranking')">View Rankings<span style="color:#aaa">></span></div>
+    </div>
+    <div class="st-section" style="margin-top:12px">
+      <div class="st-section-title">ABOUT</div>
+      <div class="st-item">EthnioQuiz v2.0 — Simbiotic Digital</div>
+      <div class="st-item" onclick="resetData()" style="color:#e74c3c">Reset All Data</div>
+    </div>
+  </div>
+
+  <!-- Rewarded Ad Overlay -->
+  <div class="rewarded-overlay" id="rewarded-overlay">
+    <div class="rw-fake-video">
+      <div class="rw-brand">ADVERTISER</div>
+      <div class="rw-label">Watch this ad for ad-free gaming</div>
+      <div class="rw-timer" id="rw-timer">5</div>
+      <div class="rw-progress"><div class="rw-progress-fill" id="rw-progress"></div></div>
+    </div>
+    <button class="rw-skip" id="rw-skip" disabled>Wait...</button>
+    <div class="rw-reward-text">5 minutes without ads after watching</div>
+  </div>
+
+  <!-- Dialog -->
+  <div class="dialog-overlay" id="dialog-overlay"><div class="dialog" id="dialog"></div></div>
+</div>
+
+<script>
+// ===== VISITOR TRACKING =====
+(function(){if(sessionStorage.getItem('eq3_v'))return;sessionStorage.setItem('eq3_v','1');try{const v=JSON.parse(localStorage.getItem('eq3_visitors'))||{count:0};v.count++;v.lastVisit=Date.now();localStorage.setItem('eq3_visitors',JSON.stringify(v))}catch(e){}})();
+
+// ===== STRIPE PAYMENT LINKS =====
+// Replace these with your real Stripe Payment Link URLs from the Dashboard
+const STRIPE_LINKS = {
+  remove_ads:  'https://buy.stripe.com/test_cNi9AScfC8xoaV4fhJ9oc05',
+  coins_100:   'https://buy.stripe.com/test_fZu8wO3J6aFwe7g8Tl9oc04',
+  coins_300:   'https://buy.stripe.com/test_7sY00i5RebJA2oyd9B9oc03',
+  coins_1000:  'https://buy.stripe.com/test_7sYaEW3J6fZQaV4d9B9oc02',
+  vip_pack:    'https://buy.stripe.com/test_00wbJ093qeVMbZ8glN9oc01',
+};
+
+// Handle return from Stripe Payment
+(function handleStripeReturn(){
+  const params = new URLSearchParams(window.location.search);
+  const purchase = params.get('purchase');
+  if(!purchase) return;
+
+  // Clean URL (remove query params)
+  window.history.replaceState({}, '', window.location.pathname);
+
+  // Check if already processed (prevent double-spend on refresh)
+  const processed = JSON.parse(localStorage.getItem('eq3_purchases')||'[]');
+  const sessionId = params.get('session_id')||purchase+'_'+Date.now();
+  if(processed.includes(sessionId)) return;
+  processed.push(sessionId);
+  localStorage.setItem('eq3_purchases', JSON.stringify(processed));
+
+  // Grant rewards after page loads
+  setTimeout(()=>{
+    let msg = '';
+    switch(purchase){
+      case 'remove_ads':
+        setAdFree(999999999); // permanent
+        updateAdFreeStatus();
+        msg = 'Ads removed forever!';
+        break;
+      case 'coins_100':
+        S.coins += 100; save(); updateCoins();
+        msg = 'You got 100 coins!';
+        break;
+      case 'coins_300':
+        S.coins += 300; save(); updateCoins();
+        msg = 'You got 300 coins!';
+        break;
+      case 'coins_1000':
+        S.coins += 1000; save(); updateCoins();
+        msg = 'You got 1000 coins!';
+        break;
+      case 'vip_pack':
+        S.coins += 500; save(); updateCoins();
+        setAdFree(999999999);
+        // Unlock all games
+        CATEGORIES.forEach(c=>{ if(!S.unlocked.includes(c.id))S.unlocked.push(c.id) });
+        save(); updateAdFreeStatus();
+        msg = 'VIP Pack activated! No ads + 500 coins + all games unlocked!';
+        break;
+      default: return;
+    }
+    sfx('coin');
+    showDlg({
+      title: 'PURCHASE COMPLETE!',
+      body: `<div style="font-size:48px;margin:8px 0">🎉</div><p>${msg}</p><p style="font-size:11px;color:#999;margin-top:8px">Thank you for your purchase!</p>`,
+      btns: [{t:'AWESOME!', cls:'yes', fn:hideDlg}]
+    });
+  }, 500);
+})();
+
+// ===== BACKGROUND PARTICLES =====
+(function initParticles(){
+  const c=document.getElementById('particles');
+  const colors=['rgba(255,255,255,','rgba(255,215,0,','rgba(100,200,255,'];
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const s=4+Math.random()*12;
+    const col=colors[~~(Math.random()*colors.length)];
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${col}${.1+Math.random()*.15});animation-duration:${8+Math.random()*15}s;animation-delay:${-Math.random()*20}s;`;
+    c.appendChild(p);
+  }
+})();
+
+// ===== DATA MODEL =====
+let ENTITIES={};
+const DEFAULT_GAMES=[
+  {aId:'japan',bId:'china',cost:0,desc:'The OG challenge. Can you really tell them apart?'},
+  {aId:'spain',bId:'basque',cost:0,desc:'Same country, different nation?'},
+  {aId:'india',bId:'pakistan',cost:0,desc:'Separated by a border, united by looks'},
+  {aId:'south_korea',bId:'japan',cost:100,desc:'K-pop vs J-pop. Who is who?'},
+  {aId:'turkey',bId:'greece',cost:100,desc:'Empires clashed, faces matched'},
+  {aId:'argentina',bId:'brazil',cost:150,desc:'Messi vs Neymar territory'},
+  {aId:'iran',bId:'iraq',cost:150,desc:'Neighbors divided. Can you spot the difference?'},
+  {aId:'sweden',bId:'finland',cost:200,desc:'Nordic ice. Nearly identical.'},
+  {aId:'colombia',bId:'mexico',cost:200,desc:'Latin fire. Same vibe, different country.'},
+  {aId:'england',bId:'ireland',cost:250,desc:'Centuries of history. One face at a time.'},
+];
+let GAMES=[];
+function loadGames(){try{const d=JSON.parse(localStorage.getItem('eq3_games'));if(d&&d.games&&d.games.length){GAMES=d.games;return}}catch(e){}GAMES=[...DEFAULT_GAMES]}
+loadGames();
+
+const DEFAULT_ENTITIES={
+  japan:{name:'Japan',flag:'assets/japan.png'},china:{name:'China',flag:'assets/china.png'},
+  spain:{name:'Spain',flag:'flags/spain.svg'},basque:{name:'Basque Country',flag:'flags/basque.svg'},
+  india:{name:'India',flag:'flags/india.svg'},pakistan:{name:'Pakistan',flag:'flags/pakistan.svg'},
+  south_korea:{name:'South Korea',flag:'flags/korea.svg'},turkey:{name:'Turkey',flag:'flags/turkey.svg'},
+  greece:{name:'Greece',flag:'flags/greece.svg'},argentina:{name:'Argentina',flag:'flags/argentina.svg'},
+  brazil:{name:'Brazil',flag:'flags/brazil.svg'},iran:{name:'Iran',flag:'flags/iran.svg'},
+  iraq:{name:'Iraq',flag:'flags/iraq.svg'},sweden:{name:'Sweden',flag:'flags/sweden.svg'},
+  finland:{name:'Finland',flag:'flags/finland.svg'},colombia:{name:'Colombia',flag:'flags/colombia.svg'},
+  mexico:{name:'Mexico',flag:'flags/mexico.svg'},england:{name:'England',flag:'flags/england.svg'},
+  ireland:{name:'Ireland',flag:'flags/ireland.svg'},morocco:{name:'Morocco',flag:'flags/morocco.svg'},
+};
+
+function loadEntities(){
+  try{const d=JSON.parse(localStorage.getItem('eq3_entities'));if(d&&d.entities)ENTITIES=d.entities}catch(e){}
+  let ch=false;
+  Object.entries(DEFAULT_ENTITIES).forEach(([id,def])=>{
+    if(!ENTITIES[id]){ENTITIES[id]={id,name:def.name,flag:def.flag,images:[]};ch=true}
+    else if(!ENTITIES[id].flag&&def.flag){ENTITIES[id].flag=def.flag;ch=true}
+  });
+  if(ch)saveEntities();
+}
+function saveEntities(){localStorage.setItem('eq3_entities',JSON.stringify({entities:ENTITIES}))}
+function markShown(eid,iid){
+  if(!ENTITIES[eid])return;const img=ENTITIES[eid].images.find(i=>i.id===iid);
+  if(img){img.shownCount=(img.shownCount||0)+1;img.lastShown=Date.now();saveEntities()}
+}
+
+// Build categories
+let CATEGORIES=[];
+function buildCategories(){
+  loadEntities();loadGames();
+  CATEGORIES=GAMES.map(g=>{
+    const a=ENTITIES[g.aId],b=ENTITIES[g.bId];if(!a||!b)return null;
+    const t=a.images.length+b.images.length;
+    return{id:g.aId+'_vs_'+g.bId,name:a.name+' vs '+b.name,desc:g.desc,
+      a:{id:a.id,name:a.name,flag:a.flag||''},b:{id:b.id,name:b.name,flag:b.flag||''},
+      cost:g.cost,totalImages:t,playable:a.images.length>=3&&b.images.length>=3,people:[]};
+  }).filter(Boolean);
+}
+
+function buildPeopleForGame(cat){
+  const sort=arr=>[...arr].sort((x,y)=>(x.shownCount||0)-(y.shownCount||0));
+  const aP=sort(ENTITIES[cat.a.id]?.images||[]).slice(0,25);
+  const bP=sort(ENTITIES[cat.b.id]?.images||[]).slice(0,25);
+  const p=[];let ai=0,bi=0;
+  while(ai<aP.length||bi<bP.length){
+    if(ai<aP.length){p.push({id:aP[ai].id,img:aP[ai].url,answer:cat.a.name,entityId:cat.a.id});ai++}
+    if(bi<bP.length){p.push({id:bP[bi].id,img:bP[bi].url,answer:cat.b.name,entityId:cat.b.id});bi++}
+  }
+  for(let i=p.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
+  return p;
+}
+buildCategories();
+
+// ===== NICKNAME (for rankings) =====
+function getNick(){return localStorage.getItem('eq3_nick')||''}
+function setNick(n){localStorage.setItem('eq3_nick',n)}
+
+function ensureNickname(cb){
+  if(getNick()){cb();return}
+  showDlg({
+    title:'WHO ARE YOU?',
+    body:`<p>Choose a nickname for the leaderboard</p><input class="nick-input" id="nick-inp" placeholder="Your name..." maxlength="16" autofocus>`,
+    btns:[{t:'LET\'S GO!',cls:'yes',fn:()=>{
+      const n=document.getElementById('nick-inp').value.trim();
+      if(!n){toast('Enter a name!');return}
+      setNick(n);hideDlg();updateNickDisplay();cb();
+    }}]
+  });
+  setTimeout(()=>{const inp=document.getElementById('nick-inp');if(inp)inp.focus()},300);
+}
+
+function changeNickname(){
+  showDlg({
+    title:'NICKNAME',
+    body:`<input class="nick-input" id="nick-inp2" value="${getNick()}" maxlength="16">`,
+    btns:[{t:'CANCEL',cls:'no',fn:hideDlg},{t:'SAVE',cls:'yes',fn:()=>{
+      const n=document.getElementById('nick-inp2').value.trim();
+      if(n){setNick(n);updateNickDisplay()}hideDlg();
+    }}]
+  });
+}
+function updateNickDisplay(){document.getElementById('nick-display').textContent=getNick()||'Set...'}
+
+// ===== RANKING SYSTEM =====
+// Rankings stored per game: eq3_ranks = { catId: [{name, score, date}] }
+function loadRanks(){try{return JSON.parse(localStorage.getItem('eq3_ranks'))||{}}catch(e){return{}}}
+function saveRanks(r){localStorage.setItem('eq3_ranks',JSON.stringify(r))}
+
+function addRankEntry(catId,score){
+  const nick=getNick()||'Anonymous';
+  const r=loadRanks();
+  if(!r[catId])r[catId]=[];
+  r[catId].push({name:nick,score,date:Date.now()});
+  // Keep top 20 per category
+  r[catId].sort((a,b)=>b.score-a.score);
+  r[catId]=r[catId].slice(0,20);
+  saveRanks(r);
+}
+
+function renderRanking(){
+  const el=document.getElementById('rk-list');el.innerHTML='';
+  const ranks=loadRanks();const nick=getNick();let any=false;
+  CATEGORIES.forEach(c=>{
+    const entries=ranks[c.id];if(!entries||!entries.length)return;
+    any=true;
+    const d=document.createElement('div');d.className='rk-cat';
+    let html=`<div class="rk-cat-title">${c.a.flag?`<img src="${c.a.flag}" style="width:28px;height:auto;vertical-align:middle">`:''} ${c.name} ${c.b.flag?`<img src="${c.b.flag}" style="width:28px;height:auto;vertical-align:middle">`:''}</div>`;
+    const medals=['🥇','🥈','🥉'];
+    entries.slice(0,10).forEach((e,i)=>{
+      const isMe=e.name===nick;
+      html+=`<div class="rk-entry${isMe?' me':''}">
+        <div class="rk-pos">${i<3?`<span class="rk-medal">${medals[i]}</span>`:(i+1)}</div>
+        <div class="rk-name">${e.name}${isMe?' (you)':''}</div>
+        <div class="rk-score">${e.score}</div>
+      </div>`;
+    });
+    d.innerHTML=html;el.appendChild(d);
+  });
+  if(!any)el.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:50px;font-weight:700">Play some games first!</div>';
+}
+
+// ===== STATE =====
+let S={coins:100,soundOn:true,unlocked:['japan_vs_china','spain_vs_basque','india_vs_pakistan'],best:{},
+  cat:null,score:0,streak:0,pIdx:0,timer:5,timerInt:null,active:false,shownThisGame:new Set()};
+
+function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.unlocked=d.unlocked??['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best=d.best??{}}}catch(e){}}
+function save(){localStorage.setItem('eq2',JSON.stringify({coins:S.coins,soundOn:S.soundOn,unlocked:S.unlocked,best:S.best}))}
+
+// ===== AUDIO =====
+let actx;function getAudio(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx}
+function sfx(type){
+  if(!S.soundOn)return;
+  try{
+    const a=getAudio(),t=a.currentTime;
+    if(type==='ok'){
+      [523,659,784].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(f,t+i*.06);g.gain.setValueAtTime(.12,t+i*.06);g.gain.exponentialRampToValueAtTime(.001,t+i*.06+.15);o.start(t+i*.06);o.stop(t+i*.06+.15)});
+    }else if(type==='fail'){
+      const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sawtooth';o.frequency.setValueAtTime(200,t);o.frequency.linearRampToValueAtTime(100,t+.3);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.start();o.stop(t+.4);
+    }else if(type==='tap'){
+      const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(900,t);g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.001,t+.06);o.start();o.stop(t+.06);
+    }else if(type==='coin'){
+      const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(1200,t);o.frequency.setValueAtTime(1600,t+.04);g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.15);o.start();o.stop(t+.15);
+    }else if(type==='combo'){
+      [800,1000,1200,1400].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(f,t+i*.04);g.gain.setValueAtTime(.06,t+i*.04);g.gain.exponentialRampToValueAtTime(.001,t+i*.04+.1);o.start(t+i*.04);o.stop(t+i*.04+.1)});
+    }
+  }catch(e){}
+}
+
+// ===== NAVIGATION =====
+function showScreen(id){
+  sfx('tap');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  updateCoins();
+  if(id==='select-game'){buildCategories();renderGameList()}
+  if(id==='ranking')renderRanking();
+  if(id==='home'&&S.timerInt){clearInterval(S.timerInt);S.active=false}
+}
+function updateCoins(){document.querySelectorAll('.coin-badge span').forEach(el=>el.textContent=S.coins)}
+
+// ===== GAME LIST =====
+function flagHTML(opt,sz){
+  if(opt.flag)return`<img class="gc-flag" src="${opt.flag}" alt="${opt.name}" style="width:${sz}px;height:auto">`;
+  return`<div class="gc-flag" style="width:${sz}px;height:${sz*.68}px;background:rgba(255,255,255,.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;color:rgba(255,255,255,.4);font-size:${sz*.35}px">${opt.name.charAt(0)}</div>`;
+}
+
+function renderGameList(){
+  const el=document.getElementById('game-list');el.innerHTML='';
+  if(!CATEGORIES.length){el.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,255,255,.3)"><p style="font-size:40px">🌍</p><p>Open admin.html to add countries & photos</p></div>';return}
+  CATEGORIES.forEach(c=>{
+    const unlocked=S.unlocked.includes(c.id)||c.cost===0;
+    const d=document.createElement('div');
+    d.className='game-card'+(c.playable?'':' locked');
+    d.innerHTML=`${flagHTML(c.a,56)}<span class="gc-vs">VS</span>${flagHTML(c.b,56)}
+      <div class="gc-info"><div class="gc-label">${c.playable?c.totalImages+' photos'+(unlocked&&S.best[c.id]?' · Best: '+S.best[c.id]:''):'Need 3+ photos'}</div>
+      <div class="gc-name">${c.a.name} vs ${c.b.name}</div>
+      ${c.desc?`<div class="gc-label" style="margin-top:1px;font-style:italic;opacity:.5">${c.desc}</div>`:''}</div>
+      ${!c.playable?'<div style="font-size:18px;opacity:.3">🔒</div>':c.cost===0||unlocked?'<div class="gc-free">PLAY</div>':`<div class="gc-cost"><img src="assets/ic_coin.png" alt=""><span>${c.cost}</span></div>`}`;
+    d.onclick=()=>{if(c.playable)selectCat(c.id);else showDlg({title:'NEED PHOTOS',body:'<p>Add 3+ photos per country in the admin panel.</p>',btns:[{t:'OK',cls:'yes',fn:hideDlg}]})};
+    el.appendChild(d);
+  });
+}
+
+function selectCat(id){
+  const c=CATEGORIES.find(x=>x.id===id);if(!c||!c.playable)return;
+  const unlocked=S.unlocked.includes(id)||c.cost===0;
+  if(unlocked){ensureNickname(()=>startGame(id));return}
+  if(S.coins>=c.cost){
+    showDlg({title:'UNLOCK?',body:`<p>Spend <strong>${c.cost}</strong> coins?</p>`,
+      btns:[{t:'NO',cls:'no',fn:hideDlg},{t:'YES',cls:'yes',fn:()=>{S.coins-=c.cost;S.unlocked.push(id);save();hideDlg();sfx('coin');renderGameList();updateCoins()}}]});
+  }else{
+    showDlg({title:'OOPS!',body:'<div class="big-icon"><img src="assets/dialog_coin.png" alt=""></div><p>Not enough coins!</p>',
+      btns:[{t:'BUY NOW!',cls:'yes',fn:()=>{hideDlg();showScreen('market')}}]});
+  }
+}
+
+// ===== GAME =====
+function startGame(id){
+  buildCategories();
+  const c=CATEGORIES.find(x=>x.id===id);if(!c||!c.playable)return;
+  c.people=buildPeopleForGame(c);
+  S.cat=c;S.score=0;S.streak=0;S.pIdx=0;S.active=true;S.shownThisGame=new Set();
+  document.getElementById('best-score-val').textContent=S.best[id]||0;
+  document.getElementById('score-val').textContent='0';
+  document.getElementById('streak-val').textContent='0';
+  const ch=document.getElementById('choices');
+  ch.innerHTML=`<div class="choice-btn" onclick="choose('${c.a.name}')">${c.a.flag?`<img src="${c.a.flag}">`:`<span style="font-size:36px;font-weight:900;color:#fff">${c.a.name}</span>`}<span>${c.a.name}</span></div>
+    <div class="or">OR</div>
+    <div class="choice-btn" onclick="choose('${c.b.name}')">${c.b.flag?`<img src="${c.b.flag}">`:`<span style="font-size:36px;font-weight:900;color:#fff">${c.b.name}</span>`}<span>${c.b.name}</span></div>`;
+  showScreen('game-screen');nextCard();
+}
+
+function nextCard(){
+  const c=S.cat;
+  if(S.pIdx>=c.people.length){c.people=buildPeopleForGame(c);S.pIdx=0;if(!c.people.length){gameOver();return}}
+  const p=c.people[S.pIdx],area=document.getElementById('card-area');
+  const card=document.createElement('div');card.className='photo-card';
+  card.innerHTML=`<div class="card-spinner"></div>
+    <img src="${p.img}" alt="?" onload="this.previousElementSibling.style.display='none'" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22><rect fill=%22%23e8e8e8%22 width=%22400%22 height=%22400%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2260%22 fill=%22%23bbb%22>?</text></svg>';this.previousElementSibling.style.display='none'">
+    <div class="hint left">${c.a.name}</div><div class="hint right">${c.b.name}</div>`;
+  area.querySelectorAll('.photo-card').forEach(x=>{if(x._cleanup)x._cleanup();x.remove()});
+  area.appendChild(card);setupSwipe(card,p);startTimer();
+}
+
+function startTimer(){
+  if(S.timerInt)clearInterval(S.timerInt);S.timer=5;
+  const bar=document.getElementById('timer-bar');bar.style.width='100%';bar.classList.remove('danger');
+  S.timerInt=setInterval(()=>{
+    S.timer-=.05;
+    if(S.timer<=0){S.timer=0;clearInterval(S.timerInt);gameOver();return}
+    bar.style.width=(S.timer/5*100)+'%';
+    document.getElementById('time-val').textContent=S.timer.toFixed(1);
+    if(S.timer<1.5)bar.classList.add('danger');
+  },50);
+}
+
+// ===== SWIPE =====
+function setupSwipe(card,person){
+  let sx=0,cx=0,drag=false;
+  const onStart=e=>{if(!S.active)return;drag=true;sx=e.type==='touchstart'?e.touches[0].clientX:e.clientX;card.style.transition='none'};
+  const onMove=e=>{
+    if(!drag)return;e.preventDefault();
+    const x=e.type==='touchmove'?e.touches[0].clientX:e.clientX;cx=x-sx;
+    const r=cx*.12,s=Math.max(.9,1-Math.abs(cx)/800);
+    card.style.transform=`translateX(${cx}px) rotate(${r}deg) scale(${s})`;
+    card.querySelector('.hint.left').style.opacity=Math.max(0,Math.min(1,-cx/60));
+    card.querySelector('.hint.right').style.opacity=Math.max(0,Math.min(1,cx/60));
+  };
+  const onEnd=()=>{
+    if(!drag)return;drag=false;
+    if(Math.abs(cx)>70){
+      const choice=cx<0?S.cat.a.name:S.cat.b.name,d=cx<0?-1:1;
+      card.style.transition='transform .25s ease,opacity .2s ease';
+      card.style.transform=`translateX(${d*600}px) rotate(${d*40}deg) scale(.7)`;
+      card.style.opacity='0';
+      setTimeout(()=>process(choice,person),150);
+    }else{
+      card.style.transition='transform .2s ease';card.style.transform='';
+      card.querySelector('.hint.left').style.opacity='0';
+      card.querySelector('.hint.right').style.opacity='0';
+    }
+    cx=0;
+  };
+  card.addEventListener('mousedown',onStart);card.addEventListener('touchstart',onStart,{passive:true});
+  window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',onMove,{passive:false});
+  window.addEventListener('mouseup',onEnd);window.addEventListener('touchend',onEnd);
+  card._cleanup=()=>{window.removeEventListener('mousemove',onMove);window.removeEventListener('touchmove',onMove);window.removeEventListener('mouseup',onEnd);window.removeEventListener('touchend',onEnd)};
+}
+
+function choose(choice){
+  if(!S.active)return;const p=S.cat.people[S.pIdx];
+  const card=document.getElementById('card-area').querySelector('.photo-card');
+  if(card){const d=choice===S.cat.a.name?-1:1;card.style.transition='transform .2s ease,opacity .2s ease';card.style.transform=`translateX(${d*500}px) rotate(${d*30}deg) scale(.7)`;card.style.opacity='0'}
+  setTimeout(()=>process(choice,p),120);
+}
+
+function process(choice,person){
+  if(!S.active)return;
+  if(person.entityId)markShown(person.entityId,person.id);
+
+  if(choice===person.answer){
+    S.score++;S.streak++;sfx('ok');
+    showFlash('correct');spawnBurst('#2ecc71');
+    if(S.streak>0&&S.streak%5===0){showCombo(S.streak);sfx('combo')}
+    else spawnConfetti(8);
+    const sv=document.getElementById('score-val');sv.textContent=S.score;sv.classList.remove('pop');void sv.offsetWidth;sv.classList.add('pop');
+    document.getElementById('streak-val').textContent='🔥'+S.streak;
+    S.pIdx++;
+    setTimeout(()=>{if(S.active)nextCard()},250);
+  }else{
+    sfx('fail');showFlash('wrong');spawnBurst('#e74c3c');
+    document.getElementById('app').classList.add('shake');
+    setTimeout(()=>document.getElementById('app').classList.remove('shake'),300);
+    S.active=false;clearInterval(S.timerInt);
+    setTimeout(gameOver,500);
+  }
+}
+
+// ===== EFFECTS =====
+function showFlash(type){
+  const el=document.getElementById('flash'),ic=document.getElementById('flash-icon');
+  el.className='flash show '+type;
+  ic.className='flash-icon '+(type==='correct'?'ok':'ko');
+  ic.textContent=type==='correct'?'✓':'✗';
+  setTimeout(()=>{el.className='flash'},350);
+}
+
+function spawnBurst(color){
+  const burst=document.createElement('div');burst.className='burst';
+  burst.style.cssText='top:50%;left:50%;transform:translate(-50%,-50%)';
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');p.className='burst-p';
+    const angle=(i/12)*Math.PI*2,dist=60+Math.random()*40;
+    const sz=4+Math.random()*6;
+    p.style.cssText=`width:${sz}px;height:${sz}px;background:${color};animation-duration:${.3+Math.random()*.2}s;`;
+    const dx=Math.cos(angle)*dist,dy=Math.sin(angle)*dist;
+    p.style.setProperty('--dx',dx+'px');p.style.setProperty('--dy',dy+'px');
+    p.style.animation=`burstDir .4s ease-out forwards`;
+    p.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${dx}px,${dy}px) scale(0)`,opacity:0}],{duration:400,fill:'forwards'});
+    burst.appendChild(p);
+  }
+  document.getElementById('game-screen').appendChild(burst);
+  setTimeout(()=>burst.remove(),500);
+}
+
+function showCombo(n){
+  const el=document.getElementById('combo-text');
+  el.textContent=n+'x COMBO!';el.className='combo-text show';
+  spawnConfetti(25);
+  setTimeout(()=>el.className='combo-text',700);
+}
+
+function spawnConfetti(n){
+  const cols=['#FFD700','#FF6633','#4CAF50','#2196F3','#E91E63','#9C27B0','#00BCD4'];
+  for(let i=0;i<n;i++){
+    const el=document.createElement('div');el.className='confetti';
+    el.style.cssText=`background:${cols[~~(Math.random()*cols.length)]};left:${Math.random()*100}%;top:${15+Math.random()*30}%;width:${5+Math.random()*8}px;height:${5+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${.6+Math.random()*.5}s;`;
+    document.getElementById('app').appendChild(el);
+    setTimeout(()=>el.remove(),1100);
+  }
+}
+
+// ===== GAME OVER =====
+function gameOver(){
+  S.active=false;clearInterval(S.timerInt);
+  const c=S.cat,sc=S.score,best=S.best[c.id]||0,isNew=sc>best;
+  const earned=sc*5+Math.floor(S.timer*10);
+  if(isNew)S.best[c.id]=sc;
+  S.coins+=earned;save();
+
+  // Track
+  try{const gp=JSON.parse(localStorage.getItem('eq3_gamesPlayed'))||{total:0,perGame:{}};gp.total++;gp.perGame[c.id]=(gp.perGame[c.id]||0)+1;localStorage.setItem('eq3_gamesPlayed',JSON.stringify(gp))}catch(e){}
+
+  // Add to rankings
+  if(sc>0)addRankEntry(c.id,sc);
+
+  // Determine rank position
+  const ranks=loadRanks();const myRanks=ranks[c.id]||[];
+  const pos=myRanks.findIndex(r=>r.score===sc&&r.name===getNick())+1;
+
+  // Dynamic title based on score
+  const titles=['YOU FAILED!','NOT BAD!','GREAT RUN!','AMAZING!','LEGENDARY!'];
+  const titleIdx=sc===0?0:sc<5?1:sc<10?2:sc<20?3:4;
+
+  // Update UI
+  document.getElementById('go-title').textContent=titles[titleIdx];
+  document.getElementById('go-title').style.color=sc===0?'#FF6633':sc<10?'#FFD700':'#4CAF50';
+  const nick=getNick()||'Player';
+  document.getElementById('go-avatar').textContent=nick.charAt(0).toUpperCase();
+  document.getElementById('go-nick').textContent=nick;
+  document.getElementById('go-rank-info').textContent=pos>0?`#${pos} in ${c.name}`:'';
+  document.getElementById('go-score').textContent=sc;
+  document.getElementById('go-bonus').textContent='+'+earned;
+  document.getElementById('go-newbest').style.display=isNew?'block':'none';
+  document.getElementById('go-flags').innerHTML=`
+    <div class="go-flag">${c.a.flag?`<img src="${c.a.flag}">`:`<span style="font-size:28px;font-weight:900;color:rgba(255,255,255,.5)">${c.a.name}</span>`}</div>
+    <span class="gc-vs" style="font-size:24px;color:rgba(255,255,255,.4)">VS</span>
+    <div class="go-flag">${c.b.flag?`<img src="${c.b.flag}">`:`<span style="font-size:28px;font-weight:900;color:rgba(255,255,255,.5)">${c.b.name}</span>`}</div>`;
+
+  // Show/hide ad based on ad-free status
+  document.getElementById('go-ad-slot').style.display=isAdFree()?'none':'block';
+
+  showScreen('game-over');sfx('coin');
+  if(isNew)spawnConfetti(30);
+}
+function retryGame(){if(S.cat)ensureNickname(()=>startGame(S.cat.id))}
+
+// ===== REWARDED ADS =====
+let adFreeUntil=0;
+function loadAdFree(){try{adFreeUntil=parseInt(localStorage.getItem('eq3_adfree'))||0}catch(e){}}
+function isAdFree(){loadAdFree();return Date.now()<adFreeUntil}
+function setAdFree(mins){adFreeUntil=Date.now()+mins*60*1000;localStorage.setItem('eq3_adfree',adFreeUntil)}
+function updateAdFreeStatus(){
+  const el=document.getElementById('ad-free-status');
+  if(!el)return;
+  if(isAdFree()){
+    const left=Math.ceil((adFreeUntil-Date.now())/60000);
+    el.textContent=`AD-FREE (${left}min left)`;el.style.color='#4CAF50';
+  }else{el.textContent='Watch now';el.style.color='#FF9800'}
+  // Hide/show ad slots
+  document.querySelectorAll('.ad-slot').forEach(s=>s.style.display=isAdFree()?'none':'block');
+}
+
+function watchRewardedAd(){
+  if(isAdFree()){showDlg({title:'ALREADY AD-FREE!',body:`<p>You still have ad-free time remaining.</p>`,btns:[{t:'OK',cls:'yes',fn:hideDlg}]});return}
+  const overlay=document.getElementById('rewarded-overlay');
+  const timer=document.getElementById('rw-timer');
+  const progress=document.getElementById('rw-progress');
+  const skip=document.getElementById('rw-skip');
+  overlay.classList.add('show');
+  skip.disabled=true;skip.textContent='Wait...';skip.className='rw-skip';
+
+  let remaining=5;
+  const int=setInterval(()=>{
+    remaining-=.1;
+    if(remaining<=0){
+      clearInterval(int);
+      remaining=0;timer.textContent='0';progress.style.width='100%';
+      skip.disabled=false;skip.textContent='CLAIM REWARD!';skip.className='rw-skip active';
+      skip.onclick=()=>{
+        overlay.classList.remove('show');
+        setAdFree(5); // 5 minutes ad-free
+        updateAdFreeStatus();
+        sfx('coin');
+        showDlg({title:'REWARD!',body:'<p>No ads for the next <strong>5 minutes</strong>!</p>',btns:[{t:'AWESOME!',cls:'yes',fn:hideDlg}]});
+      };
+    }else{
+      timer.textContent=Math.ceil(remaining);
+      progress.style.width=((5-remaining)/5*100)+'%';
+    }
+  },100);
+}
+
+// ===== MARKET =====
+function openStripeLink(productKey){
+  const link = STRIPE_LINKS[productKey];
+  if(link){
+    // Real Stripe Payment Link — redirect user
+    window.location.href = link;
+  }else{
+    // Sandbox/test mode — simulate purchase
+    return false;
+  }
+  return true;
+}
+
+function buyCoins(n){
+  const key = 'coins_'+n;
+  if(openStripeLink(key)) return; // Redirected to Stripe
+
+  // Test mode: grant immediately
+  sfx('coin');S.coins+=n;save();updateCoins();
+  showDlg({title:'SUCCESS!',body:`<div style="font-size:48px;margin:8px 0">🪙</div><p>Got <strong>${n}</strong> coins!</p><p style="font-size:11px;color:#999;margin-top:6px">Test mode — configure Stripe links for real payments</p>`,btns:[{t:'OK!',cls:'yes',fn:hideDlg}]});
+}
+
+function buyItem(item){
+  if(item==='noads'){
+    if(openStripeLink('remove_ads')) return;
+    // Test mode
+    showDlg({
+      title:'REMOVE ADS',
+      body:`<p><strong>$0.99</strong> — one-time payment</p><p style="font-size:12px;color:#999;margin-top:6px">Test mode: simulated purchase</p>`,
+      btns:[
+        {t:'CANCEL',cls:'no',fn:hideDlg},
+        {t:'BUY (TEST)',cls:'yes',fn:()=>{
+          setAdFree(999999999);updateAdFreeStatus();hideDlg();
+          showDlg({title:'DONE!',body:'<p>Ads removed forever!</p>',btns:[{t:'THANKS!',cls:'yes',fn:hideDlg}]});
+        }}
+      ]
+    });
+  }else if(item==='vip'){
+    if(openStripeLink('vip_pack')) return;
+    // Test mode
+    showDlg({
+      title:'VIP PACK',
+      body:`<p><strong>$2.99</strong> — No ads + 500 coins + Unlock all</p><p style="font-size:12px;color:#999;margin-top:6px">Test mode: simulated purchase</p>`,
+      btns:[
+        {t:'CANCEL',cls:'no',fn:hideDlg},
+        {t:'BUY (TEST)',cls:'yes',fn:()=>{
+          S.coins+=500;save();updateCoins();setAdFree(999999999);
+          CATEGORIES.forEach(c=>{if(!S.unlocked.includes(c.id))S.unlocked.push(c.id)});
+          save();updateAdFreeStatus();hideDlg();
+          showDlg({title:'VIP!',body:'<p>All unlocked! No ads! 500 coins added!</p>',btns:[{t:'AWESOME!',cls:'yes',fn:hideDlg}]});
+        }}
+      ]
+    });
+  }
+}
+
+// ===== SETTINGS =====
+function toggleSound(){
+  S.soundOn=!S.soundOn;
+  document.getElementById('toggle-sound').classList.toggle('on',S.soundOn);
+  save();
+  if(S.soundOn)sfx('tap');
+}
+
+function shareGame(){
+  const text=`Can you tell nationalities apart? I scored ${S.best[S.cat?.id]||0} on EthnioQuiz! Try it:`;
+  const url=location.href;
+  if(navigator.share){
+    navigator.share({title:'EthnioQuiz',text,url}).catch(()=>{});
+  }else{
+    // Copy to clipboard fallback
+    navigator.clipboard.writeText(text+' '+url).then(()=>{
+      showDlg({title:'COPIED!',body:'<p>Link copied to clipboard! Share it with your friends.</p>',btns:[{t:'OK',cls:'yes',fn:hideDlg}]});
+    }).catch(()=>{
+      showDlg({title:'SHARE',body:`<p style="word-break:break-all;font-size:12px">${url}</p><p style="margin-top:8px">Copy this URL and share it!</p>`,btns:[{t:'OK',cls:'yes',fn:hideDlg}]});
+    });
+  }
+}
+
+function resetData(){
+  showDlg({
+    title:'RESET EVERYTHING?',
+    body:'<p>This will erase <strong>all</strong> your scores, coins, rankings, and nickname. Are you sure?</p>',
+    btns:[
+      {t:'NO',cls:'no',fn:hideDlg},
+      {t:'YES, RESET',cls:'yes',fn:()=>{
+        localStorage.removeItem('eq2');localStorage.removeItem('eq3_ranks');localStorage.removeItem('eq3_adfree');
+        S.coins=100;S.unlocked=['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best={};
+        save();updateCoins();updateAdFreeStatus();hideDlg();
+        showDlg({title:'DONE',body:'<p>Everything has been reset.</p>',btns:[{t:'OK',cls:'yes',fn:hideDlg}]});
+      }}
+    ]
+  });
+}
+
+// ===== DIALOG =====
+function showDlg({title,body,btns}){
+  const ov=document.getElementById('dialog-overlay'),dl=document.getElementById('dialog');
+  dl.innerHTML=`<div class="dlg-head"><h2>${title}</h2></div><div class="dlg-body">${body}</div><div class="dlg-btns">${btns.map((b,i)=>`<button class="dlg-btn ${b.cls}" data-i="${i}">${b.t}</button>`).join('')}</div>`;
+  dl.querySelectorAll('.dlg-btn').forEach(b=>{b.onclick=btns[+b.dataset.i].fn});
+  ov.classList.add('show');
+}
+function hideDlg(){document.getElementById('dialog-overlay').classList.remove('show')}
+
+// ===== INIT =====
+load();loadAdFree();updateCoins();updateNickDisplay();updateAdFreeStatus();
+document.getElementById('toggle-sound').classList.toggle('on',S.soundOn);
+document.addEventListener('click',()=>{try{getAudio();if(actx.state==='suspended')actx.resume()}catch(e){}},{once:true});
+// Refresh ad-free status every 30s
+setInterval(updateAdFreeStatus,30000);
+</script>
+</body>
+</html>

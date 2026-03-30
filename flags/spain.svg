@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280">
+  <defs>
+    <clipPath id="flagClip">
+      <rect x="12" y="12" width="376" height="256" rx="18" ry="18"/>
+    </clipPath>
+  </defs>
+  <!-- Flag content clipped to rounded rect -->
+  <g clip-path="url(#flagClip)">
+    <!-- Red top stripe -->
+    <rect x="12" y="12" width="376" height="64" fill="#c60b1e"/>
+    <!-- Yellow middle stripe -->
+    <rect x="12" y="76" width="376" height="128" fill="#ffc400"/>
+    <!-- Red bottom stripe -->
+    <rect x="12" y="204" width="376" height="64" fill="#c60b1e"/>
+    <!-- Simplified coat of arms -->
+    <g transform="translate(148, 105)">
+      <!-- Shield background -->
+      <rect x="0" y="0" width="40" height="48" rx="4" fill="#c60b1e" stroke="#8b0000" stroke-width="2"/>
+      <!-- Castle (Castile) -->
+      <rect x="4" y="4" width="14" height="18" rx="2" fill="#ffc400"/>
+      <rect x="6" y="6" width="4" height="6" rx="1" fill="#c60b1e"/>
+      <rect x="12" y="6" width="4" height="6" rx="1" fill="#c60b1e"/>
+      <!-- Lion (Leon) -->
+      <circle cx="30" cy="13" r="7" fill="#d4a0d4" stroke="#8b0000" stroke-width="1"/>
+      <ellipse cx="30" cy="16" rx="4" ry="3" fill="#d4a0d4"/>
+      <!-- Aragon stripes -->
+      <rect x="4" y="26" width="14" height="18" fill="#ffc400"/>
+      <rect x="4" y="28" width="14" height="2" fill="#c60b1e"/>
+      <rect x="4" y="32" width="14" height="2" fill="#c60b1e"/>
+      <rect x="4" y="36" width="14" height="2" fill="#c60b1e"/>
+      <rect x="4" y="40" width="14" height="2" fill="#c60b1e"/>
+      <!-- Navarre chains -->
+      <rect x="22" y="26" width="14" height="18" rx="2" fill="#c60b1e"/>
+      <line x1="25" y1="29" x2="33" y2="29" stroke="#ffc400" stroke-width="1.5"/>
+      <line x1="25" y1="33" x2="33" y2="33" stroke="#ffc400" stroke-width="1.5"/>
+      <line x1="29" y1="26" x2="29" y2="44" stroke="#ffc400" stroke-width="1.5"/>
+      <!-- Crown -->
+      <path d="M8,-4 L10,-10 L14,-6 L20,-12 L26,-6 L30,-10 L32,-4 Z" fill="#ffc400" stroke="#d4a017" stroke-width="1"/>
+      <rect x="8" y="-4" width="24" height="5" rx="1" fill="#ffc400" stroke="#d4a017" stroke-width="1"/>
+      <!-- Pillars -->
+      <rect x="-10" y="5" width="6" height="40" rx="2" fill="#c0c0c0" stroke="#888" stroke-width="1"/>
+      <rect x="44" y="5" width="6" height="40" rx="2" fill="#c0c0c0" stroke="#888" stroke-width="1"/>
+    </g>
+  </g>
+  <!-- Thick rounded border -->
+  <rect x="12" y="12" width="376" height="256" rx="18" ry="18" fill="none" stroke="#1a2744" stroke-width="10" stroke-linejoin="round"/>
+</svg>

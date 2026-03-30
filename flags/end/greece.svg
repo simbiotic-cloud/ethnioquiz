@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <defs>
+    <clipPath id="flagClip">
+      <rect x="6" y="6" width="188" height="128" rx="9" ry="9"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#flagClip)">
+    <rect x="6" y="6" width="188" height="14.2" fill="#0d5eaf"/>
+    <rect x="6" y="20.2" width="188" height="14.2" fill="#ffffff"/>
+    <rect x="6" y="34.4" width="188" height="14.2" fill="#0d5eaf"/>
+    <rect x="6" y="48.7" width="188" height="14.2" fill="#ffffff"/>
+    <rect x="6" y="62.9" width="188" height="14.2" fill="#0d5eaf"/>
+    <rect x="6" y="77.1" width="188" height="14.2" fill="#ffffff"/>
+    <rect x="6" y="91.3" width="188" height="14.2" fill="#0d5eaf"/>
+    <rect x="6" y="105.5" width="188" height="14.2" fill="#ffffff"/>
+    <rect x="6" y="119.7" width="188" height="14.3" fill="#0d5eaf"/>
+    <rect x="6" y="6" width="77.5" height="71" fill="#0d5eaf"/>
+    <rect x="6" y="32" width="77.5" height="12" fill="#ffffff"/>
+    <rect x="38.5" y="6" width="12" height="71" fill="#ffffff"/>
+  </g>
+  <rect x="6" y="6" width="188" height="128" rx="9" ry="9" fill="none" stroke="#1a2744" stroke-width="5" stroke-linejoin="round"/>
+</svg>

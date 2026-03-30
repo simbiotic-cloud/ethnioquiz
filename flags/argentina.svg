@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280">
+  <defs>
+    <clipPath id="flagClip">
+      <rect x="12" y="12" width="376" height="256" rx="18" ry="18"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#flagClip)">
+    <!-- Light blue top stripe -->
+    <rect x="12" y="12" width="376" height="85" fill="#74acdf"/>
+    <!-- White middle stripe -->
+    <rect x="12" y="97" width="376" height="86" fill="#ffffff"/>
+    <!-- Light blue bottom stripe -->
+    <rect x="12" y="183" width="376" height="85" fill="#74acdf"/>
+    <!-- Sun of May -->
+    <g transform="translate(200, 140)">
+      <!-- Sun rays -->
+      <g fill="#f6b40e" stroke="#d4950e" stroke-width="0.5">
+        <!-- Straight rays -->
+        <polygon points="0,-32 3,-18 -3,-18"/>
+        <polygon points="0,32 3,18 -3,18"/>
+        <polygon points="-32,0 -18,3 -18,-3"/>
+        <polygon points="32,0 18,3 18,-3"/>
+        <!-- Diagonal straight rays -->
+        <polygon points="-22,-22 -11,-14 -14,-11"/>
+        <polygon points="22,-22 11,-14 14,-11"/>
+        <polygon points="-22,22 -11,14 -14,11"/>
+        <polygon points="22,22 11,14 14,11"/>
+        <!-- Wavy rays between -->
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(22.5)"/>
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(67.5)"/>
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(112.5)"/>
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(157.5)"/>
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(202.5)"/>
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(247.5)"/>
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(292.5)"/>
+        <path d="M0,-32 Q5,-24 0,-18 Q-5,-24 0,-32Z" transform="rotate(337.5)"/>
+      </g>
+      <!-- Sun face circle -->
+      <circle cx="0" cy="0" r="13" fill="#f6b40e" stroke="#d4950e" stroke-width="1"/>
+      <!-- Simple face -->
+      <circle cx="-4" cy="-3" r="1.5" fill="#d4950e"/>
+      <circle cx="4" cy="-3" r="1.5" fill="#d4950e"/>
+      <path d="M-5,3 Q0,8 5,3" fill="none" stroke="#d4950e" stroke-width="1.2" stroke-linecap="round"/>
+    </g>
+  </g>
+  <!-- Thick rounded border -->
+  <rect x="12" y="12" width="376" height="256" rx="18" ry="18" fill="none" stroke="#1a2744" stroke-width="10" stroke-linejoin="round"/>
+</svg>

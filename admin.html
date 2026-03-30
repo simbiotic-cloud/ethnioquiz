@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EthnioQuiz — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;background:#0f0f1e;color:#e0e0e0;min-height:100vh}
+
+/* ===== HEADER ===== */
+.header{
+  background:linear-gradient(135deg,#1a2744,#0f1a30);padding:12px 24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  border-bottom:3px solid #FFD700;position:sticky;top:0;z-index:50;
+}
+.header h1{font-size:22px;color:#FFD700}
+.header-actions{display:flex;gap:6px;align-items:center}
+
+/* ===== TABS ===== */
+.tab-bar{
+  display:flex;gap:0;background:#0a0a18;border-bottom:2px solid rgba(255,255,255,.04);
+  position:sticky;top:52px;z-index:49;
+}
+.tab-btn{
+  padding:12px 24px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;
+  background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .15s;
+}
+.tab-btn:hover{color:rgba(255,255,255,.6)}
+.tab-btn.active{color:#FFD700;border-bottom-color:#FFD700;background:rgba(255,215,0,.04)}
+.tab-panel{display:none;padding:20px 24px;max-width:1200px;margin:0 auto}
+.tab-panel.active{display:block}
+
+/* ===== BUTTONS ===== */
+.btn{
+  padding:8px 16px;border-radius:8px;border:none;font-family:'Nunito',sans-serif;
+  font-weight:800;font-size:13px;cursor:pointer;transition:transform .1s;white-space:nowrap;
+}
+.btn:active{transform:scale(.95)}
+.btn-gold{background:#FFD700;color:#1a2744}
+.btn-green{background:#4CAF50;color:#fff}
+.btn-blue{background:#2196F3;color:#fff}
+.btn-orange{background:#FF9800;color:#fff}
+.btn-red{background:#e74c3c;color:#fff}
+.btn-ghost{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ===== DASHBOARD ===== */
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{
+  background:rgba(255,255,255,.03);border-radius:14px;padding:16px 20px;
+  border:1px solid rgba(255,255,255,.04);
+}
+.stat-num{font-size:32px;font-weight:900;color:#FFD700;line-height:1.1}
+.stat-label{font-size:12px;color:rgba(255,255,255,.3);font-weight:700;margin-top:2px}
+
+.dash-section{margin-bottom:28px}
+.dash-section h3{font-size:16px;color:#FFD700;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(255,215,0,.15)}
+
+.scores-table{width:100%;border-collapse:collapse}
+.scores-table th{text-align:left;font-size:11px;color:rgba(255,255,255,.3);font-weight:700;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.scores-table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.03);font-size:14px}
+.scores-table tr:hover{background:rgba(255,255,255,.02)}
+.scores-table .flag-sm{width:28px;height:auto;vertical-align:middle;margin-right:4px;border-radius:3px}
+
+.bar-chart{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-label{width:140px;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:24px;background:rgba(255,255,255,.03);border-radius:6px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:6px;transition:width .5s ease;display:flex;align-items:center;padding:0 8px}
+.bar-fill span{font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+
+/* ===== GAME MANAGER ===== */
+.gm-create{
+  background:rgba(255,255,255,.03);border-radius:14px;padding:16px;margin-bottom:20px;
+  border:1px solid rgba(255,255,255,.04);display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;
+}
+.gm-create .field{display:flex;flex-direction:column;gap:3px}
+.gm-create .field label{font-size:11px;color:rgba(255,255,255,.35);font-weight:700;text-transform:uppercase}
+.gm-create select,.gm-create input{
+  padding:8px 10px;border-radius:8px;border:2px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);color:#fff;font-size:13px;font-family:'Nunito',sans-serif;
+  font-weight:700;outline:none;
+}
+.gm-create select:focus,.gm-create input:focus{border-color:#FFD700}
+.gm-create .field.desc{flex:1;min-width:180px}
+.gm-create .field.desc input{width:100%}
+
+.gm-list{display:flex;flex-direction:column;gap:6px}
+
+.gm-card{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  background:rgba(255,255,255,.03);border-radius:12px;
+  border:2px solid rgba(255,255,255,.04);transition:all .15s;cursor:default;
+}
+.gm-card:hover{border-color:rgba(255,255,255,.1)}
+.gm-card.dragging{opacity:.3;border:2px dashed #FFD700}
+.gm-card.drag-over{border-color:#FFD700;background:rgba(255,215,0,.05)}
+
+.gm-handle{
+  cursor:grab;font-size:18px;color:rgba(255,255,255,.2);padding:0 4px;
+  user-select:none;transition:color .15s;
+}
+.gm-handle:hover{color:rgba(255,255,255,.5)}
+.gm-handle:active{cursor:grabbing}
+
+.gm-order{
+  width:24px;height:24px;border-radius:50%;background:rgba(255,215,0,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:#FFD700;flex-shrink:0;
+}
+.gm-flag{width:36px;height:24px;border-radius:4px;object-fit:contain;flex-shrink:0}
+.gm-vs{font-size:11px;color:rgba(255,255,255,.25);font-weight:800}
+.gm-info{flex:1;min-width:0}
+.gm-name{font-weight:800;font-size:14px;color:#fff}
+.gm-desc{font-size:11px;color:rgba(255,255,255,.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gm-cost{
+  font-size:12px;font-weight:800;padding:4px 10px;border-radius:8px;
+  background:rgba(255,215,0,.1);color:#FFD700;flex-shrink:0;
+}
+.gm-actions{display:flex;gap:4px;flex-shrink:0}
+
+/* Edit mode */
+.gm-edit{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.gm-edit input{
+  padding:6px 8px;border-radius:6px;border:2px solid rgba(255,215,0,.3);
+  background:rgba(255,255,255,.04);color:#fff;font-size:12px;font-family:'Nunito',sans-serif;
+  font-weight:700;outline:none;
+}
+.gm-edit input:focus{border-color:#FFD700}
+
+/* ===== ENTITIES TAB ===== */
+.ent-layout{display:flex;gap:0;min-height:calc(100vh - 120px)}
+.ent-sidebar{
+  width:260px;min-width:260px;background:#0c0c20;border-radius:14px 0 0 14px;
+  border:1px solid rgba(255,255,255,.04);display:flex;flex-direction:column;overflow:hidden;
+}
+.ent-main{flex:1;background:rgba(255,255,255,.01);border-radius:0 14px 14px 0;border:1px solid rgba(255,255,255,.04);border-left:none;padding:16px 20px;overflow-y:auto}
+
+.sb-title{padding:12px 14px 6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.25)}
+.ent-list{flex:1;overflow-y:auto;padding:0 6px 6px}
+.ent-list::-webkit-scrollbar{width:4px}
+.ent-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+
+.ent-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  border-radius:10px;cursor:pointer;transition:background .12s;margin-bottom:1px;
+}
+.ent-item:hover{background:rgba(255,255,255,.04)}
+.ent-item.active{background:rgba(255,215,0,.08);outline:1px solid rgba(255,215,0,.2)}
+.ent-item .e-flag{width:32px;height:22px;border-radius:3px;object-fit:contain}
+.ent-item .e-info{flex:1;min-width:0}
+.ent-item .e-name{font-weight:800;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ent-item .e-count{font-size:10px;color:rgba(255,255,255,.35)}
+.ent-item .e-count b{color:#4CAF50}
+.ent-item .e-del{
+  opacity:0;width:22px;height:22px;border-radius:50%;background:rgba(231,76,60,.12);
+  border:none;color:#e74c3c;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.ent-item:hover .e-del{opacity:1}
+
+.add-ent-row{padding:6px;border-top:1px solid rgba(255,255,255,.04);display:flex;gap:4px}
+.add-ent-row input{
+  flex:1;padding:7px 8px;border-radius:6px;border:2px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);color:#fff;font-size:12px;font-family:'Nunito',sans-serif;font-weight:700;outline:none;
+}
+.add-ent-row input:focus{border-color:#FFD700}
+.add-ent-row input::placeholder{color:rgba(255,255,255,.15)}
+
+/* Entity detail */
+.ent-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ent-header .big-flag{width:56px;height:38px;object-fit:contain;border-radius:5px}
+.ent-header h2{font-size:24px;color:#fff;flex:1}
+.ent-header .meta{text-align:right;color:rgba(255,255,255,.35);font-size:12px}
+.ent-header .meta b{color:#FFD700}
+
+.flag-sel{margin-bottom:16px}
+.flag-sel label{font-size:11px;color:rgba(255,255,255,.3);font-weight:700;display:block;margin-bottom:4px}
+.flag-grid{display:flex;flex-wrap:wrap;gap:4px}
+.flag-opt{width:42px;height:30px;border-radius:5px;cursor:pointer;border:2px solid transparent;object-fit:contain;opacity:.5;transition:all .12s}
+.flag-opt:hover{opacity:.8;border-color:rgba(255,255,255,.2)}
+.flag-opt.active{opacity:1;border-color:#FFD700}
+
+.add-box{background:rgba(255,255,255,.02);border:2px dashed rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:16px}
+.add-box h3{font-size:14px;color:#FFD700;margin-bottom:8px}
+.add-row{display:flex;gap:6px;margin-bottom:6px}
+.add-row input{
+  flex:1;padding:8px 10px;border-radius:6px;border:2px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);color:#fff;font-size:12px;font-family:'Nunito',sans-serif;font-weight:700;outline:none;
+}
+.add-row input:focus{border-color:#FFD700}
+.add-row input::placeholder{color:rgba(255,255,255,.15)}
+.add-preview{display:flex;align-items:center;gap:6px;min-height:36px;margin-top:4px}
+.add-preview img{width:44px;height:44px;border-radius:6px;object-fit:cover;border:2px solid rgba(255,255,255,.08)}
+.add-preview .ok{color:#4CAF50;font-weight:800;font-size:12px}
+.add-preview .err{color:#e74c3c;font-weight:800;font-size:12px}
+
+.bulk-area{margin-top:8px}
+.bulk-area summary{cursor:pointer;font-size:11px;font-weight:700;color:rgba(255,255,255,.3);padding:3px 0}
+.bulk-area textarea{
+  width:100%;height:70px;margin-top:4px;padding:8px;border-radius:6px;
+  border:2px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);
+  color:#fff;font-size:11px;font-family:'Nunito',sans-serif;resize:vertical;outline:none;
+}
+.bulk-area textarea:focus{border-color:#FFD700}
+
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:10px}
+.img-card{background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden;border:2px solid rgba(255,255,255,.03);transition:border-color .12s;position:relative}
+.img-card:hover{border-color:rgba(255,255,255,.1)}
+.img-card img{width:100%;height:120px;object-fit:cover;display:block}
+.img-card-foot{padding:4px 6px;display:flex;align-items:center;justify-content:space-between}
+.shown-badge{font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px}
+.shown-badge.unseen{background:rgba(76,175,80,.12);color:#4CAF50}
+.shown-badge.seen{background:rgba(255,152,0,.12);color:#FF9800}
+.img-del{
+  width:20px;height:20px;border-radius:50%;background:rgba(231,76,60,.1);
+  border:none;color:#e74c3c;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s;
+}
+.img-card:hover .img-del{opacity:1}
+
+.empty-s{text-align:center;padding:40px 16px;color:rgba(255,255,255,.15)}
+.empty-s .icon{font-size:40px;margin-bottom:6px}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:#4CAF50;color:#fff;padding:8px 20px;border-radius:10px;
+  font-weight:700;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:#e74c3c}
+
+@media(max-width:700px){
+  .ent-layout{flex-direction:column}
+  .ent-sidebar{width:100%;min-width:0;max-height:180px;border-radius:14px 14px 0 0}
+  .ent-main{border-radius:0 0 14px 14px;border-left:1px solid rgba(255,255,255,.04);border-top:none}
+  .gm-create{flex-direction:column}
+  .dash-stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>EthnioQuiz Admin</h1>
+  <div class="header-actions">
+    <button class="btn btn-blue btn-sm" onclick="exportAll()">Export</button>
+    <button class="btn btn-orange btn-sm" onclick="document.getElementById('imp').click()">Import</button>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="importJSON(event)">
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="dashboard" onclick="showTab('dashboard')">Dashboard</button>
+  <button class="tab-btn" data-tab="games" onclick="showTab('games')">Games</button>
+  <button class="tab-btn" data-tab="entities" onclick="showTab('entities')">Entities</button>
+</div>
+
+<!-- ==================== DASHBOARD ==================== -->
+<div id="tab-dashboard" class="tab-panel active">
+  <div class="dash-stats" id="dash-stats"></div>
+  <div class="dash-section">
+    <h3>High Scores</h3>
+    <table class="scores-table" id="scores-table"><thead><tr><th>Game</th><th>Best Score</th><th>Times Played</th></tr></thead><tbody></tbody></table>
+  </div>
+  <div class="dash-section">
+    <h3>Games Played</h3>
+    <div class="bar-chart" id="chart-played"></div>
+  </div>
+  <div class="dash-section">
+    <h3>Images per Entity</h3>
+    <div class="bar-chart" id="chart-images"></div>
+  </div>
+</div>
+
+<!-- ==================== GAMES ==================== -->
+<div id="tab-games" class="tab-panel">
+  <div class="gm-create" id="gm-create"></div>
+  <h3 style="color:rgba(255,255,255,.4);font-size:13px;margin-bottom:10px">Drag to reorder. First games appear first in the game.</h3>
+  <div class="gm-list" id="gm-list"></div>
+</div>
+
+<!-- ==================== ENTITIES ==================== -->
+<div id="tab-entities" class="tab-panel" style="padding:20px 0">
+  <div class="ent-layout">
+    <div class="ent-sidebar">
+      <div class="sb-title">Countries / Entities</div>
+      <div class="ent-list" id="ent-list"></div>
+      <div class="add-ent-row">
+        <input type="text" id="new-ent" placeholder="New entity..." onkeydown="if(event.key==='Enter')addEntity()">
+        <button class="btn btn-gold btn-sm" onclick="addEntity()">+</button>
+      </div>
+    </div>
+    <div class="ent-main" id="ent-main">
+      <div class="empty-s"><div class="icon">🌍</div><p>Select or create an entity</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== FLAGS =====
+const FLAGS=['flags/japan.svg','flags/china.svg','flags/spain.svg','flags/basque.svg','flags/pakistan.svg','flags/india.svg','flags/korea.svg','flags/thailand.svg','flags/brazil.svg','flags/argentina.svg','flags/turkey.svg','flags/greece.svg','flags/morocco.svg','flags/egypt.svg','flags/sweden.svg','flags/finland.svg','flags/iran.svg','flags/iraq.svg','flags/colombia.svg','flags/mexico.svg','flags/england.svg','flags/ireland.svg','assets/japan.png','assets/china.png'];
+
+// ===== DATA =====
+let db={entities:{}};
+let games={games:[]};
+let curEnt=null;
+
+const DEFAULT_GAMES=[
+  {aId:'japan',bId:'china',cost:0,desc:'The OG challenge. Can you really tell them apart?'},
+  {aId:'spain',bId:'basque',cost:0,desc:'Same country, different nation?'},
+  {aId:'india',bId:'pakistan',cost:0,desc:'Separated by a border, united by looks'},
+  {aId:'south_korea',bId:'japan',cost:100,desc:'K-pop vs J-pop. Who is who?'},
+  {aId:'turkey',bId:'greece',cost:100,desc:'Empires clashed, faces matched'},
+  {aId:'argentina',bId:'brazil',cost:150,desc:'Messi vs Neymar territory'},
+  {aId:'iran',bId:'iraq',cost:150,desc:'Neighbors divided. Can you spot the difference?'},
+  {aId:'sweden',bId:'finland',cost:200,desc:'Nordic ice. Nearly identical.'},
+  {aId:'colombia',bId:'mexico',cost:200,desc:'Latin fire. Same vibe, different country.'},
+  {aId:'england',bId:'ireland',cost:250,desc:'Centuries of history. One face at a time.'},
+];
+
+function loadDB(){try{const d=JSON.parse(localStorage.getItem('eq3_entities'));if(d&&d.entities)db=d}catch(e){}}
+function saveDB(){localStorage.setItem('eq3_entities',JSON.stringify(db))}
+function loadGames(){try{const d=JSON.parse(localStorage.getItem('eq3_games'));if(d&&d.games&&d.games.length){games=d;return}}catch(e){}games={games:[...DEFAULT_GAMES]};saveGames()}
+function saveGames(){localStorage.setItem('eq3_games',JSON.stringify(games))}
+
+function getState(){try{return JSON.parse(localStorage.getItem('eq2'))||{}}catch(e){return{}}}
+function getVisitors(){try{return JSON.parse(localStorage.getItem('eq3_visitors'))||{count:0}}catch(e){return{count:0}}}
+function getPlayed(){try{return JSON.parse(localStorage.getItem('eq3_gamesPlayed'))||{total:0,perGame:{}}}catch(e){return{total:0,perGame:{}}}}
+
+// ===== TABS =====
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+  if(id==='dashboard')renderDashboard();
+  if(id==='games')renderGames();
+  if(id==='entities'){renderEntList();renderEntDetail()}
+}
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+  const vis=getVisitors(),played=getPlayed(),state=getState();
+  const totalImgs=Object.values(db.entities).reduce((s,e)=>s+e.images.length,0);
+  const totalEnts=Object.keys(db.entities).length;
+
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${vis.count}</div><div class="stat-label">Visitors</div></div>
+    <div class="stat-card"><div class="stat-num">${played.total}</div><div class="stat-label">Games Played</div></div>
+    <div class="stat-card"><div class="stat-num">${totalEnts}</div><div class="stat-label">Entities</div></div>
+    <div class="stat-card"><div class="stat-num">${totalImgs}</div><div class="stat-label">Total Images</div></div>
+  `;
+
+  // High scores table
+  const tbody=document.querySelector('#scores-table tbody');
+  tbody.innerHTML='';
+  const best=state.best||{};
+  games.games.forEach(g=>{
+    const id=g.aId+'_vs_'+g.bId;
+    const a=db.entities[g.aId],b=db.entities[g.bId];
+    const an=a?a.name:g.aId,bn=b?b.name:g.bId;
+    const af=a?a.flag:'',bf=b?b.flag:'';
+    const sc=best[id]||0;
+    const pl=played.perGame[id]||0;
+    tbody.innerHTML+=`<tr>
+      <td>${af?`<img class="flag-sm" src="${af}">`:''}${an} vs ${bn}${bf?` <img class="flag-sm" src="${bf}">`:''}</td>
+      <td style="font-weight:900;color:#FFD700">${sc}</td>
+      <td>${pl}</td>
+    </tr>`;
+  });
+
+  // Games played chart
+  const maxPlayed=Math.max(1,...games.games.map(g=>played.perGame[g.aId+'_vs_'+g.bId]||0));
+  document.getElementById('chart-played').innerHTML=games.games.map(g=>{
+    const id=g.aId+'_vs_'+g.bId;
+    const n=(played.perGame[id]||0);
+    const pct=n/maxPlayed*100;
+    const a=db.entities[g.aId],b=db.entities[g.bId];
+    return `<div class="bar-row">
+      <div class="bar-label">${a?a.name:g.aId} vs ${b?b.name:g.bId}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#2196F3,#1976D2)"><span>${n}</span></div></div>
+    </div>`;
+  }).join('');
+
+  // Images per entity chart
+  const sorted=Object.values(db.entities).sort((a,b)=>b.images.length-a.images.length).slice(0,20);
+  const maxImgs=Math.max(1,...sorted.map(e=>e.images.length));
+  document.getElementById('chart-images').innerHTML=sorted.map(e=>{
+    const pct=e.images.length/maxImgs*100;
+    return `<div class="bar-row">
+      <div class="bar-label">${e.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#4CAF50,#388E3C)"><span>${e.images.length}</span></div></div>
+    </div>`;
+  }).join('')||'<div class="empty-s">No entities yet</div>';
+}
+
+// ===== GAMES MANAGER =====
+let editIdx=-1;
+
+function renderGames(){
+  // Create form
+  const entOpts=Object.values(db.entities).sort((a,b)=>a.name.localeCompare(b.name)).map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  document.getElementById('gm-create').innerHTML=`
+    <div class="field"><label>Country A</label><select id="gm-a">${entOpts}</select></div>
+    <div class="field"><label>vs</label><select id="gm-b">${entOpts}</select></div>
+    <div class="field"><label>Cost</label><input type="number" id="gm-cost" value="0" min="0" step="50" style="width:80px"></div>
+    <div class="field desc"><label>Description</label><input type="text" id="gm-desc" placeholder="Tagline..."></div>
+    <button class="btn btn-green" onclick="addGame()">+ Add Game</button>
+  `;
+
+  // Game list
+  const list=document.getElementById('gm-list');
+  list.innerHTML='';
+  games.games.forEach((g,i)=>{
+    const a=db.entities[g.aId],b=db.entities[g.bId];
+    const card=document.createElement('div');
+    card.className='gm-card';
+    card.draggable=true;
+    card.dataset.idx=i;
+
+    if(editIdx===i){
+      card.innerHTML=`
+        <div class="gm-order">${i+1}</div>
+        <div class="gm-edit">
+          <input type="number" id="edit-cost" value="${g.cost}" min="0" step="50" style="width:70px" placeholder="Cost">
+          <input type="text" id="edit-desc" value="${g.desc||''}" style="flex:1;min-width:150px" placeholder="Description...">
+          <button class="btn btn-green btn-sm" onclick="saveEdit(${i})">Save</button>
+          <button class="btn btn-ghost btn-sm" onclick="editIdx=-1;renderGames()">Cancel</button>
+        </div>
+      `;
+    }else{
+      card.innerHTML=`
+        <div class="gm-handle" title="Drag to reorder">&#x2807;</div>
+        <div class="gm-order">${i+1}</div>
+        ${a&&a.flag?`<img class="gm-flag" src="${a.flag}">`:`<span style="font-size:16px">🏳</span>`}
+        <div class="gm-vs">VS</div>
+        ${b&&b.flag?`<img class="gm-flag" src="${b.flag}">`:`<span style="font-size:16px">🏳</span>`}
+        <div class="gm-info">
+          <div class="gm-name">${a?a.name:g.aId} vs ${b?b.name:g.bId}</div>
+          <div class="gm-desc">${g.desc||''}</div>
+        </div>
+        <div class="gm-cost">${g.cost===0?'FREE':g.cost+' coins'}</div>
+        <div class="gm-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editIdx=${i};renderGames()">Edit</button>
+          <button class="btn btn-red btn-sm" onclick="deleteGame(${i})">Del</button>
+        </div>
+      `;
+    }
+
+    // Drag events
+    card.addEventListener('dragstart',e=>{
+      e.dataTransfer.effectAllowed='move';
+      card.classList.add('dragging');
+      setTimeout(()=>card.style.opacity='.3',0);
+    });
+    card.addEventListener('dragend',e=>{
+      card.classList.remove('dragging');card.style.opacity='';
+      document.querySelectorAll('.gm-card').forEach(c=>c.classList.remove('drag-over'));
+      // Reorder from DOM
+      const cards=[...list.querySelectorAll('.gm-card')];
+      const newGames=cards.map(c=>games.games[+c.dataset.idx]);
+      games.games=newGames;saveGames();renderGames();
+    });
+    card.addEventListener('dragover',e=>{
+      e.preventDefault();e.dataTransfer.dropEffect='move';
+      const dragging=list.querySelector('.dragging');
+      if(!dragging||dragging===card)return;
+      const rect=card.getBoundingClientRect();
+      const mid=rect.top+rect.height/2;
+      if(e.clientY<mid)list.insertBefore(dragging,card);
+      else list.insertBefore(dragging,card.nextSibling);
+    });
+    card.addEventListener('dragenter',()=>card.classList.add('drag-over'));
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+
+    list.appendChild(card);
+  });
+
+  if(games.games.length===0){
+    list.innerHTML='<div class="empty-s"><div class="icon">🎮</div><p>No games configured. Add one above!</p></div>';
+  }
+}
+
+function addGame(){
+  const aId=document.getElementById('gm-a').value;
+  const bId=document.getElementById('gm-b').value;
+  const cost=parseInt(document.getElementById('gm-cost').value)||0;
+  const desc=document.getElementById('gm-desc').value.trim();
+  if(aId===bId){toast('Pick two different entities','err');return}
+  if(games.games.some(g=>(g.aId===aId&&g.bId===bId)||(g.aId===bId&&g.bId===aId))){toast('This pairing already exists','err');return}
+  games.games.push({aId,bId,cost,desc});
+  saveGames();renderGames();toast('Game added!');
+}
+
+function deleteGame(i){
+  const g=games.games[i];
+  const a=db.entities[g.aId],b=db.entities[g.bId];
+  if(!confirm(`Delete "${a?a.name:g.aId} vs ${b?b.name:g.bId}"?`))return;
+  games.games.splice(i,1);saveGames();renderGames();toast('Game deleted');
+}
+
+function saveEdit(i){
+  games.games[i].cost=parseInt(document.getElementById('edit-cost').value)||0;
+  games.games[i].desc=document.getElementById('edit-desc').value.trim();
+  editIdx=-1;saveGames();renderGames();toast('Saved!');
+}
+
+// ===== ENTITIES =====
+function makeId(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')}
+
+function addEntity(){
+  const inp=document.getElementById('new-ent');
+  const name=inp.value.trim();if(!name){toast('Enter a name','err');return}
+  const id=makeId(name);if(db.entities[id]){toast('Already exists','err');return}
+  let flag='';const nl=name.toLowerCase();
+  FLAGS.forEach(f=>{if(f.split('/').pop().replace(/\.(svg|png)$/,'').toLowerCase()===nl)flag=f});
+  db.entities[id]={id,name,flag,images:[]};
+  saveDB();inp.value='';curEnt=id;renderEntList();renderEntDetail();toast(`Created "${name}"`);
+}
+
+function deleteEntity(id){
+  const e=db.entities[id];if(!confirm(`Delete "${e.name}" and ${e.images.length} images?`))return;
+  delete db.entities[id];if(curEnt===id)curEnt=null;saveDB();renderEntList();renderEntDetail();
+}
+
+function renderEntList(){
+  const el=document.getElementById('ent-list');el.innerHTML='';
+  Object.values(db.entities).sort((a,b)=>a.name.localeCompare(b.name)).forEach(e=>{
+    const unseen=e.images.filter(i=>!i.shownCount).length;
+    const d=document.createElement('div');
+    d.className='ent-item'+(e.id===curEnt?' active':'');
+    d.innerHTML=`
+      ${e.flag?`<img class="e-flag" src="${e.flag}">`:`<div class="e-flag" style="background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:14px;border-radius:3px">🏳</div>`}
+      <div class="e-info"><div class="e-name">${e.name}</div><div class="e-count"><b>${e.images.length}</b> · ${unseen} new</div></div>
+      <button class="e-del" onclick="event.stopPropagation();deleteEntity('${e.id}')">×</button>
+    `;
+    d.onclick=()=>{curEnt=e.id;renderEntList();renderEntDetail()};
+    el.appendChild(d);
+  });
+}
+
+function renderEntDetail(){
+  const el=document.getElementById('ent-main');
+  if(!curEnt||!db.entities[curEnt]){el.innerHTML='<div class="empty-s"><div class="icon">🌍</div><p>Select or create an entity</p></div>';return}
+  const ent=db.entities[curEnt];
+  const unseen=ent.images.filter(i=>!i.shownCount).length;
+  el.innerHTML=`
+    <div class="ent-header">
+      ${ent.flag?`<img class="big-flag" src="${ent.flag}">`:''}
+      <h2>${ent.name}</h2>
+      <div class="meta"><b>${ent.images.length}</b> photos<br><span style="color:#4CAF50">${unseen} new</span> · <span style="color:#FF9800">${ent.images.length-unseen} seen</span></div>
+    </div>
+    <div class="flag-sel"><label>Flag</label><div class="flag-grid" id="fg"></div></div>
+    <div class="add-box">
+      <h3>Add Photos</h3>
+      <div class="add-row">
+        <input type="text" id="add-url" placeholder="https://..." oninput="prevAdd()" onpaste="setTimeout(prevAdd,100)" onkeydown="if(event.key==='Enter')addImg()">
+        <button class="btn btn-green btn-sm" onclick="addImg()">+ Add</button>
+      </div>
+      <div class="add-preview" id="add-prev"></div>
+      <div class="bulk-area"><details><summary>Bulk add</summary>
+        <textarea id="bulk-urls" placeholder="One URL per line..."></textarea>
+        <button class="btn btn-green btn-sm" style="margin-top:4px" onclick="bulkAdd()">+ Bulk Add</button>
+      </details></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;color:rgba(255,255,255,.4);font-weight:700">${ent.images.length} Photos</span>
+      <button class="btn btn-ghost btn-sm" onclick="resetShown()">Reset Shown</button>
+    </div>
+    <div class="img-grid" id="ig"></div>
+  `;
+  // Flags
+  const fg=document.getElementById('fg');
+  FLAGS.forEach(f=>{const img=document.createElement('img');img.className='flag-opt'+(ent.flag===f?' active':'');img.src=f;img.onclick=()=>{ent.flag=f;saveDB();renderEntList();renderEntDetail()};fg.appendChild(img)});
+  // Images
+  const ig=document.getElementById('ig');
+  if(!ent.images.length){ig.innerHTML='<div class="empty-s" style="grid-column:1/-1"><div class="icon">📷</div><p>No photos yet</p></div>';return}
+  [...ent.images].sort((a,b)=>(a.shownCount||0)-(b.shownCount||0)).forEach(img=>{
+    const c=document.createElement('div');c.className='img-card';
+    c.innerHTML=`<img src="${img.url}" loading="lazy" onerror="this.style.background='#222';this.alt='Error'"><div class="img-card-foot"><span class="shown-badge ${img.shownCount?'seen':'unseen'}">${img.shownCount?'×'+img.shownCount:'New'}</span><button class="img-del" onclick="delImg('${img.id}')">×</button></div>`;
+    ig.appendChild(c);
+  });
+}
+
+function addImg(){
+  if(!curEnt)return;const url=document.getElementById('add-url').value.trim();
+  if(!url||!url.startsWith('http')){toast('Valid URL needed','err');return}
+  const ent=db.entities[curEnt];
+  if(ent.images.some(i=>i.url===url)){toast('Duplicate','err');return}
+  ent.images.push({id:Date.now()+'_'+Math.random().toString(36).substr(2,5),url,shownCount:0,lastShown:null});
+  saveDB();renderEntDetail();renderEntList();document.getElementById('add-url').value='';toast('Added!');
+}
+
+function bulkAdd(){
+  if(!curEnt)return;const text=document.getElementById('bulk-urls').value.trim();
+  const urls=text.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  if(!urls.length){toast('No valid URLs','err');return}
+  const ent=db.entities[curEnt];const ex=new Set(ent.images.map(i=>i.url));let n=0;
+  urls.forEach(url=>{if(!ex.has(url)){ent.images.push({id:Date.now()+'_'+Math.random().toString(36).substr(2,6),url,shownCount:0,lastShown:null});n++}});
+  saveDB();renderEntDetail();renderEntList();document.getElementById('bulk-urls').value='';toast(`Added ${n} images`);
+}
+
+function delImg(id){
+  if(!curEnt)return;db.entities[curEnt].images=db.entities[curEnt].images.filter(i=>i.id!==id);
+  saveDB();renderEntDetail();renderEntList();
+}
+
+function resetShown(){
+  if(!curEnt)return;db.entities[curEnt].images.forEach(i=>{i.shownCount=0;i.lastShown=null});
+  saveDB();renderEntDetail();toast('Reset!');
+}
+
+function prevAdd(){
+  const url=document.getElementById('add-url')?.value?.trim();const el=document.getElementById('add-prev');if(!el)return;
+  if(!url||!url.startsWith('http')){el.innerHTML='';return}
+  el.innerHTML=`<img src="${url}" onerror="this.nextElementSibling.style.display='inline';this.style.display='none'" onload="this.nextElementSibling.style.display='none';this.nextElementSibling.nextElementSibling.style.display='inline'"><span class="err" style="display:none">Failed</span><span class="ok" style="display:none">OK</span>`;
+}
+
+// ===== EXPORT / IMPORT =====
+function exportAll(){
+  const data={entities:db,games,visitors:getVisitors(),played:getPlayed(),state:getState()};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='ethnioquiz-backup.json';a.click();toast('Exported!');
+}
+
+function importJSON(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.entities){
+        if(confirm('Replace all data? (Cancel to merge)')){
+          if(d.entities.entities)db=d.entities;else db=d.entities;
+          if(d.games)games=d.games;
+        }else{
+          const src=d.entities.entities||d.entities;
+          Object.entries(src).forEach(([id,ent])=>{
+            if(!db.entities[id])db.entities[id]=ent;
+            else{const ex=new Set(db.entities[id].images.map(i=>i.url));ent.images.forEach(img=>{if(!ex.has(img.url))db.entities[id].images.push(img)})}
+          });
+          if(d.games)d.games.games.forEach(g=>{if(!games.games.some(x=>x.aId===g.aId&&x.bId===g.bId))games.games.push(g)});
+        }
+        saveDB();saveGames();showTab('dashboard');toast('Imported!');
+      }else toast('Invalid format','err');
+    }catch(err){toast('Invalid JSON','err')}
+  };r.readAsText(file);e.target.value='';
+}
+
+// ===== TOAST =====
+function toast(m,t){const el=document.getElementById('toast');el.textContent=m;el.className='toast show'+(t==='err'?' err':'');setTimeout(()=>el.className='toast',2500)}
+
+// ===== INIT =====
+loadDB();loadGames();renderDashboard();
+</script>
+</body>
+</html>
