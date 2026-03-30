@@ -900,7 +900,9 @@ function markShown(eid,iid){
 // Build categories
 let CATEGORIES=[];
 function buildCategories(){
-  loadEntities();loadGames();
+  // Only load from localStorage if ENTITIES is empty (server data takes priority)
+  if(!Object.keys(ENTITIES).length) loadEntities();
+  loadGames();
   CATEGORIES=GAMES.map(g=>{
     const a=ENTITIES[g.aId],b=ENTITIES[g.bId];if(!a||!b)return null;
     const t=a.images.length+b.images.length;
@@ -922,12 +924,16 @@ function buildPeopleForGame(cat){
   for(let i=p.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[p[i],p[j]]=[p[j],p[i]]}
   return p;
 }
-// Load entities from server first, then build
+// Load entities from server, then build categories
 (async function(){
-  await loadEntitiesFromServer();
-  buildCategories();
-  // Re-render if select-game is visible
-  if(document.getElementById('select-game').classList.contains('active'))renderGameList();
+  loadEntities(); // load localStorage first as fallback
+  buildCategories(); // build with whatever we have
+  // Then try server (overrides localStorage if successful)
+  const loaded = await loadEntitiesFromServer();
+  if(loaded){
+    buildCategories(); // rebuild with server data
+    if(document.getElementById('select-game').classList.contains('active'))renderGameList();
+  }
 })();
 
 // ===== NICKNAME (for rankings) =====
