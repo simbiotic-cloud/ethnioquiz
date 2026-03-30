@@ -19,7 +19,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif
 body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 
 #app{
-  position:relative;width:100%;max-width:420px;height:100vh;max-height:920px;
+  position:relative;width:100%;max-width:420px;
+  height:100vh;height:100dvh; /* dvh fixes mobile browser bar */
+  max-height:920px;
   overflow:hidden;background:#0a0f1e;
   border-radius:32px;
   box-shadow:0 0 0 4px rgba(255,255,255,.08),0 20px 60px rgba(0,0,0,.5);
@@ -136,11 +138,11 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 
 /* ===== GAME SCREEN ===== */
 #game-screen{background:linear-gradient(180deg,rgba(15,26,48,.88),rgba(10,15,30,.94)),url('assets/bg_2.png') center/cover no-repeat;padding:0}
-.gs-best-bar{width:100%;position:relative;display:flex;justify-content:center}
+.gs-best-bar{width:100%;position:relative;display:flex;justify-content:center;flex-shrink:0}
 .gs-best-bar img{width:260px;height:auto}
 .gs-best-bar .best-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Boogaloo',cursive;font-size:20px;color:#fff;white-space:nowrap}
 
-.gs-score-area{width:100%;display:flex;justify-content:center;align-items:center;padding:10px 20px 5px;gap:30px}
+.gs-score-area{width:100%;display:flex;justify-content:center;align-items:center;padding:8px 20px 4px;gap:30px;flex-shrink:0}
 .gs-score{text-align:center}
 .gs-score-label{font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:1px}
 .gs-score-val{font-family:'Boogaloo',cursive;font-size:44px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.2);line-height:1;transition:transform .15s}
@@ -166,7 +168,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .card-area{flex:1;width:100%;position:relative;display:flex;align-items:center;justify-content:center;padding:0 20px;min-height:0}
 .photo-card{
   width:280px;height:330px;border-radius:18px;overflow:hidden;
-  background:#fff;border:4px solid rgba(255,255,255,.15);
+  background:linear-gradient(135deg,#1a2744,#0f1a30);border:4px solid rgba(255,255,255,.15);
   box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 30px rgba(100,150,255,.1);
   position:absolute;cursor:grab;will-change:transform;
   transition:box-shadow .2s;
@@ -509,16 +511,44 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 @keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}100%{opacity:0;transform:translateY(250px) rotate(600deg) scale(.4)}}
 
 /* ===== RESPONSIVE ===== */
-@media(max-height:700px){
-  .photo-card{width:240px;height:270px}
+/* Phones in browser (address bar eats space) */
+@media(max-height:750px){
+  .photo-card{width:240px;height:280px}
+  .gs-best-bar img{width:220px}
+  .gs-best-bar .best-text{font-size:17px}
+  .gs-score-area{padding:6px 20px 2px;gap:20px}
+  .gs-score-val{font-size:36px}
+  .gs-score-label{font-size:9px}
+  .gs-streak-val{font-size:18px}
+  .timer-wrap{margin:4px 20px}
+  .choices{padding:0 12px 10px;margin-top:-14px}
+  .choice-btn img{width:90px;height:60px}
+  .choice-btn span{font-size:14px}
+  .go-score-big{font-size:60px}
+  .go-title{font-size:32px}
+  .go-btn img{height:58px}
+  .go-btn.big img{height:78px}
   .home-btn.play img{width:90px;height:90px}
   .home-btn.list img{width:74px;height:74px}
-  .gs-score-val{font-size:36px}
-  .go-score-big{font-size:64px}
+  .home-buttons{padding:0 0 30px}
 }
-@media(max-height:600px){
-  .photo-card{width:200px;height:230px}
-  .choice-btn img{width:76px;height:52px}
+@media(max-height:650px){
+  .photo-card{width:210px;height:240px}
+  .gs-best-bar img{width:190px}
+  .gs-best-bar .best-text{font-size:15px}
+  .gs-score-val{font-size:30px}
+  .choices{margin-top:-10px}
+  .choice-btn img{width:76px;height:50px}
+  .choice-btn span{font-size:13px}
+  .go-score-big{font-size:50px}
+  .go-btn img{height:50px}
+  .go-btn.big img{height:66px}
+}
+@media(max-height:550px){
+  .photo-card{width:180px;height:200px}
+  .gs-score-area{padding:4px 16px 0;gap:16px}
+  .choices{padding:0 8px 8px;gap:6px}
+  .choice-btn img{width:60px;height:40px}
 }
 </style>
 </head>
@@ -628,8 +658,12 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="sg-header"><div class="icon-btn" onclick="showScreen('home')"><img src="assets/ic_back.png" alt="" style="filter:brightness(10)"></div><div></div><div style="width:48px"></div></div>
     <div class="st-title">SETTINGS</div>
     <div class="st-section">
-      <div class="st-section-title">GAME</div>
+      <div class="st-section-title">AUDIO</div>
+      <div class="st-item">Music<div class="toggle on" id="toggle-music" onclick="toggleMusic()"></div></div>
       <div class="st-item">Sound Effects<div class="toggle on" id="toggle-sound" onclick="toggleSound()"></div></div>
+    </div>
+    <div class="st-section" style="margin-top:12px">
+      <div class="st-section-title">GAME</div>
       <div class="st-item" onclick="changeNickname()">Change Nickname<span style="color:#5a8fb5;font-size:13px" id="nick-display"></span></div>
     </div>
     <div class="st-section" style="margin-top:12px" id="settings-ads-section">
@@ -997,14 +1031,25 @@ async function renderRanking(){
 }
 
 // ===== STATE =====
-let S={coins:100,soundOn:true,unlocked:['japan_vs_china','spain_vs_basque','india_vs_pakistan'],best:{},
+let S={coins:100,soundOn:true,musicOn:true,unlocked:['japan_vs_china','spain_vs_basque','india_vs_pakistan'],best:{},
   cat:null,score:0,streak:0,pIdx:0,timer:5,timerInt:null,active:false,shownThisGame:new Set()};
 
-function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.unlocked=d.unlocked??['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best=d.best??{}}}catch(e){}}
-function save(){localStorage.setItem('eq2',JSON.stringify({coins:S.coins,soundOn:S.soundOn,unlocked:S.unlocked,best:S.best}))}
+function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.musicOn=d.musicOn??true;S.unlocked=d.unlocked??['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best=d.best??{}}}catch(e){}}
+function save(){localStorage.setItem('eq2',JSON.stringify({coins:S.coins,soundOn:S.soundOn,musicOn:S.musicOn,unlocked:S.unlocked,best:S.best}))}
 
 // ===== AUDIO =====
-let actx;function getAudio(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx}
+let actx,musicGain,musicPlaying=false;
+function getAudio(){
+  if(!actx){
+    actx=new(window.AudioContext||window.webkitAudioContext)();
+    musicGain=actx.createGain();
+    musicGain.gain.value=S.musicOn?0.12:0;
+    musicGain.connect(actx.destination);
+  }
+  return actx;
+}
+
+// SFX
 function sfx(type){
   if(!S.soundOn)return;
   try{
@@ -1021,6 +1066,146 @@ function sfx(type){
       [800,1000,1200,1400].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(f,t+i*.04);g.gain.setValueAtTime(.06,t+i*.04);g.gain.exponentialRampToValueAtTime(.001,t+i*.04+.1);o.start(t+i*.04);o.stop(t+i*.04+.1)});
     }
   }catch(e){}
+}
+
+// ===== 8-BIT MUSIC ENGINE (4 channels) =====
+let musicTimeout=null;
+function startMusic(){
+  if(musicPlaying)return;musicPlaying=true;
+  const a=getAudio();
+  const BPM=128,stepMs=60000/BPM/4; // 16th notes
+
+  // Japanese pentatonic: C D E G A (+ octaves)
+  const N={
+    C3:130.8,D3:146.8,E3:164.8,G3:196.0,A3:220.0,
+    C4:261.6,D4:293.7,E4:329.6,G4:392.0,A4:440.0,
+    C5:523.3,D5:587.3,E5:659.3,G5:784.0,A5:880.0,
+    0:0 // rest
+  };
+
+  // LEAD melody (square wave) — catchy, upbeat Japanese 8-bit
+  const lead=[
+    'E4','G4','A4','G4','E4','D4','C4',0,
+    'D4','E4','G4','A4','C5','A4','G4',0,
+    'A4','C5','D5','C5','A4','G4','E4',0,
+    'G4','E4','D4','E4','G4','A4','G4',0,
+    'C5','D5','E5','D5','C5','A4','G4',0,
+    'A4','G4','E4','G4','A4','C5','A4',0,
+    'E4','D4','C4','D4','E4','G4','A4',0,
+    'G4','A4','G4','E4','D4','C4','D4',0,
+  ];
+
+  // BASS line (triangle wave) — groove
+  const bass=[
+    'C3',0,'C3','C3',0,'G3',0,'G3',
+    'A3',0,'A3','A3',0,'E3',0,'E3',
+    'G3',0,'G3','G3',0,'D3',0,'D3',
+    'E3',0,'E3','E3',0,'C3',0,'C3',
+    'A3',0,'A3','G3',0,'G3',0,'E3',
+    'C3',0,'C3','D3',0,'D3',0,'G3',
+    'E3',0,'E3','G3',0,'A3',0,'A3',
+    'C3',0,'G3',0,'E3',0,'C3',0,
+  ];
+
+  // ARP / shimmer (sine wave, high, soft)
+  const arp=[
+    'C5','E5','G5','E5','A4','C5','E5','C5',
+    'D5','G5','A5','G5','E5','G5','A5','G5',
+    'A4','C5','E5','C5','G4','A4','C5','A4',
+    'E5','D5','C5','D5','E5','G5','E5','D5',
+    'C5','E5','G5','A5','G5','E5','C5','E5',
+    'A4','C5','D5','E5','D5','C5','A4','C5',
+    'G4','A4','C5','D5','C5','A4','G4','A4',
+    'E4','G4','A4','C5','A4','G4','E4','G4',
+  ];
+
+  // DRUMS (noise channel)
+  const drums=[
+    1,0,0,0,2,0,1,0, 1,0,0,1,2,0,0,0,
+    1,0,0,0,2,0,1,0, 1,0,1,0,2,0,2,0,
+    1,0,0,0,2,0,1,0, 1,0,0,1,2,0,0,0,
+    1,0,0,0,2,0,1,0, 1,2,1,0,2,0,2,0,
+  ]; // 1=kick, 2=snare/hat
+
+  let step=0;
+
+  function playStep(){
+    if(!musicPlaying)return;
+    const t=a.currentTime;
+    const li=step%lead.length, bi=step%bass.length, ai=step%arp.length, di=step%drums.length;
+
+    // LEAD — square wave
+    const lf=N[lead[li]];
+    if(lf){
+      const o=a.createOscillator(),g=a.createGain();
+      o.type='square';o.frequency.value=lf;
+      o.connect(g);g.connect(musicGain);
+      g.gain.setValueAtTime(0.18,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+stepMs/1000*0.8);
+      o.start(t);o.stop(t+stepMs/1000);
+    }
+
+    // BASS — triangle wave
+    const bf=N[bass[bi]];
+    if(bf){
+      const o=a.createOscillator(),g=a.createGain();
+      o.type='triangle';o.frequency.value=bf;
+      o.connect(g);g.connect(musicGain);
+      g.gain.setValueAtTime(0.25,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+stepMs/1000*1.5);
+      o.start(t);o.stop(t+stepMs/1000*1.6);
+    }
+
+    // ARP — sine wave (soft shimmer)
+    const af=N[arp[ai]];
+    if(af){
+      const o=a.createOscillator(),g=a.createGain();
+      o.type='sine';o.frequency.value=af;
+      o.connect(g);g.connect(musicGain);
+      g.gain.setValueAtTime(0.06,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+stepMs/1000*0.6);
+      o.start(t);o.stop(t+stepMs/1000*0.7);
+    }
+
+    // DRUMS — noise burst
+    const dv=drums[di];
+    if(dv){
+      const bufSize=actx.sampleRate*0.05;
+      const buf=actx.createBuffer(1,bufSize,actx.sampleRate);
+      const data=buf.getChannelData(0);
+      for(let i=0;i<bufSize;i++)data[i]=Math.random()*2-1;
+      const noise=actx.createBufferSource();noise.buffer=buf;
+      const ng=actx.createGain(),filt=actx.createBiquadFilter();
+      filt.type=dv===1?'lowpass':'highpass';
+      filt.frequency.value=dv===1?150:8000;
+      noise.connect(filt);filt.connect(ng);ng.connect(musicGain);
+      ng.gain.setValueAtTime(dv===1?0.3:0.12,t);
+      ng.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+      noise.start(t);noise.stop(t+0.06);
+    }
+
+    step++;
+    musicTimeout=setTimeout(playStep,stepMs);
+  }
+  playStep();
+}
+
+function stopMusic(){
+  musicPlaying=false;
+  if(musicTimeout){clearTimeout(musicTimeout);musicTimeout=null}
+}
+
+function setMusicVolume(on){
+  if(musicGain)musicGain.gain.value=on?0.12:0;
+}
+
+function toggleMusic(){
+  S.musicOn=!S.musicOn;
+  document.getElementById('toggle-music').classList.toggle('on',S.musicOn);
+  setMusicVolume(S.musicOn);
+  if(S.musicOn&&!musicPlaying)startMusic();
+  if(!S.musicOn)stopMusic();
+  save();
 }
 
 // ===== NAVIGATION =====
@@ -1138,7 +1323,7 @@ function nextCard(){
   const p=c.people[S.pIdx],area=document.getElementById('card-area');
   const card=document.createElement('div');card.className='photo-card';
   card.innerHTML=`<div class="card-spinner"></div>
-    <img src="${p.img}" alt="?" style="opacity:0;transition:opacity .2s">
+    <img src="${p.img}" alt="?" style="opacity:0;transition:opacity .05s">
     <div class="hint left">${c.a.name}</div><div class="hint right">${c.b.name}</div>`;
   area.querySelectorAll('.photo-card').forEach(x=>{if(x._cleanup)x._cleanup();x.remove()});
   area.appendChild(card);setupSwipe(card,p);
@@ -1159,7 +1344,7 @@ function nextCard(){
   setTimeout(()=>{if(img.style.opacity==='0')onReady()},4000);
 }
 
-const TIMER_SECS=3;
+const TIMER_SECS=4;
 function startTimer(){
   if(S.timerInt)clearInterval(S.timerInt);S.timer=TIMER_SECS;
   const bar=document.getElementById('timer-bar');bar.style.width='100%';bar.classList.remove('danger');
@@ -1567,7 +1752,15 @@ function closeOnboarding(){
 // ===== INIT =====
 load();loadAdFree();updateCoins();updateNickDisplay();updateAdFreeStatus();
 document.getElementById('toggle-sound').classList.toggle('on',S.soundOn);
-document.addEventListener('click',()=>{try{getAudio();if(actx.state==='suspended')actx.resume()}catch(e){}},{once:true});
+document.getElementById('toggle-music').classList.toggle('on',S.musicOn);
+// Start audio + music on first user interaction
+document.addEventListener('click',()=>{
+  try{
+    getAudio();
+    if(actx.state==='suspended')actx.resume();
+    if(S.musicOn&&!musicPlaying)startMusic();
+  }catch(e){}
+},{once:true});
 setInterval(updateAdFreeStatus,30000);
 
 // Show onboarding on first visit
