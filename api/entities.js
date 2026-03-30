@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Use a single hash: eq3_ent with field per entity
-  const HASH_KEY = 'eq3_ent';
+  const HASH_KEY = 'eq3_ent_v2';
 
   try {
     if (req.method === 'GET') {
