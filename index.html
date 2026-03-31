@@ -250,6 +250,9 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .go-bonus-val img{width:28px;height:28px}
 .go-bonus-val span{font-family:'Boogaloo',cursive;font-size:30px;color:#FFD700}
 .go-buttons{display:flex;gap:16px;margin-top:8px;align-items:center}
+.retry-pulse{animation:retryPulse 1.5s ease-in-out .6s infinite}
+@keyframes retryPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.retry-pulse:active{animation:none;transform:translateY(3px) scale(.95)}
 .go-btn{cursor:pointer;transition:transform .1s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
 .go-btn:active{transform:translateY(3px) scale(.95)}
 .go-btn img{height:70px;width:auto}
@@ -530,9 +533,29 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 @keyframes cfall{0%{opacity:1;transform:translateY(0) rotate(0) scale(1)}100%{opacity:0;transform:translateY(250px) rotate(600deg) scale(.4)}}
 
 /* ===== RESPONSIVE ===== */
+
+/* Mobile: no rounded corners, full screen */
+@media(max-width:420px){
+  #app{border-radius:0!important;box-shadow:none!important;max-height:none}
+}
+
+/* Mobile: bigger flags, photo, country names in game */
+@media(max-width:500px){
+  .choice-btn img{width:130px!important;height:88px!important}
+  .choice-btn span{font-size:20px!important}
+  .photo-card{width:300px!important;height:350px!important}
+  .choices{margin-top:-12px!important}
+  /* Settings scrollable */
+  #settings{overflow-y:auto!important}
+  /* Onboarding margins */
+  .onboard{margin:20px 0!important;max-height:calc(100vh - 40px);overflow-y:auto}
+  /* Challenge button smaller on mobile */
+  .challenge-btn{padding:8px 16px!important;font-size:16px!important}
+}
+
 /* Phones in browser (address bar eats space) */
 @media(max-height:750px){
-  .photo-card{width:240px;height:280px}
+  .photo-card{width:260px;height:300px}
   .gs-best-bar img{width:220px}
   .gs-best-bar .best-text{font-size:17px}
   .gs-score-area{padding:6px 20px 2px;gap:20px}
@@ -541,8 +564,6 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
   .gs-streak-val{font-size:18px}
   .timer-wrap{margin:4px 20px}
   .choices{padding:0 12px 10px;margin-top:-14px}
-  .choice-btn img{width:90px;height:60px}
-  .choice-btn span{font-size:14px}
   .go-score-big{font-size:60px}
   .go-title{font-size:32px}
   .go-btn img{height:58px}
@@ -552,22 +573,22 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
   .home-buttons{padding:0 0 30px}
 }
 @media(max-height:650px){
-  .photo-card{width:210px;height:240px}
+  .photo-card{width:230px;height:260px}
   .gs-best-bar img{width:190px}
   .gs-best-bar .best-text{font-size:15px}
   .gs-score-val{font-size:30px}
   .choices{margin-top:-10px}
-  .choice-btn img{width:76px;height:50px}
-  .choice-btn span{font-size:13px}
+  .choice-btn img{width:100px!important;height:66px!important}
+  .choice-btn span{font-size:16px!important}
   .go-score-big{font-size:50px}
   .go-btn img{height:50px}
   .go-btn.big img{height:66px}
 }
 @media(max-height:550px){
-  .photo-card{width:180px;height:200px}
+  .photo-card{width:200px;height:220px}
   .gs-score-area{padding:4px 16px 0;gap:16px}
   .choices{padding:0 8px 8px;gap:6px}
-  .choice-btn img{width:60px;height:40px}
+  .choice-btn img{width:80px!important;height:52px!important}
 }
 </style>
 </head>
@@ -640,14 +661,14 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="ad-slot" id="go-ad-slot" style="margin:8px 0">
       <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9562574562750195" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
     </div>
-    <!-- Challenge button -->
-    <div style="cursor:pointer;background:linear-gradient(135deg,#FF6633,#cc4400);border-radius:14px;padding:10px 24px;margin:4px 0;display:flex;align-items:center;gap:8px;box-shadow:0 3px 0 #993300;transition:transform .1s" onclick="shareChallenge()" onmousedown="this.style.transform='translateY(2px)'" onmouseup="this.style.transform=''">
-      <span style="font-size:22px">⚔️</span>
-      <span style="font-family:'Boogaloo',cursive;font-size:20px;color:#fff" data-t="challengeFriend">CHALLENGE A FRIEND</span>
+    <!-- Challenge button (compact) -->
+    <div class="challenge-btn" style="cursor:pointer;background:rgba(255,102,51,.15);border:2px solid rgba(255,102,51,.3);border-radius:12px;padding:7px 18px;margin:2px 0;display:flex;align-items:center;gap:6px;transition:transform .1s" onclick="shareChallenge()" onmousedown="this.style.transform='translateY(1px)'" onmouseup="this.style.transform=''">
+      <span style="font-size:16px">⚔️</span>
+      <span style="font-family:'Boogaloo',cursive;font-size:15px;color:#FF6633" data-t="challengeFriend">CHALLENGE A FRIEND</span>
     </div>
     <div class="go-buttons">
       <div class="go-btn" onclick="showScreen('home')"><img src="assets/home_btn.png" alt=""></div>
-      <div class="go-btn big" onclick="retryGame()"><img src="assets/again_btn.png" alt=""></div>
+      <div class="go-btn big retry-pulse" onclick="retryGame()"><img src="assets/again_btn.png" alt=""></div>
       <div class="go-btn" onclick="showScreen('ranking')"><img src="assets/ranking_btn.png" alt=""></div>
     </div>
   </div>
@@ -1024,14 +1045,14 @@ let ENTITIES={};
 const DEFAULT_GAMES=[
   {aId:'japan',bId:'china',cost:0,desc:'The OG challenge. Can you really tell them apart?'},
   {aId:'spain',bId:'basque',cost:0,desc:'Same country, different nation?'},
-  {aId:'india',bId:'pakistan',cost:0,desc:'Separated by a border, united by looks'},
+  {aId:'india',bId:'pakistan',cost:100,desc:'Separated by a border, united by looks'},
   {aId:'south_korea',bId:'japan',cost:100,desc:'K-pop vs J-pop. Who is who?'},
   {aId:'turkey',bId:'greece',cost:100,desc:'Empires clashed, faces matched'},
-  {aId:'argentina',bId:'brazil',cost:150,desc:'Messi vs Neymar territory'},
-  {aId:'iran',bId:'iraq',cost:150,desc:'Neighbors divided. Can you spot the difference?'},
-  {aId:'sweden',bId:'finland',cost:200,desc:'Nordic ice. Nearly identical.'},
-  {aId:'colombia',bId:'mexico',cost:200,desc:'Latin fire. Same vibe, different country.'},
-  {aId:'england',bId:'ireland',cost:250,desc:'Centuries of history. One face at a time.'},
+  {aId:'argentina',bId:'brazil',cost:100,desc:'Messi vs Neymar territory'},
+  {aId:'iran',bId:'iraq',cost:100,desc:'Neighbors divided. Can you spot the difference?'},
+  {aId:'sweden',bId:'finland',cost:100,desc:'Nordic ice. Nearly identical.'},
+  {aId:'colombia',bId:'mexico',cost:100,desc:'Latin fire. Same vibe, different country.'},
+  {aId:'england',bId:'ireland',cost:100,desc:'Centuries of history. One face at a time.'},
 ];
 let GAMES=[];
 function loadGames(){try{const d=JSON.parse(localStorage.getItem('eq3_games'));if(d&&d.games&&d.games.length){GAMES=d.games;return}}catch(e){}GAMES=[...DEFAULT_GAMES]}
@@ -1217,7 +1238,7 @@ async function renderRanking(){
 }
 
 // ===== STATE =====
-let S={coins:100,soundOn:true,musicOn:false,unlocked:['japan_vs_china'],best:{},
+let S={coins:100,soundOn:true,musicOn:false,unlocked:['japan_vs_china','spain_vs_basque'],best:{},
   cat:null,score:0,streak:0,pIdx:0,timer:5,timerInt:null,active:false,shownThisGame:new Set()};
 
 function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.musicOn=d.musicOn??false;S.unlocked=d.unlocked??['japan_vs_china'];S.best=d.best??{};S.lastGameId=d.lastGameId||null}}catch(e){}}
