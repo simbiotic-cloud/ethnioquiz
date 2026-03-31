@@ -1,0 +1,577 @@
+#!/usr/bin/env node
+/**
+ * upload-all.js
+ *
+ * Uploads portrait image URLs for ALL 20 countries to the EthnioQuiz server.
+ *
+ * Sources:
+ *   - seed-data.html (Japan 50, China 50, Spain 50, Basque 49 already on server)
+ *   - Agent output files (all other countries + extras for existing ones)
+ *
+ * Usage:  node upload-all.js
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const API_URL = 'https://ethnioquiz.com/api/entities';
+
+// ─── Country metadata ────────────────────────────────────────────────────────
+const COUNTRY_META = {
+  japan:       { name: 'Japan',         flag: 'assets/japan.png' },
+  china:       { name: 'China',         flag: 'assets/china.png' },
+  spain:       { name: 'Spain',         flag: 'flags/spain.svg' },
+  basque:      { name: 'Basque Country',flag: 'flags/basque.svg' },
+  india:       { name: 'India',         flag: 'flags/india.svg' },
+  pakistan:    { name: 'Pakistan',      flag: 'flags/pakistan.svg' },
+  south_korea: { name: 'South Korea',   flag: 'flags/korea.svg' },
+  turkey:      { name: 'Turkey',        flag: 'flags/turkey.svg' },
+  greece:      { name: 'Greece',        flag: 'flags/greece.svg' },
+  argentina:   { name: 'Argentina',     flag: 'flags/argentina.svg' },
+  brazil:      { name: 'Brazil',        flag: 'flags/brazil.svg' },
+  iran:        { name: 'Iran',          flag: 'flags/iran.svg' },
+  iraq:        { name: 'Iraq',          flag: 'flags/iraq.svg' },
+  sweden:      { name: 'Sweden',        flag: 'flags/sweden.svg' },
+  finland:     { name: 'Finland',       flag: 'flags/finland.svg' },
+  colombia:    { name: 'Colombia',      flag: 'flags/colombia.svg' },
+  mexico:      { name: 'Mexico',        flag: 'flags/mexico.svg' },
+  england:     { name: 'England',       flag: 'flags/england.svg' },
+  ireland:     { name: 'Ireland',       flag: 'flags/ireland.svg' },
+  morocco:     { name: 'Morocco',       flag: 'flags/morocco.svg' },
+};
+
+// Map from extracted JSON keys (uppercase) to our entity IDs
+const KEY_MAP = {
+  'JAPAN':       'japan',
+  'CHINA':       'china',
+  'SPAIN':       'spain',
+  'BASQUE':      'basque',
+  'INDIA':       'india',
+  'PAKISTAN':     'pakistan',
+  'SOUTH KOREA': 'south_korea',
+  'TURKEY':      'turkey',
+  'GREECE':      'greece',
+  'ARGENTINA':   'argentina',
+  'BRAZIL':      'brazil',
+  'IRAN':        'iran',
+  'IRAQ':        'iraq',
+  'SWEDEN':      'sweden',
+  'FINLAND':     'finland',
+  'COLOMBIA':    'colombia',
+  'MEXICO':      'mexico',
+  'ENGLAND':     'england',
+  'IRELAND':     'ireland',
+  'MOROCCO':     'morocco',
+};
+
+// ─── Patterns to skip (not portraits) ────────────────────────────────────────
+const SKIP_PATTERNS = [
+  /Signature/i,
+  /Logo/i,
+  /Flag_of/i,
+  /Coat_of_arms/i,
+  /\.svg$/i,
+  /Emblem/i,
+  /Banner/i,
+  /Map_of/i,
+  /band_photo/i,
+  /group_photo/i,
+];
+
+function isPortrait(url) {
+  return !SKIP_PATTERNS.some(pat => pat.test(url));
+}
+
+// ─── Seed data URLs (from seed-data.html — already on server) ─────────────────
+const SEED_URLS = {
+  china: [
+    'https://upload.wikimedia.org/wikipedia/commons/3/35/Jackie_Chan.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/41/Jet_Li_2009_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/55/Fan_Bingbing-3213_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/2d/Zhang_Ziyi_the_Jury_President_at_Opening_Ceremony_of_the_Tokyo_International_Film_Festival_2019_%2849013444988%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f4/Liu_Yifei_attended_the_brand_event.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/08/Gong_Li_Cannes_2016.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/40/Tony_Leung_as_the_President_of_the_International_Competition_Jury_at_Opening_Ceremony_of_the_Tokyo_International_Film_Festival_2024_%2854578353950%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/bb/Andy_Lau_%E5%88%98%E5%BE%B7%E5%8D%8E%2C_Beijing_International_Film_Festival_%E5%8C%97%E4%BA%AC%E7%94%B5%E5%BD%B1%E8%8A%82%2C_2013_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/71/Jay_Chou_in_Shanghai_2023_%284%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f3/Zhao_Wei.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6d/20th_Anniversary_Schwab_Foundation_Gala_Dinner_%2844887783681%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/89/Yao_Ming_in_2014_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8b/Li_Bingbing.png',
+    'https://upload.wikimedia.org/wikipedia/commons/0/04/Huang_Xiaoming_from_%22Mostly_Sunny%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2024_%2854577127407%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f7/%E6%9D%A8%E5%B9%82_ELLE30%E5%91%A8%E5%B9%B4%E9%A3%8E%E5%B0%9A%E5%A4%A7%E5%85%B8_%EF%BC%884%EF%BC%89.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1a/110925_%E7%94%B5%E5%BD%B1%E3%80%8A%E7%94%BB%E5%A3%81%E3%80%8B%E9%A6%96%E6%98%A0%E8%A7%81%E9%9D%A2%E4%BC%9A_%E9%82%93%E8%B6%85.%E9%97%AB%E5%A6%AE%E7%AD%89_%E6%B8%A3%E6%B8%A3%E5%9B%BE_%281%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a8/%E9%B9%BF%E6%99%97%E5%90%88%E8%82%A5%E8%B7%AF%E6%BC%94_%281%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/75/20200111%E7%8E%8B%E4%B8%80%E5%8D%9A.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/15/Xiao_Zhan_at_the_Weibo_Night_Ceremony_January_11_2020.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/88/Dichlenhietbadior2024.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/98/Angelababy_in_2014_crop2.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a5/Zhou_Xun_%28%E5%91%A8%E8%BF%85%29_at_the_29th_Shanghai_Television_Festival_Magnolia_Awards_on_June_28%2C_2024.png',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1b/20250425_Tang_Wei_%E6%B1%A4%E5%94%AF_03.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/90/Zhang_Yimou_from_%22Full_River_Red%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2023_%2853347207442%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/19/Donnie_Yen_20250323.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/7b/Chow_Yun_Fat_for_wiki.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/64/Stephen_Chow%2C_2008_%28cropped%29.JPG',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4f/Maggie_Cheung_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/26/%E5%92%AA%E5%92%95%E9%9F%B3%E4%B9%90%E7%9B%9B%E5%85%B8_%2824%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a3/Jackson_Wang_interviewed_for_POVJOV_02.png',
+    'https://upload.wikimedia.org/wikipedia/commons/f/ff/Lay_at_Busan_International_Film_Festival_Opening_Ceremony_on_October_4%2C_2018_%282%29_%28derived%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/17/Wang_Leehom_-_2018_Golden_Lotus_Awards_for_Best_Actor_.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6f/2017.2.13_%E5%86%B3%E6%88%98%E9%A3%9F%E7%A5%9E%E5%90%88%E8%82%A5%E8%B7%AF%E6%BC%94_%E8%B0%A2%E9%9C%86%E9%94%8B_%288%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/81/Edison-Chen-EDC.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/89/Cecilia_Cheung_2012.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/54/Shu_Qi_at_the_2025_Cannes_Film_Festival_08_%28cropped2%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/c0/Lin_Chi-Ling_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/c3/Ni_Ni_at_the_35th_Golden_Rooster_Awards_in_November_2022.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/55/%E5%91%A8%E5%86%AC%E9%9B%A8_-_2017%E5%BE%AE%E5%8D%9A%E7%94%B5%E5%BD%B1%E4%B9%8B%E5%A4%9C%283%29_-_cropped.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/2c/Liu_Haoran_from_%22My_Friend_An_Delie%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2024_%2854577968394%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/0e/Yang_profile_pic.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/da/%E3%80%902017.6.10%E5%BA%B7%E5%B8%88%E5%82%85%E7%BB%BF%E8%8C%B6%E6%B4%BB%E5%8A%A8%E3%80%91_%28%E6%9D%8E%E6%98%93%E5%B3%B0%29_%283%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/46/Zhao_Lusi_in_2023_%281%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/af/Bai_Lu_Love_is_Sweet_%281%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d5/20200111%E5%BE%AE%E5%8D%9A%E4%B9%8B%E5%A4%9C_%E4%BA%95%E6%9F%8F%E7%84%B6.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/94/Tong_Liya_%28%E4%BD%9F%E4%B8%BD%E5%A8%85%29_at_the_25th_Shanghai_Television_Festival_-_Magnolia_Awards_in_June_2019.png',
+    'https://upload.wikimedia.org/wikipedia/commons/8/80/Ma_Sichun_in_Mr._Fighting_press_conference_2019.png',
+    'https://upload.wikimedia.org/wikipedia/commons/c/ce/Gwei_Lun-mei_20220611.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e6/HuangBo2020.png',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f3/Zanilia_Zhao_from_%22The_Unseen_Sister%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2024_%2854578224190%29.jpg',
+  ],
+  japan: [
+    'https://upload.wikimedia.org/wikipedia/commons/8/8d/Ken_Watanabe_20220615.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/05/Kikuchi_Rinko_as_the_Festival_Navigator_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2024_%2854578186898%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5a/Takeshi_Kitano_2017.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/ff/HayaoMiyazakiCCJuly09.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/ac/Shigeru_Miyamoto_20150610_%28cropped_4%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/3d/MEX_MM_CONFERENCIA_YOKO_ONO_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d6/NaomiOsaka-smile-2020_%28cropped_tight%29.png',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e6/Dodgers_at_Nationals_%2853677192000%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/06/Ichiro_Suzuki_%2851007034081%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/51/Conversatorio_Haruki_Murakami_%2812_de_12%29_%2845747009452%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/2c/Hiroyuki_Sanada_20240220.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d6/Asano_Tadanobu_from_%22Ravens%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2024_%2854577962659%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d3/Yakusho_Koji_from_%22Perfect_Days%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2023_%2853348111441%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/9b/Takuya_Kimura_January_2023.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/56/Jun_Matsumoto_%28Arashi%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a4/Satoshi_Ohno.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/c7/Kazunari_Ninomiya_of_Exit_8_at_2025_Cannes_Red_Carpet_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fe/Masaki_Aiba.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/dc/Sho_Sakurai.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/96/Mizuhara_Kiko_from_%22Adabana%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2024_%2854577918496%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f0/Ghost_In_The_Shell_World_Premiere_Red_Carpet-_Rila_Fukushima_%2837404702191%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/af/26th_Tokyo_International_Film_Festival_Kuriyama_Chiaki.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1d/Utada_Hikaru.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5c/Ayumi_Hamasaki_%E6%B5%9C%E5%B4%8E%E3%81%82%E3%82%86%E3%81%BF_%282024%29.png',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e5/25th_Anniversary_Namie_Amuro_Live.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/cb/Kyary_Pamyu_Pamyu_20120707_Japan_Expo_01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/0e/Shinz%C5%8D_Abe_20120501.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/bb/Fumio_Kishida_20211005_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/47/Junichiro_Koizumi_20010426_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/ad/Toshiro_Mifune_1954_Scan10003_160913.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/06/Masi_Oka_by_Gage_Skidmore_2.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/40/Hideo_Kojima_2025_SXSW_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/3d/Satoru_Iwata_-_Game_Developers_Conference_2011_-_Day_2_%281%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ed/Shinji_Mikami_April_2013_3.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/14/Aragaki_Yui_from_%22%28Ab%29normal_Desire%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2023_%2853348431124%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/72/Godzilla_Resurgence_World_Premiere_Red_Carpet_Ishihara_Satomi_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/df/20190829_%E4%B8%89%E6%B5%A6%E6%98%A5%E9%A6%AC%E5%9C%A8%E5%8F%B0%E7%81%A3%E8%88%87%E7%B2%89%E7%B5%B2%E8%A6%8B%E9%9D%A2.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/2d/Fukuyama_Masaharu_in_Taipei%2C_2013_cropped.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/41/Sato_Takeru_from_%22One_Night%22_at_Opening_Ceremony_of_the_Tokyo_International_Film_Festival_2019_%2849013876096%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/69/Kamiki_Ryunosuke_from_%22Godzilla_Minus_One%22_at_Red_Carpet_of_the_Tokyo_International_Film_Festival_2023_%2853347030212%29_-_cropped.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/0b/MKr377554_Suzu_Hirose_%28A_Pale_View_of_Hills%2C_Cannes_2025%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8a/Mackenyu.png',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5d/Kento_Yamazaki.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/00/2018_Winter_Olympics_-_Yuzuru_Hanyu_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a5/Tadahiro_Nomura_IMG_2218r_20151220.JPG',
+    'https://upload.wikimedia.org/wikipedia/commons/7/71/Ryoko_Tani.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e8/Saori_Yoshida_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f4/Kaori_Icho.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6f/Kitajima-2.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d7/Nao_Kodaira_PyeongChang_2018.jpg',
+  ],
+  spain: [
+    'https://upload.wikimedia.org/wikipedia/commons/a/ad/Goyas_2024_-_Pen%C3%A9lope_Cruz-2_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/7e/Javier_Bardem_Cannes_2018.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/72/Goyas_2025_-_Antonio_Banderas_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6c/Pedro_Almod%C3%B3var-69720_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/71/Rafael_Nadal_en_2024_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a1/PauCaptura.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4b/Sergio_Ramos_Interview_2021_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a5/Andr%C3%A9s_Iniesta_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f2/Gerard_Piqu%C3%A9_Euro_2012_vs_France_01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4f/Enrique_Iglesias_2011%2C_2.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f1/2023-11-16_Gala_de_los_Latin_Grammy%2C_27_%28cropped%2302.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/21/Goyas_2025_-_Alejandro_Sanz_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/58/2023-11-16_Gala_de_los_Latin_Grammy%2C_12_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ef/Julio_Iglesias09.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d3/Elsa_Pataky_Cannes_cropped.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/07/Malaga_Film_Festival_2025_-_Mario_Casas-2_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8b/Malaga_Film_Festival_2025_-_Blanca_Su%C3%A1rez_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e5/%C3%9Arsula_Corber%C3%B3-65339.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/ce/Formula1Gabelhofen2022_%2804%29_%28cropped2%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a6/David_Silva_2017.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1e/Jugadors_pretemporada_pels_Estats_Units_%28cropped%292.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/13/Pedri.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/32/Liver-RM_%285%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/40/Sergio_Busquets_NYCFC_Miami_24_Sep_2025-020_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/24/Marc_M%C3%A1rquez_at_Estrella_Galicia_stand_during_2025_Dutch_TT.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/c8/Iker-Casillas-SportsTrade-2021-cropped.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/57/Fernando_Torres_2017.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a4/Spain-Tahiti%2C_Confederations_Cup_2013_%2802%29_%28Villa_crop%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5b/2023_-_Cesc_Fabregas_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/b6/UEFA_EURO_qualifiers_Sweden_vs_Spain_20191015_Dani_Carvajal_10_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/41/RODRI_-_SWE_vs_ESP_-_UEFA_EURO_2020_QUALIFIERS_-_2019.10.15_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/62/%C3%81lvaro_Morata_in_2025.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1e/Ferran_Torres_2019.png',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8d/2020-02-06_Visita_de_los_Reyes_a_%C3%89cija_con_motivo_del_%22Premio_Escuela_del_A%C3%B1o_2019%22_de_la_Fundaci%C3%B3n_Princesa_de_Girona%2C_31_%28Queen_Letizia%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6d/Daiga_Mieri%C5%86a_tiekas_ar_Sp%C4%81nijas_karali_-_53814974005_%28cropped%29-2.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4a/Pedro_S%C3%A1nchez_in_2026.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d4/Santiago_Abascal_%2854349274173%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/03/Albert_Rivera_in_2019_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4b/Carolina_Mar%C3%ADn_2014_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/b5/Mireia_Belmonte_%28ESP%29_2018.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/be/25th_Laureus_World_Sports_Awards_-_Red_Carpet_-_Garbi%C3%B1e_Muguruza_-_240422_182821-2_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1d/Badosa_RG21_%2814%29_%2851376409698%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/13/Premios_Goya_2020_-_Paz_Vega_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/2/23/Sara_Carbonero_2016.png',
+    'https://upload.wikimedia.org/wikipedia/commons/5/52/Jordi_Alba_NE_Revolution_Inter_Miami_7.9.25-047_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e0/Dani_Olmo_2022.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/49/Marcos_Llorente_2019.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/7a/2015_Tour_de_France_team_presentation%2C_Alberto_Contador_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/79/Gemma_Mengual_Civil.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ef/%D0%9C%D0%B0%D1%82%D1%87_%C2%AB%D0%94%D0%B8%D0%BD%D0%B0%D0%BC%D0%BE%C2%BB_-_%C2%AB%D0%91%D0%B0%D1%80%D1%81%D0%B5%D0%BB%D0%BE%D0%BD%D0%B0%C2%BB_0-1._2_%D0%BB%D0%B8%D1%81%D1%82%D0%BE%D0%BF%D0%B0%D0%B4%D0%B0_2021_%D1%80%D0%BE%D0%BA%D1%83_%E2%80%94_1289339_%28cropped%29.jpg',
+  ],
+  basque: [
+    'https://upload.wikimedia.org/wikipedia/commons/b/b6/Los_Caminos_del_f%C3%BAtbol._Xabi_Alonso_%2839666778464%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/b8/Mikel_Arteta_2021_%28cropped%29.png',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a8/Aitor_Karanka.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5c/Kepa.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a0/Asier_Illaramendi_-_Real_Sociedad_2016-17_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f8/2019-07-17_SG_Dynamo_Dresden_vs._Paris_Saint-Germain_by_Sandro_Halank%E2%80%93282_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/97/SM-AB_2018_%287%29_%28Aduriz%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1e/Joseba_etxeberria.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/71/Andoni_Zubizarreta_en_2013-03_-_versi%C3%B3n_ampliada_%28cropped%29.JPG',
+    'https://upload.wikimedia.org/wikipedia/commons/8/89/Ainhoa_Arteta_at_the_Quincena_Musical.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/59/Elena_Anaya-60027.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fe/FerminMuguruza.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/ba/Con_Juan_Mari_y_Elena_Arzak.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/98/Edurne_Pasaban_recibe_el_Premio_Vasco_Universal_2010_4_%28crop%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d4/Jon_Rahm_Ryder_Cup_2025-130_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ec/Iker_Muniain_%2815961406985%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f1/UEFA_EURO_qualifiers_Sweden_vs_Spain_20191015_108_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/ff/Gorkairaizoz.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d5/2018_Gaizka_Mendieta.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/11/Julen_Guerrero_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ea/SM-AB_2018_%285%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f7/Arnaldo_Otegi_2016_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1a/Miguel_de_Unamuno_Meurisse_c_1925.JPG',
+    'https://upload.wikimedia.org/wikipedia/commons/8/85/Sabino-arana-olerkijak.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/f1/Abraham_Olano_%282006%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ec/Tour_de_France_20130704_Aix-en-Provence_067.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/16/Iban_Mayo_en_el_Giro_de_Italia_2007.JPG',
+    'https://upload.wikimedia.org/wikipedia/commons/0/06/Joseba_Beloki.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/44/GI220047_landa.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/cd/Ion_Izagirre_at_the_rider_presentation_of_Itzulia_Basque_Country_stage_3.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/51/Gorka_Izagirre_at_the_rider_presentation_of_Itzulia_Basque_Country_stage_3.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/07/Unai_Emery_-_Sevilla_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/59/Valverde_2014.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/ed/Jagoba_Arrasate_%28octubre_de_2013%29_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/19/Imanol_Alguacil_2021.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/69/Bernardo_Atxaga_idazlea_2009an.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/00/Joseba_Sarrionandia_-_2016_%28cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/69/Slalom_canoeing_2012_Olympics_W_K1_ESP_Maialen_Chourraut_%282%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/56/Maider_Unda%2C_2016-cropped.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/09/Enrique_Urbizu.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/d9/Malaga_Film_Festival_2025_-_Julio_Medem-2_%283x4_cropped%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fb/Joxe_miel_barandiaran.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5c/%28Juan_Ignacio_Zoido%29_Visita_a_la_Jefatura_Superior_de_Polic%C3%ADa.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/72/Koldo_Mitxelena-2.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/b3/David_Etxebarria_EB05.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/84/I%C3%B1aki_Urdangar%C3%ADn.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a2/MikelAstarloza.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/b5/TDF24586_nieve_%2829899053028%29.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/4/4e/Oier_sanjurjo.jpg',
+  ],
+};
+
+// ─── Extract URLs from agent output JSONL files ──────────────────────────────
+function extractFromAgentOutputs() {
+  const TASK_DIR = path.join(
+    process.env.LOCALAPPDATA || path.join(process.env.HOME || '', 'AppData', 'Local'),
+    'Temp', 'claude', 'C--Users-Simbi-tic',
+    '6759baa1-688d-4be1-bf55-ef10de42e934', 'tasks'
+  );
+
+  const files = [
+    'a0739d3c9c60b99f5.output',  // Japan + China extra
+    'a9fbcca4292b83568.output',  // India + Pakistan
+    'ac3f4c5889204c9fd.output',  // South Korea + Spain extra + Basque extra
+    'a2fe4ff52ddb707fb.output',  // Turkey + Greece + England + Ireland
+    'ae9fa61d6f84f96f8.output',  // Argentina + Brazil + Iran + Iraq
+    'abd8ea7fb1624c944.output',  // Sweden + Finland + Colombia + Mexico
+  ];
+
+  const countryHeaders = [
+    'INDIA', 'PAKISTAN', 'JAPAN', 'CHINA', 'SOUTH KOREA', 'SPAIN', 'BASQUE',
+    'TURKEY', 'GREECE', 'ENGLAND', 'IRELAND', 'ARGENTINA', 'BRAZIL', 'IRAN',
+    'IRAQ', 'SWEDEN', 'FINLAND', 'COLOMBIA', 'MEXICO', 'MOROCCO'
+  ];
+
+  const allData = {};
+
+  for (const filename of files) {
+    const filepath = path.join(TASK_DIR, filename);
+    if (!fs.existsSync(filepath)) {
+      console.log(`  [SKIP] ${filename} not found`);
+      continue;
+    }
+
+    const lines = fs.readFileSync(filepath, 'utf8').split('\n').filter(Boolean);
+    let lastText = '';
+    for (const line of lines) {
+      try {
+        const obj = JSON.parse(line);
+        if (obj.message && obj.message.role === 'assistant' && obj.message.content) {
+          for (const block of obj.message.content) {
+            if (block.type === 'text' && block.text.includes('upload.wikimedia.org')) {
+              lastText = block.text;
+            }
+          }
+        }
+      } catch (e) { /* skip non-JSON lines */ }
+    }
+
+    if (!lastText) {
+      console.log(`  [SKIP] ${filename} — no URLs found`);
+      continue;
+    }
+
+    // Find all country header positions
+    const headerPositions = [];
+    const headerPattern = /## ([A-Z][A-Z\s_]+?)(?:\s*\(|\n)/g;
+    let m;
+    while ((m = headerPattern.exec(lastText)) !== null) {
+      const name = m[1].trim();
+      if (countryHeaders.includes(name)) {
+        headerPositions.push({ name, index: m.index });
+      }
+    }
+
+    for (let i = 0; i < headerPositions.length; i++) {
+      const country = headerPositions[i].name;
+      const start = headerPositions[i].index;
+      const end = i + 1 < headerPositions.length ? headerPositions[i + 1].index : lastText.length;
+      const section = lastText.substring(start, end);
+
+      const urls = [];
+      const urlPattern = /https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/[^\s"')]+/g;
+      let um;
+      while ((um = urlPattern.exec(section)) !== null) {
+        let url = um[0];
+        url = url.replace(/[.,;]+$/, '');
+        if (isPortrait(url)) {
+          urls.push(url);
+        }
+      }
+
+      const entityId = KEY_MAP[country];
+      if (entityId && urls.length > 0) {
+        if (!allData[entityId]) allData[entityId] = [];
+        allData[entityId].push(...urls);
+      }
+    }
+
+    console.log(`  [OK] ${filename} parsed`);
+  }
+
+  return allData;
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+async function main() {
+  console.log('=== EthnioQuiz — Upload All Portraits ===\n');
+
+  // 1. Collect all URLs from seed data + agent outputs
+  console.log('1. Collecting image URLs...');
+
+  // Start with seed data
+  const allUrls = {};
+  for (const [id, urls] of Object.entries(SEED_URLS)) {
+    allUrls[id] = [...urls];
+  }
+
+  // Add agent output URLs
+  let agentData;
+  try {
+    agentData = extractFromAgentOutputs();
+  } catch (e) {
+    console.log('  Could not read agent output files, trying extracted_urls.json fallback...');
+    const fallbackPath = path.join(__dirname, 'extracted_urls.json');
+    if (fs.existsSync(fallbackPath)) {
+      const raw = JSON.parse(fs.readFileSync(fallbackPath, 'utf8'));
+      agentData = {};
+      for (const [key, urls] of Object.entries(raw)) {
+        const entityId = KEY_MAP[key];
+        if (entityId) agentData[entityId] = urls;
+      }
+    } else {
+      console.error('No data source found. Exiting.');
+      process.exit(1);
+    }
+  }
+
+  for (const [id, urls] of Object.entries(agentData)) {
+    if (!allUrls[id]) allUrls[id] = [];
+    allUrls[id].push(...urls);
+  }
+
+  // Deduplicate and filter
+  for (const id of Object.keys(allUrls)) {
+    allUrls[id] = [...new Set(allUrls[id])].filter(isPortrait);
+  }
+
+  console.log('\n  URL counts per country:');
+  let totalUrls = 0;
+  for (const [id, urls] of Object.entries(allUrls).sort((a, b) => a[0].localeCompare(b[0]))) {
+    console.log(`    ${id}: ${urls.length}`);
+    totalUrls += urls.length;
+  }
+  console.log(`  TOTAL: ${totalUrls} URLs across ${Object.keys(allUrls).length} countries\n`);
+
+  // 2. Fetch current server data
+  console.log('2. Fetching current server data...');
+  let serverData = { entities: {} };
+  try {
+    const res = await fetch(API_URL);
+    if (res.ok) {
+      serverData = await res.json();
+      if (!serverData.entities) serverData.entities = {};
+      const serverCount = Object.keys(serverData.entities).length;
+      console.log(`   Server has ${serverCount} entities currently.\n`);
+    } else {
+      console.log(`   Server returned ${res.status}, starting fresh.\n`);
+    }
+  } catch (e) {
+    console.log(`   Could not reach server: ${e.message}\n   Starting with empty data.\n`);
+  }
+
+  // 3. Merge URLs — add new ones, skip duplicates
+  console.log('3. Merging data...');
+  let newImagesAdded = 0;
+  let duplicatesSkipped = 0;
+
+  for (const [entityId, urls] of Object.entries(allUrls)) {
+    const meta = COUNTRY_META[entityId];
+    if (!meta) {
+      console.log(`   [WARN] No metadata for ${entityId}, skipping.`);
+      continue;
+    }
+
+    // Ensure entity exists in server data
+    if (!serverData.entities[entityId]) {
+      serverData.entities[entityId] = {
+        id: entityId,
+        name: meta.name,
+        flag: meta.flag,
+        images: [],
+      };
+    }
+
+    const entity = serverData.entities[entityId];
+    // Ensure metadata is set
+    entity.name = meta.name;
+    entity.flag = meta.flag;
+
+    const existingUrls = new Set((entity.images || []).map(img => img.url));
+
+    for (const url of urls) {
+      if (existingUrls.has(url)) {
+        duplicatesSkipped++;
+        continue;
+      }
+      if (!entity.images) entity.images = [];
+      entity.images.push({
+        id: Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        url,
+        shownCount: 0,
+        lastShown: null,
+      });
+      existingUrls.add(url);
+      newImagesAdded++;
+    }
+  }
+
+  // Also ensure all 20 countries exist even if no URLs
+  for (const [entityId, meta] of Object.entries(COUNTRY_META)) {
+    if (!serverData.entities[entityId]) {
+      serverData.entities[entityId] = {
+        id: entityId,
+        name: meta.name,
+        flag: meta.flag,
+        images: [],
+      };
+    }
+  }
+
+  console.log(`   New images added: ${newImagesAdded}`);
+  console.log(`   Duplicates skipped: ${duplicatesSkipped}`);
+  console.log(`   Total entities: ${Object.keys(serverData.entities).length}\n`);
+
+  // Show final counts per entity
+  console.log('   Final image counts:');
+  let grandTotal = 0;
+  for (const [id, entity] of Object.entries(serverData.entities).sort((a, b) => a[0].localeCompare(b[0]))) {
+    const count = (entity.images || []).length;
+    console.log(`     ${id}: ${count} images`);
+    grandTotal += count;
+  }
+  console.log(`   GRAND TOTAL: ${grandTotal} images\n`);
+
+  // 4. Upload ALL entities in ONE POST request
+  console.log('4. Uploading to server...');
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(serverData),
+    });
+
+    const result = await res.json();
+    if (result.ok || res.ok) {
+      console.log('   Upload successful!\n');
+    } else {
+      console.log(`   Upload response: ${JSON.stringify(result)}\n`);
+    }
+  } catch (e) {
+    console.error(`   Upload failed: ${e.message}\n`);
+    // Save locally as backup
+    const backupPath = path.join(__dirname, 'server-data-backup.json');
+    fs.writeFileSync(backupPath, JSON.stringify(serverData, null, 2));
+    console.log(`   Saved backup to ${backupPath}\n`);
+  }
+
+  // 5. Verify
+  console.log('5. Verifying...');
+  try {
+    const res = await fetch(API_URL);
+    if (res.ok) {
+      const verifyData = await res.json();
+      const entities = verifyData.entities || {};
+      console.log(`   Server now has ${Object.keys(entities).length} entities:`);
+      for (const [id, entity] of Object.entries(entities).sort((a, b) => a[0].localeCompare(b[0]))) {
+        console.log(`     ${id}: ${(entity.images || []).length} images`);
+      }
+      console.log('\n   Verification complete!');
+    } else {
+      console.log(`   Verification request returned ${res.status}`);
+    }
+  } catch (e) {
+    console.log(`   Could not verify: ${e.message}`);
+  }
+
+  console.log('\n=== Done ===');
+}
+
+main().catch(err => {
+  console.error('Fatal error:', err);
+  process.exit(1);
+});

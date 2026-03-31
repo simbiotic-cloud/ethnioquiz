@@ -1091,8 +1091,8 @@ function buildCategories(){
 
 function buildPeopleForGame(cat){
   const sort=arr=>[...arr].sort((x,y)=>(x.shownCount||0)-(y.shownCount||0));
-  const aP=sort(ENTITIES[cat.a.id]?.images||[]).slice(0,25);
-  const bP=sort(ENTITIES[cat.b.id]?.images||[]).slice(0,25);
+  const aP=sort(ENTITIES[cat.a.id]?.images||[]).slice(0,50);
+  const bP=sort(ENTITIES[cat.b.id]?.images||[]).slice(0,50);
   const p=[];let ai=0,bi=0;
   while(ai<aP.length||bi<bP.length){
     if(ai<aP.length){p.push({id:aP[ai].id,img:aP[ai].url,answer:cat.a.name,entityId:cat.a.id});ai++}
@@ -1217,10 +1217,10 @@ async function renderRanking(){
 }
 
 // ===== STATE =====
-let S={coins:100,soundOn:true,musicOn:false,unlocked:['japan_vs_china','spain_vs_basque','india_vs_pakistan'],best:{},
+let S={coins:100,soundOn:true,musicOn:false,unlocked:['japan_vs_china'],best:{},
   cat:null,score:0,streak:0,pIdx:0,timer:5,timerInt:null,active:false,shownThisGame:new Set()};
 
-function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.musicOn=d.musicOn??false;S.unlocked=d.unlocked??['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best=d.best??{};S.lastGameId=d.lastGameId||null}}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem('eq2'));if(d){S.coins=d.coins??100;S.soundOn=d.soundOn??true;S.musicOn=d.musicOn??false;S.unlocked=d.unlocked??['japan_vs_china'];S.best=d.best??{};S.lastGameId=d.lastGameId||null}}catch(e){}}
 function save(){localStorage.setItem('eq2',JSON.stringify({coins:S.coins,soundOn:S.soundOn,musicOn:S.musicOn,unlocked:S.unlocked,best:S.best,lastGameId:S.lastGameId}))}
 
 // ===== AUDIO =====
@@ -1440,8 +1440,8 @@ function selectCat(id){
     showDlg({title:'UNLOCK?',body:`<p>Spend <strong>${c.cost}</strong> coins?</p>`,
       btns:[{t:'NO',cls:'no',fn:hideDlg},{t:'YES',cls:'yes',fn:()=>{S.coins-=c.cost;S.unlocked.push(id);save();hideDlg();sfx('coin');renderGameList();updateCoins()}}]});
   }else{
-    showDlg({title:'OOPS!',body:'<div class="big-icon"><img src="assets/dialog_coin.png" alt=""></div><p>Not enough coins!</p>',
-      btns:[{t:'BUY NOW!',cls:'yes',fn:()=>{hideDlg();showScreen('market')}}]});
+    showDlg({title:'OOPS!',body:`<div class="big-icon"><img src="assets/dialog_coin.png" alt=""></div><p>You need <strong>${c.cost}</strong> coins but only have <strong>${S.coins}</strong>.</p><p style="font-size:13px;color:#888;margin-top:6px">Get more coins to unlock this game!</p>`,
+      btns:[{t:'CANCEL',cls:'no',fn:hideDlg},{t:'BUY COINS',cls:'yes',fn:()=>{hideDlg();showScreen('market')}}]});
   }
 }
 
@@ -1999,7 +1999,7 @@ function resetData(){
       {t:'NO',cls:'no',fn:hideDlg},
       {t:'YES, RESET',cls:'yes',fn:()=>{
         localStorage.removeItem('eq2');localStorage.removeItem('eq3_ranks');localStorage.removeItem('eq3_adfree');
-        S.coins=100;S.unlocked=['japan_vs_china','spain_vs_basque','india_vs_pakistan'];S.best={};
+        S.coins=100;S.unlocked=['japan_vs_china'];S.best={};
         save();updateCoins();updateAdFreeStatus();hideDlg();
         showDlg({title:'DONE',body:'<p>Everything has been reset.</p>',btns:[{t:'OK',cls:'yes',fn:hideDlg}]});
       }}
