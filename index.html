@@ -1033,9 +1033,20 @@ let currentLang='en';
 function t(key){return LANGS[currentLang]?.[key]||LANGS.en[key]||key}
 function setLang(lang){
   currentLang=lang;localStorage.setItem('eq3_lang',lang);
+  document.documentElement.lang=lang;
   applyLang();
 }
-function loadLang(){currentLang=localStorage.getItem('eq3_lang')||'en'}
+function loadLang(){
+  const saved=localStorage.getItem('eq3_lang');
+  if(saved){currentLang=saved;document.documentElement.lang=saved;return}
+  // Auto-detect from browser language on first visit
+  const bl=(navigator.language||navigator.userLanguage||'en').toLowerCase();
+  const map={en:'en',es:'es',pt:'pt',fr:'fr',de:'de',it:'it'};
+  const short=bl.split('-')[0];
+  currentLang=map[short]||'en';
+  localStorage.setItem('eq3_lang',currentLang);
+  document.documentElement.lang=currentLang;
+}
 
 function applyLang(){
   // Static elements
@@ -1616,6 +1627,7 @@ function startGame(id){
 function doStartGame(id){
   buildCategories();
   const c=CATEGORIES.find(x=>x.id===id);if(!c||!c.playable)return;
+  gtag('event','game_start',{matchup:id});
   c.people=buildPeopleForGame(c);
   S.cat=c;S.score=0;S.streak=0;S.pIdx=0;S.active=true;S.shownThisGame=new Set();
   S.lastGameId=id;save(); // Remember last game played
@@ -1794,6 +1806,8 @@ async function gameOver(){
   const earned=sc>=10?Math.min(sc,10):0; // Only earn coins if 10+ correct!
   if(isNew)S.best[c.id]=sc;
   S.coins+=earned;save();
+
+  gtag('event','game_over',{matchup:c.id,score:sc,is_new_best:isNew,coins_earned:earned});
 
   // Track locally + server
   try{const gp=JSON.parse(localStorage.getItem('eq3_gamesPlayed'))||{total:0,perGame:{}};gp.total++;gp.perGame[c.id]=(gp.perGame[c.id]||0)+1;localStorage.setItem('eq3_gamesPlayed',JSON.stringify(gp))}catch(e){}
@@ -1987,6 +2001,7 @@ function openStripeLink(productKey){
 }
 
 function buyCoins(n){
+  gtag('event','purchase_click',{item:'coins_'+n,coins:n});
   const key = 'coins_'+n;
   if(openStripeLink(key)) return; // Redirected to Stripe
 
@@ -1996,6 +2011,7 @@ function buyCoins(n){
 }
 
 function buyItem(item){
+  gtag('event','purchase_click',{item:item});
   if(item==='noads'){
     if(openStripeLink('remove_ads')) return;
     // Test mode
