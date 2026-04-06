@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>EthnioQuiz — Can You Tell Them Apart?</title>
-<meta name="description" content="Swipe left or right to guess nationalities. Japanese or Chinese? Spanish or Basque? Test your skills and compete globally!">
+<meta name="description" content="Free nationality guessing game — can you tell Japanese from Chinese? Spanish from Basque? Look at real photos, guess the country, and compete on the global leaderboard. Play now!">
 
 <!-- OG / Social sharing -->
 <meta property="og:title" content="EthnioQuiz — Can You Tell Them Apart?">
@@ -48,6 +48,30 @@ gtag('config','G-H7ZC4YHRKC');
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9562574562750195" crossorigin="anonymous"></script>
 <!-- Google Funding Choices (consent banner — updates consent mode on accept) -->
 <script async src="https://fundingchoicesmessages.google.com/i/pub-9562574562750195?ers=1"></script>
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"VideoGame",
+  "name":"EthnioQuiz",
+  "url":"https://ethnioquiz.com",
+  "description":"Free online nationality guessing game. Look at real photos and guess which country the person is from. 1,200+ portraits across 19 countries.",
+  "genre":["Quiz","Trivia","Educational"],
+  "gamePlatform":"Web Browser",
+  "applicationCategory":"Game",
+  "operatingSystem":"Any",
+  "offers":[
+    {"@type":"Offer","price":"0","priceCurrency":"EUR","description":"Free to play"},
+    {"@type":"Offer","price":"2.99","priceCurrency":"EUR","description":"Remove Ads"},
+    {"@type":"Offer","price":"9.99","priceCurrency":"EUR","description":"VIP Pack — No Ads + Unlock All Games"}
+  ],
+  "author":{"@type":"Organization","name":"Simbiotic Digital","url":"https://simbiotic.digital"},
+  "image":"https://ethnioquiz.com/og-image.png",
+  "inLanguage":["en","es","pt","fr","de","it"],
+  "numberOfPlayers":{"@type":"QuantitativeValue","minValue":1,"maxValue":1},
+  "playMode":"SinglePlayer"
+}
+</script>
 <style>
 /* ===== RESET ===== */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -149,6 +173,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .sg-title{text-align:center;padding:0 0 10px}
 .sg-title h1{font-family:'Boogaloo',cursive;font-size:42px;color:#FFD700;text-shadow:0 0 20px rgba(255,215,0,.2),2px 3px 0 rgba(0,0,0,.3)}
 .sg-title h2{font-family:'Boogaloo',cursive;font-size:26px;color:rgba(255,255,255,.5);margin-top:-6px}
+.sg-intro{font-size:13px;color:rgba(255,255,255,.45);text-align:center;padding:0 20px 6px;line-height:1.4;max-width:360px;margin:0 auto}
 
 .game-list{flex:1;width:100%;overflow-y:auto;padding:4px 16px 80px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
 .game-list::-webkit-scrollbar{display:none}
@@ -266,6 +291,8 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 .go-bonus-val{display:flex;align-items:center;gap:6px}
 .go-bonus-val img{width:28px;height:28px}
 .go-bonus-val span{font-family:'Boogaloo',cursive;font-size:30px;color:#FFD700}
+.go-funfact{font-size:12px;color:rgba(255,255,255,.45);text-align:center;padding:4px 20px;line-height:1.4;max-width:340px;margin:0 auto}
+.go-funfact strong{color:rgba(255,255,255,.65)}
 .go-buttons{display:flex;gap:16px;margin-top:8px;align-items:center}
 .retry-pulse{animation:retryPulse 1.5s ease-in-out .6s infinite}
 @keyframes retryPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
@@ -442,12 +469,12 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 }
 .interstitial.show{opacity:1;pointer-events:auto}
 .inter-label{font-family:'Boogaloo',cursive;font-size:16px;color:rgba(255,255,255,.4)}
-.inter-ad{
-  width:300px;height:250px;border-radius:16px;
+.inter-tip{
+  width:300px;min-height:180px;border-radius:16px;
   background:linear-gradient(135deg,#1a1a2e,#16213e);
   border:2px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Boogaloo',cursive;font-size:20px;color:rgba(255,255,255,.12);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;text-align:center;
 }
 .inter-skip{
   font-family:'Boogaloo',cursive;font-size:16px;
@@ -640,6 +667,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
       <div style="width:48px"></div>
     </div>
     <div class="sg-title"><h1 data-t="select">SELECT</h1><h2 data-t="game">GAME</h2></div>
+    <p class="sg-intro" id="sg-intro">Think you can tell nationalities apart just by looking? Pick a matchup below and put your skills to the test. Each game features real photos — guess the right country to score points and climb the global rankings!</p>
     <div class="game-list" id="game-list"></div>
     <!-- Ad between games list -->
     <div class="ad-slot" id="ad-select">
@@ -674,6 +702,7 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div id="go-newbest" class="go-newbest" style="display:none">NEW BEST!</div>
     <div class="go-flags" id="go-flags"></div>
     <div class="go-bonus"><div class="go-bonus-label" id="go-bonus-label">COINS EARNED</div><div class="go-bonus-val"><img src="assets/ic_coin.png" alt=""><span id="go-bonus">+0</span></div></div>
+    <div class="go-funfact" id="go-funfact"></div>
     <!-- Ad after game over (hidden if ad-free) -->
     <div class="ad-slot" id="go-ad-slot" style="margin:8px 0">
       <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9562574562750195" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
@@ -746,6 +775,9 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
     <div class="st-section" style="margin-top:12px">
       <div class="st-section-title" data-t="about">ABOUT</div>
       <div class="st-item">EthnioQuiz v2.0 — Simbiotic Digital</div>
+      <div class="st-item" onclick="window.open('/about.html','_blank')"><span data-t="aboutEthnioQuiz">About EthnioQuiz</span><span style="color:#aaa">></span></div>
+      <div class="st-item" onclick="window.open('/privacy.html','_blank')"><span data-t="privacyPolicy">Privacy Policy</span><span style="color:#aaa">></span></div>
+      <div class="st-item" onclick="window.open('/terms.html','_blank')"><span data-t="termsOfService">Terms of Service</span><span style="color:#aaa">></span></div>
       <div class="st-item" onclick="resetData()" style="color:#e74c3c" data-t="resetAll">Reset All Data</div>
     </div>
   </div>
@@ -811,9 +843,11 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
 
   <!-- Interstitial Ad (every 10 games) -->
   <div class="interstitial" id="interstitial">
-    <div class="inter-label">ADVERTISEMENT</div>
-    <div class="inter-ad">
-      <div>Ad Space (300x250)</div>
+    <div class="inter-label">GET READY</div>
+    <div class="inter-tip" id="inter-tip">
+      <div style="font-size:36px;margin-bottom:8px">🌍</div>
+      <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:6px">Did you know?</div>
+      <div id="inter-fact" style="font-size:13px;color:rgba(255,255,255,.45);line-height:1.4;max-width:280px;margin:0 auto">Loading tip...</div>
     </div>
     <div class="inter-countdown" id="inter-countdown">Starting in 5...</div>
     <button class="inter-skip" id="inter-skip" disabled onclick="closeInterstitial()">Wait...</button>
@@ -823,7 +857,32 @@ body{display:flex;justify-content:center;align-items:center;background:#0a0a1a}
   <div class="dialog-overlay" id="dialog-overlay"><div class="dialog" id="dialog"></div></div>
 
   <!-- Powered by (hidden during gameplay) -->
-  <div class="powered-by" id="powered-by"><a href="https://simbiotic.digital" target="_blank">Powered by Simbiotic Digital</a></div>
+  <div class="powered-by" id="powered-by"><a href="/privacy.html" target="_blank">Privacy</a> · <a href="/terms.html" target="_blank">Terms</a> · <a href="https://simbiotic.digital" target="_blank">Simbiotic Digital</a></div>
+
+  <!-- Static editorial content for crawlers / noscript -->
+  <noscript>
+    <div style="padding:24px;color:#fff;max-width:600px;margin:0 auto;font-family:sans-serif;line-height:1.6">
+      <h1>EthnioQuiz — Can You Tell Them Apart?</h1>
+      <p>EthnioQuiz is a free online nationality guessing game. Look at real photos of people and guess which country they come from. Challenge your perception and learn about cultures around the world!</p>
+      <h2>Available Games</h2>
+      <ul>
+        <li><strong>Japan vs China</strong> — The OG challenge. Can you really tell them apart?</li>
+        <li><strong>Spain vs Basque Country</strong> — Same country, different nation?</li>
+        <li><strong>India vs Pakistan</strong> — Separated by a border, united by looks.</li>
+        <li><strong>South Korea vs Japan</strong> — K-pop vs J-pop. Who is who?</li>
+        <li><strong>Turkey vs Greece</strong> — Empires clashed, faces matched.</li>
+        <li><strong>Argentina vs Brazil</strong> — Messi vs Neymar territory.</li>
+        <li><strong>Iran vs Iraq</strong> — Neighbors divided. Can you spot the difference?</li>
+        <li><strong>Sweden vs Finland</strong> — Nordic ice. Nearly identical.</li>
+        <li><strong>Colombia vs Mexico</strong> — Latin fire. Same vibe, different country.</li>
+        <li><strong>England vs Ireland</strong> — Centuries of history. One face at a time.</li>
+      </ul>
+      <h2>How It Works</h2>
+      <p>Each round shows you a photo. You have 5 seconds to pick the correct country. Score points for correct answers, build streaks for bonus time, and compete on the global leaderboard. Earn coins to unlock new country matchups!</p>
+      <h2>Fun Facts About the World</h2>
+      <p>Japan has over 6,800 islands. The Basque language is one of the oldest in Europe, unrelated to any other known language. India is the world's largest democracy. Turkey spans two continents. Greece has more archaeological museums than any other country. Colombia is the only South American nation with coastlines on both the Pacific and Atlantic oceans.</p>
+    </div>
+  </noscript>
 </div>
 
 <script>
@@ -855,7 +914,7 @@ en:{
   gameSection:'GAME',changeNickname:'Change Nickname',
   ads:'ADS',watchAd:'Watch Ad = 5 min Ad-Free',removeAdsForever:'Remove Ads Forever',restorePurchases:'Restore Purchases',
   social:'SOCIAL',shareFriends:'Share with Friends',viewRankings:'View Rankings',
-  about:'ABOUT',resetAll:'Reset All Data',
+  about:'ABOUT',aboutEthnioQuiz:'About EthnioQuiz',privacyPolicy:'Privacy Policy',termsOfService:'Terms of Service',resetAll:'Reset All Data',
   bestValue:'BEST VALUE',features:'FEATURES',coins:'COINS',removeAds:'REMOVE ADS',
   whoAreYou:'WHO ARE YOU?',chooseNickname:'Choose a nickname for the leaderboard',
   challenge:'CHALLENGE!',thinkBeat:'Think you can beat that?',accept:'ACCEPT!',later:'LATER',
@@ -880,7 +939,7 @@ es:{
   gameSection:'JUEGO',changeNickname:'Cambiar Apodo',
   ads:'ANUNCIOS',watchAd:'Ver Anuncio = 5 min Sin Anuncios',removeAdsForever:'Quitar Anuncios Para Siempre',restorePurchases:'Restaurar Compras',
   social:'SOCIAL',shareFriends:'Compartir con Amigos',viewRankings:'Ver Rankings',
-  about:'ACERCA DE',resetAll:'Borrar Todos los Datos',
+  about:'ACERCA DE',aboutEthnioQuiz:'Sobre EthnioQuiz',privacyPolicy:'Política de Privacidad',termsOfService:'Términos de Servicio',resetAll:'Borrar Todos los Datos',
   bestValue:'MEJOR OFERTA',features:'FUNCIONES',coins:'MONEDAS',removeAds:'QUITAR ANUNCIOS',
   whoAreYou:'¿QUIÉN ERES?',chooseNickname:'Elige un apodo para el ranking',
   challenge:'¡DESAFÍO!',thinkBeat:'¿Crees que puedes superarlo?',accept:'¡ACEPTO!',later:'LUEGO',
@@ -903,7 +962,7 @@ pt:{
   audio:'ÁUDIO',music:'Música',soundEffects:'Efeitos Sonoros',gameSection:'JOGO',changeNickname:'Mudar Apelido',
   ads:'ANÚNCIOS',watchAd:'Ver Anúncio = 5 min Sem Anúncios',removeAdsForever:'Remover Anúncios',restorePurchases:'Restaurar Compras',
   social:'SOCIAL',shareFriends:'Compartilhar com Amigos',viewRankings:'Ver Rankings',
-  about:'SOBRE',resetAll:'Apagar Todos os Dados',bestValue:'MELHOR OFERTA',features:'RECURSOS',coins:'MOEDAS',removeAds:'REMOVER ANÚNCIOS',
+  about:'SOBRE',aboutEthnioQuiz:'Sobre o EthnioQuiz',privacyPolicy:'Política de Privacidade',termsOfService:'Termos de Serviço',resetAll:'Apagar Todos os Dados',bestValue:'MELHOR OFERTA',features:'RECURSOS',coins:'MOEDAS',removeAds:'REMOVER ANÚNCIOS',
   whoAreYou:'QUEM É VOCÊ?',chooseNickname:'Escolha um apelido para o ranking',
   challenge:'DESAFIO!',thinkBeat:'Acha que consegue superar?',accept:'ACEITO!',later:'DEPOIS',
   language:'Idioma',or:'ou',vs:'VS',noRankings:'Sem Rankings',playFirst:'Jogue para ver o ranking!',
@@ -923,7 +982,7 @@ fr:{
   audio:'AUDIO',music:'Musique',soundEffects:'Effets Sonores',gameSection:'JEU',changeNickname:'Changer Pseudo',
   ads:'PUBS',watchAd:'Voir Pub = 5 min Sans Pubs',removeAdsForever:'Supprimer les Pubs',restorePurchases:'Restaurer Achats',
   social:'SOCIAL',shareFriends:'Partager avec Amis',viewRankings:'Voir Classement',
-  about:'À PROPOS',resetAll:'Tout Réinitialiser',bestValue:'MEILLEURE OFFRE',features:'FONCTIONNALITÉS',coins:'PIÈCES',removeAds:'SUPPRIMER PUBS',
+  about:'À PROPOS',aboutEthnioQuiz:'À Propos d\'EthnioQuiz',privacyPolicy:'Politique de Confidentialité',termsOfService:'Conditions d\'Utilisation',resetAll:'Tout Réinitialiser',bestValue:'MEILLEURE OFFRE',features:'FONCTIONNALITÉS',coins:'PIÈCES',removeAds:'SUPPRIMER PUBS',
   whoAreYou:'QUI ÊTES-VOUS ?',chooseNickname:'Choisissez un pseudo pour le classement',
   challenge:'DÉFI !',thinkBeat:'Vous pensez faire mieux ?',accept:'J\'ACCEPTE !',later:'PLUS TARD',
   language:'Langue',or:'ou',vs:'VS',noRankings:'Pas de Classement',playFirst:'Jouez pour voir le classement !',
@@ -943,7 +1002,7 @@ de:{
   audio:'AUDIO',music:'Musik',soundEffects:'Soundeffekte',gameSection:'SPIEL',changeNickname:'Spitzname Ändern',
   ads:'WERBUNG',watchAd:'Werbung Sehen = 5 Min Werbefrei',removeAdsForever:'Werbung Entfernen',restorePurchases:'Käufe Wiederherstellen',
   social:'SOZIAL',shareFriends:'Mit Freunden Teilen',viewRankings:'Rangliste Anzeigen',
-  about:'ÜBER',resetAll:'Alle Daten Löschen',bestValue:'BESTES ANGEBOT',features:'FEATURES',coins:'MÜNZEN',removeAds:'WERBUNG WEG',
+  about:'ÜBER',aboutEthnioQuiz:'Über EthnioQuiz',privacyPolicy:'Datenschutzrichtlinie',termsOfService:'Nutzungsbedingungen',resetAll:'Alle Daten Löschen',bestValue:'BESTES ANGEBOT',features:'FEATURES',coins:'MÜNZEN',removeAds:'WERBUNG WEG',
   whoAreYou:'WER BIST DU?',chooseNickname:'Wähle einen Spitznamen für die Rangliste',
   challenge:'HERAUSFORDERUNG!',thinkBeat:'Denkst du, du kannst das schlagen?',accept:'ANGENOMMEN!',later:'SPÄTER',
   language:'Sprache',or:'oder',vs:'VS',noRankings:'Keine Rangliste',playFirst:'Spiele um die Rangliste zu sehen!',
@@ -963,7 +1022,7 @@ it:{
   audio:'AUDIO',music:'Musica',soundEffects:'Effetti Sonori',gameSection:'GIOCO',changeNickname:'Cambia Nickname',
   ads:'PUBBLICITÀ',watchAd:'Guarda Pub = 5 min Senza Pub',removeAdsForever:'Rimuovi Pubblicità',restorePurchases:'Ripristina Acquisti',
   social:'SOCIALE',shareFriends:'Condividi con Amici',viewRankings:'Vedi Classifica',
-  about:'INFO',resetAll:'Cancella Tutti i Dati',bestValue:'MIGLIOR OFFERTA',features:'FUNZIONI',coins:'MONETE',removeAds:'RIMUOVI PUB',
+  about:'INFO',aboutEthnioQuiz:'Info su EthnioQuiz',privacyPolicy:'Informativa sulla Privacy',termsOfService:'Termini di Servizio',resetAll:'Cancella Tutti i Dati',bestValue:'MIGLIOR OFFERTA',features:'FUNZIONI',coins:'MONETE',removeAds:'RIMUOVI PUB',
   whoAreYou:'CHI SEI?',chooseNickname:'Scegli un nickname per la classifica',
   challenge:'SFIDA!',thinkBeat:'Pensi di fare meglio?',accept:'ACCETTO!',later:'DOPO',
   language:'Lingua',or:'o',vs:'VS',noRankings:'Nessuna Classifica',playFirst:'Gioca per vedere la classifica!',
@@ -1074,6 +1133,31 @@ const DEFAULT_GAMES=[
 let GAMES=[];
 function loadGames(){try{const d=JSON.parse(localStorage.getItem('eq3_games'));if(d&&d.games&&d.games.length){GAMES=d.games;return}}catch(e){}GAMES=[...DEFAULT_GAMES]}
 loadGames();
+
+const FUN_FACTS={
+  japan:['Japan has over 6,800 islands','The Japanese bow instead of shaking hands','Japan has more pets than children','Vending machines in Japan sell everything from eggs to umbrellas'],
+  china:['China spans 5 time zones but uses only one','Fortune cookies were invented in the USA, not China','Chinese is the most spoken native language in the world','The Great Wall stretches over 21,000 km'],
+  spain:['Spain has 47 UNESCO World Heritage Sites','The Spanish siesta tradition is fading in modern cities','Spain is the world\'s largest olive oil producer','Spanish is official in 20 countries'],
+  basque:['Basque is one of Europe\'s oldest languages, unrelated to any other','The Basque Country has its own traditional sports like stone lifting','Basque cuisine boasts more Michelin stars per capita than almost anywhere','The Basque beret became a global fashion icon'],
+  india:['India has 22 officially recognized languages','India is the world\'s largest democracy by population','Chess was invented in India around the 6th century','Bollywood produces over 1,500 films per year'],
+  pakistan:['Pakistan has the world\'s second-largest salt mine (Khewra)','Polo originated in the region that is now Pakistan','Pakistan has more glaciers than almost any non-polar country','The Karakoram Highway is one of the highest paved roads on Earth'],
+  south_korea:['South Korea has the fastest average internet speed globally','K-pop is a multi-billion dollar cultural export','South Koreans add a year at birth — everyone is "older"','Seoul\'s subway system is one of the most advanced in the world'],
+  turkey:['Turkey spans two continents: Europe and Asia','Turkish coffee culture is on UNESCO\'s intangible heritage list','Tulips originally came from Turkey, not the Netherlands','Istanbul was the capital of three empires: Roman, Byzantine, Ottoman'],
+  greece:['Greece has more archaeological museums than any other country','The Greek alphabet is over 2,800 years old','Greece gets more sunshine than almost any European country','Democracy was born in Athens around 508 BC'],
+  argentina:['Argentina is named after the Latin word for silver','Tango was born in the working-class neighborhoods of Buenos Aires','Argentina has the widest avenue in the world (9 de Julio)','Patagonia spans over a million square kilometers'],
+  brazil:['Brazil is home to about 60% of the Amazon Rainforest','Portuguese is the official language, not Spanish','Brazil has won the FIFA World Cup a record 5 times','São Paulo is the largest city in the Southern Hemisphere'],
+  iran:['Iran was historically known as Persia until 1935','Persian is one of the oldest living languages in the world','Iran has 27 UNESCO World Heritage Sites','The Persian garden tradition influenced gardens worldwide'],
+  iraq:['Iraq is home to ancient Mesopotamia, the cradle of civilization','The world\'s first known writing system (cuneiform) emerged in Iraq','Baghdad was once the intellectual center of the medieval world','The Hanging Gardens may have been in ancient Babylon, Iraq'],
+  sweden:['Sweden has the right of public access — anyone can roam the countryside','IKEA, Spotify, and Minecraft all come from Sweden','Sweden recycles so well it imports waste from other countries','The Nobel Prize ceremony is held in Stockholm every year'],
+  finland:['Finland has over 3 million saunas for 5.5 million people','Finland was the first country to give all adults the right to vote and run for office','Finnish has no future tense — context conveys the future','Finland is known as the Land of a Thousand Lakes (actually 188,000)'],
+  colombia:['Colombia is the only South American country with coasts on both oceans','Colombia produces some of the world\'s finest emeralds','The name Colombia honors Christopher Columbus','Bogotá sits at 2,640 meters above sea level'],
+  mexico:['Mexico City was built on the ruins of the Aztec capital Tenochtitlan','Mexico introduced chocolate, chili peppers, and corn to the world','Mexico has 35 UNESCO World Heritage Sites','The Mexican flag\'s eagle-and-serpent emblem comes from Aztec legend'],
+  england:['English is spoken as a first or second language by over 1.5 billion people','The London Underground opened in 1863, the world\'s first metro','England has produced more Nobel laureates per capita than most nations','Shakespeare invented over 1,700 English words'],
+  ireland:['Ireland has no native snakes — legend credits St. Patrick','Irish pubs are found in virtually every country on Earth','Halloween originated from the ancient Irish festival of Samhain','Ireland\'s national symbol, the harp, appears on every euro coin minted there'],
+  morocco:['Morocco is home to the world\'s oldest university, al-Qarawiyyin (founded 859)','The Sahara Desert covers much of southern Morocco','Moroccan mint tea is a symbol of hospitality','Fez is home to the world\'s largest car-free urban area'],
+  egypt:['The Great Pyramid of Giza is the only surviving Ancient Wonder','Ancient Egyptians invented one of the first writing systems: hieroglyphs','Egypt\'s Suez Canal connects the Mediterranean and Red seas','Cairo is the largest city in the Arab world'],
+};
+function getRandomFact(entityId){const f=FUN_FACTS[entityId];return f?f[Math.floor(Math.random()*f.length)]:null}
 
 const DEFAULT_ENTITIES={
   japan:{name:'Japan',flag:'assets/japan.png'},china:{name:'China',flag:'assets/china.png'},
@@ -1500,6 +1584,9 @@ function showInterstitial(gameId){
   const overlay=document.getElementById('interstitial');
   const btn=document.getElementById('inter-skip');
   const cd=document.getElementById('inter-countdown');
+  // Show a random fun fact about one of the game's countries
+  const cat=CATEGORIES.find(x=>x.id===gameId);
+  if(cat){const pick=[cat.a,cat.b][Math.random()<.5?0:1];const fId=pick.id||Object.keys(ENTITIES).find(k=>ENTITIES[k].name===pick.name);const f=getRandomFact(fId);if(f)document.getElementById('inter-fact').textContent=f}
   overlay.classList.add('show');
   btn.disabled=true;btn.textContent='Wait...';btn.className='inter-skip';
   let remaining=5;
@@ -1746,6 +1833,11 @@ async function gameOver(){
     <div class="go-flag">${c.a.flag?`<img src="${c.a.flag}">`:`<span style="font-size:28px;font-weight:900;color:rgba(255,255,255,.5)">${c.a.name}</span>`}</div>
     <span class="gc-vs" style="font-size:24px;color:rgba(255,255,255,.4)">VS</span>
     <div class="go-flag">${c.b.flag?`<img src="${c.b.flag}">`:`<span style="font-size:28px;font-weight:900;color:rgba(255,255,255,.5)">${c.b.name}</span>`}</div>`;
+
+  // Fun fact about one of the countries
+  const factEntity=[c.a,c.b][Math.random()<.5?0:1];
+  const fact=getRandomFact(factEntity.id||Object.keys(ENTITIES).find(k=>ENTITIES[k].name===factEntity.name));
+  document.getElementById('go-funfact').innerHTML=fact?`<strong>Did you know?</strong> ${fact}`:'';
 
   // Show/hide ad based on ad-free status
   document.getElementById('go-ad-slot').style.display=isAdFree()?'none':'block';
